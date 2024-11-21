@@ -1,5 +1,5 @@
 {
-  "name": "villeon/villeon-php",
+  "name": "villeon/framework",
   "description": "A custom PHP framework.",
   "autoload": {
     "psr-4": {
