@@ -19,11 +19,5 @@
       "name": "Abuti Martin",
       "email": "abutimartin778@gmail.com"
     }
-  ],
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/enrique-mertoe/villeon-php"
-    }
   ]
 }
