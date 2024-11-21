@@ -1,5 +1,5 @@
 {
-  "name": "Enrique-mertoe/villeon-php",
+  "name": "enrique-mertoe/villeon-php",
   "description": "A custom PHP framework.",
   "autoload": {
     "psr-4": {
