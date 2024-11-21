@@ -1,9 +1,9 @@
 {
-  "name": "villeon/framework",
+  "name": "src/framework",
   "description": "A custom PHP framework.",
   "autoload": {
     "psr-4": {
-      "Villeon\\": "/villeon"
+      "Villeon\\": "/src"
     }
   },
   "require": {
