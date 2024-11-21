@@ -3,7 +3,7 @@
   "description": "A custom PHP framework.",
   "autoload": {
     "psr-4": {
-      "Villeon\\": "villeon/"
+      "Villeon\\": "/"
     }
   },
   "require": {
