@@ -1,6 +1,6 @@
 <?php
 
-namespace Villeon\core\Collection;
+namespace Villeon\Utils;
 
 use ArrayAccess;
 
