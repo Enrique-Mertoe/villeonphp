@@ -6,7 +6,7 @@
  *  Copyright (c) 2024 SmallVille. All rights reserved.
  */
 
-namespace Villeon\core\Theme;
+namespace Villeon\Theme;
 
 use Villeon\Core\Exceptions\FileNotExistsException;
 use Villeon\Core\Routing\Route;

@@ -7,7 +7,7 @@ namespace Villeon\Core;
 require_once("Scaffolding/Scaffold.php");
 
 use Villeon\Core\Scaffolding\Scaffold;
-use Villeon\core\Theme\ThemeBuilder;
+use Villeon\Theme\ThemeBuilder;
 
 class VilleonBuilder extends Scaffold
 {
