@@ -2,7 +2,8 @@
 
 namespace Villeon\Http;
 
-use Villeon\core\Collection\Collection;
+
+use Villeon\Utils\Collection;
 
 class Request
 {

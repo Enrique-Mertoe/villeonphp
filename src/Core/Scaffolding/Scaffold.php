@@ -5,9 +5,9 @@ namespace Villeon\Core\Scaffolding;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use ReflectionFunction;
-use Villeon\core\Collection\Collection;
 use Villeon\Core\Routing\Route;
 use Villeon\Http\Request;
+use Villeon\Utils\Collection;
 
 class Scaffold
 {

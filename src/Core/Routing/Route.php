@@ -1,9 +1,10 @@
 <?php
 
 namespace Villeon\Core\Routing;
+use Villeon\Utils\Collection;
+
 require_once("RouteBuilder.php");
 
-use Villeon\core\Collection\Collection;
 
 class Route implements RouteBuilder
 {

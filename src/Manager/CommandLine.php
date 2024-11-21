@@ -2,7 +2,6 @@
 
 namespace Villeon\Manager;
 
-use Villeon\Application;
 
 class CommandLine
 {
