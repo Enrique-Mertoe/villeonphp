@@ -8,10 +8,10 @@
 
 namespace Villeon\Core\Rendering;
 
-use Villeon\core\Theme\ThemeBuilder;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Villeon\Http\Request;
+use Villeon\Theme\ThemeBuilder;
 
 class Render
 {
