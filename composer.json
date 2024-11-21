@@ -1,0 +1,23 @@
+{
+  "name": "villeon-php",
+  "description": "A custom PHP framework.",
+  "autoload": {
+    "psr-4": {
+      "Villeon\\": "villeon/"
+    }
+  },
+  "require": {
+    "php": "^8.0",
+    "twig": "^3.0"
+  },
+  "scripts": {
+    "test": "phpunit"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Abuti Martin",
+      "email": "abutimartin778@gmail.com"
+    }
+  ]
+}
