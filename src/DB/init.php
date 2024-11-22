@@ -1,0 +1,10 @@
+<?php
+require("DataTypes/AbstractDataType.php");
+require("DataTypes/StringDataType.php");
+require("DataTypes/IntegerDataType.php");
+require("VilleonSQL.php");
+require("Model.php");
+require("QueryBuilder.php");
+require("Connect.php");
+require("DBOptions.php");
+require("DataTypes/DataTypes.php");
