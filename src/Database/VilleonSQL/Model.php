@@ -1,9 +1,10 @@
 <?php
 
-namespace Villeon\DB;
+namespace Villeon\Database\VilleonSQL;
 
 use PDO;
-use Villeon\DB\DataTypes\DataTypes;
+use Villeon\Database\VilleonSQL\Connection\Connect;
+use Villeon\Database\VilleonSQL\DataTypes\DataTypes;
 
 class Model
 {

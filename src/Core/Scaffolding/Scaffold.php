@@ -4,9 +4,11 @@ namespace Villeon\Core\Scaffolding;
 
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
+use ReflectionException;
 use ReflectionFunction;
-use Villeon\Core\Routing\Route;
+use Villeon\Core\Routing\Router;
 use Villeon\Http\Request;
+use Villeon\Theme\ThemeBuilder;
 use Villeon\Utils\Collection;
 
 class Scaffold
@@ -16,20 +18,31 @@ class Scaffold
     private string $endpoint;
     private Collection $error_routes;
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     protected function init_routes(): void
     {
 
 
-        $routes = (new Route())->build();
+        $routes = (new Router())->build();
         $this->routes = Collection::from_array($routes->rules)->array();
         $this->error_routes = Collection::from_array($routes->errors);
         try {
             $this->process_url_path();
+
         } catch (Exception $exception) {
-            exit();
+            error_log($exception);
+            throw new Exception($exception);
         }
     }
 
+    /**
+     * @param $v
+     * @param $s
+     * @return bool
+     */
     private function isDefined($v, $s = false): bool
     {
 
@@ -43,64 +56,83 @@ class Scaffold
 
     }
 
+    /**
+     * @param mixed $rule
+     * @param callable $callback
+     * @param $args
+     * @return void
+     * @throws ReflectionException
+     */
     protected function dispatch(mixed $rule, callable $callback, $args): void
     {
-        try {
-            $rfc = new ReflectionFunction($callback);
-            $p = $rfc->getParameters();
-            $required = count($p);
-            $found = count($args);
-            if ($required < $found) {
-                exit("Too many parameters passed");
-            }
-            if ($required > $found) {
-                exit("Less parameters passed, required: $required parameters, found: $found");
-            }
-            $rule = $this->normalizeRule($rule);
-            preg_match_all('/<([^>:]+)(?::path)?>/', $rule, $defined);
-            foreach ($p as $index => $param) {
-                $name_defined = $defined[1][$index];
-                $expectedName = $param->getName();
+        $rfc = new ReflectionFunction($callback);
+        $p = $rfc->getParameters();
+        $required = count($p);
+        $found = count($args);
+        if ($required < $found) {
+            exit("Too many parameters passed");
+        }
+        if ($required > $found) {
+            exit("Less parameters passed, required: $required parameters, found: $found");
+        }
+        $rule = $this->normalizeRule($rule);
+        preg_match_all('/<([^>:]+)(?::path)?>/', $rule, $defined);
+        foreach ($p as $index => $param) {
+            $name_defined = $defined[1][$index];
+            $expectedName = $param->getName();
 
-                if ($name_defined !== $expectedName) {
-                    exit("Undefined $expectedName.  (Expected parameter '$name_defined', found '$expectedName' at position $index.)");
-                }
+            if ($name_defined !== $expectedName) {
+                exit("Undefined $expectedName.  (Expected parameter '$name_defined', found '$expectedName' at position $index.)");
             }
-            if (is_callable($callback)) {
-                ob_start();
-                $res = call_user_func_array($callback, $args);
-                ob_end_clean();
-                if (is_string($res))
-                    print_r($res);
-                elseif (is_array($res))
-                    print_r(json_encode($res));
-                else
-                    echo "function did not return valid response";
+        }
+        if (is_callable($callback)) {
+            ob_start();
+            $res = call_user_func_array($callback, $args);
+            ob_end_clean();
+            if (is_string($res))
+                print_r($res);
+            elseif (is_array($res))
+                print_r(json_encode($res));
+            else {
+                throw new \Exception("View function did not return valid response");
+            }
 
-            }
-        } catch (Exception $e) {
 
         }
+
     }
 
+    /**
+     * @param $rule
+     * @return array|string|null
+     */
     private function normalizeRule($rule): array|string|null
     {
         return preg_replace('/\s*:\s*/', ':', $rule);
     }
 
+    /**
+     * @return void
+     */
     private function process_endpoint(): void
     {
         $fullUri = urldecode($_SERVER['REQUEST_URI']);
         $fullUri = parse_url($fullUri)["path"];
+
         $fullUri = preg_replace('#/+#', '/', $fullUri);
-        if (($basePath = dirname(urldecode($_SERVER['SCRIPT_NAME']))) != "/")
-            $fullUri = str_replace($basePath, '', $fullUri);
+//        if (($basePath = dirname(urldecode($_SERVER['SCRIPT_NAME']))) != "/")
+//            $fullUri = str_replace($basePath, '', $fullUri);
+//        print_r($basePath);
         $fullUri = trim($fullUri);
         if (!str_starts_with($fullUri, "/"))
             $fullUri = "/$fullUri";
         $this->endpoint = empty($fullUri) ? '/' : $fullUri;
     }
 
+    /**
+     * @return void
+     * @throws ReflectionException
+     */
     private function process_url_path(): void
     {
         (new Request())->build();
@@ -114,40 +146,43 @@ class Scaffold
         });
         foreach ($this->routes as $route) {
 
-            try {
-                $rule = $this->normalizeRule($route->rule);
-//                $pattern = '#^' . preg_replace('/<(\w+)>/', '([^/]+)', $route->rule) . '$#';
-                $pattern = '#^' . preg_replace('/<(\w+):path>/', '(.+)', preg_replace('/<(\w+)>/', '([^/]+)', $rule)) . '$#';
 
-//                $pattern = '#^' . preg_replace('/\{(\w+)\}/', '([^/]+)', $route->rule) . '$#';
+            $rule = $this->normalizeRule($route->rule);
+            $pattern = '#^' . preg_replace('/<(\w+):path>/', '(.+)', preg_replace('/<(\w+)>/', '([^/]+)', $rule)) . '$#';
 
-                if (preg_match($pattern, $this->endpoint, $matches)) {
-                    $this->checkAllowedMethods($route->method, Request::$method);
-                    if (($ar = array_slice($matches, 1)) && $this->isDefined($ar)) {
-                        continue;
-                    }
 
-                    $this->dispatch($route->rule, $route->controller, array_slice($matches, 1));
-
-                    return;
+            if (preg_match($pattern, $this->endpoint, $matches)) {
+                $this->checkAllowedMethods($route->method, Request::$method);
+                if (($ar = array_slice($matches, 1)) && $this->isDefined($ar)) {
+                    continue;
                 }
 
-            } catch (Exception $exception) {
+                $this->dispatch($route->rule, $route->controller, array_slice($matches, 1));
 
-//                error_log("Error processing route: " . $exception->getMessage());
+                return;
             }
+
 
         }
         $this->manage_bad_request();
     }
 
 
+    /**
+     * @param $rootMethods
+     * @param $m
+     * @return void
+     */
     private function checkAllowedMethods($rootMethods, $m): void
     {
         if (!in_array($m, $rootMethods))
             self::handleError(403);
     }
 
+    /**
+     * @param $v
+     * @return null
+     */
     private function isErrorPageDefined($v)
     {
         foreach ($this->error_routes->array() as $r) {
@@ -159,6 +194,10 @@ class Scaffold
 
     }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     private function manage_bad_request(): void
     {
         $route = $this->isErrorPageDefined(404);
@@ -166,9 +205,15 @@ class Scaffold
             $this->dispatch(404, $route, []);
             return;
         }
-        echo "Page not found";
+
+        ThemeBuilder::$instance->display_404();
+        exit();
     }
 
+    /**
+     * @param int $code
+     * @return void
+     */
     #[NoReturn] private static function handleError(int $code): void
     {
         exit("method not allowed");

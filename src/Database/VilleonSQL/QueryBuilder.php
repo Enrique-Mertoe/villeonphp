@@ -1,10 +1,10 @@
 <?php
 
-namespace Villeon\DB;
+namespace Villeon\Database\VilleonSQL;
 
 use Exception;
 use PDO;
-use Villeon\DB\DataTypes\AbstractDataType;
+use Villeon\Database\VilleonSQL\DataTypes\AbstractDataType;
 
 class QueryBuilder
 {

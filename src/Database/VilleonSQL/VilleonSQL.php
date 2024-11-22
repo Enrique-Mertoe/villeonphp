@@ -1,6 +1,8 @@
 <?php
 
-namespace Villeon\DB;
+namespace Villeon\Database\VilleonSQL;
+use Villeon\Database\VilleonSQL\Connection\DBOptions;
+
 class VilleonSQL
 {
     /**

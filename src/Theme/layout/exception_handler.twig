@@ -1,0 +1,10 @@
+{% extends "Base.twig" %}
+{% block content %}
+    <div class="vstack">
+        <div class="error-card card">
+            <h3 class="error-message">Internal Server Error</h3>
+            <h4>{{ error.message }}</h4>
+            <p class="error-code">{{ error.trace }}</p>
+        </div>
+    </div>
+{% endblock %}

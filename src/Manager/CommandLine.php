@@ -2,12 +2,15 @@
 
 namespace Villeon\Manager;
 
-
 class CommandLine
 {
+    /**
+     * @param $args
+     * @return void
+     */
     public function execute($args): void
     {
-        global $BASE_DIR;
+
         if (count($args) > 1) {
             $command = $args[1];
 
@@ -17,8 +20,7 @@ class CommandLine
                     break;
                 case 'runserver':
                     echo "Starting server...\n";
-                    exec("php -S localhost:8000 -t $BASE_DIR");
-
+                    exec("php -S localhost:8000 -t bootstrap bootstrap/index.php");
                     break;
                 default:
                     echo "Unknown command: $command\n";

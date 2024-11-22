@@ -1,128 +1,21 @@
 <?php
 
 namespace Villeon\Core\Routing;
-use Villeon\Utils\Collection;
 
-require_once("RouteBuilder.php");
+use Villeon\Core\Facades\Facade;
 
-
-class Route implements RouteBuilder
+/**
+ * @method static Route get (string $rule, callable $controller):Route
+ * @method static Route post (string $rule, callable $controller):Route
+ * @method static Route put (string $rule, callable $controller):Route
+ * @method static Route delete (string $rule, callable $controller):Route
+ * @method static Route route (string $rule, ...$options):Route
+ * @see Router
+ */
+class Route extends Facade
 {
-    private static array $route_config = [];
-    private static array $route_error_config = [];
-
-    public function __construct()
+    protected static function accessor(): string
     {
+        return "route";
     }
-
-    /**
-     * @return object
-     */
-    function build(): object
-    {
-        return (object)[
-            "errors" => self::$route_error_config,
-            "rules" => self::$route_config,
-        ];
-    }
-
-    public static function route($rule, ...$options): void
-    {
-        self::$route_config[] = _UrlConfig::from_array(
-            array_merge([
-                "rule" => $rule,
-            ], self::process_options($options))
-        );
-    }
-
-    /**
-     * @param $options
-     * @return array
-     */
-    private static function process_options($options): array
-    {
-        $options = Collection::from_array($options);
-
-        if ($options->size == 1 && is_callable($options[0]))
-            return [
-                "methods" => ["GET"],
-                "controller" => $options[0]
-            ];
-        elseif ($options->size == 1 && !is_callable($options[0]))
-            return [
-                "methods" => ["GET"],
-                "controller" => null
-            ];
-        if ($options->size > 1) {
-
-            $option1 = $options[0];
-            $option2 = $options[1];
-            if (is_array($option1) && is_callable($option2)) {
-                return [
-                    "methods" => $option1,
-                    "controller" => $option2
-                ];
-            }
-        }
-        return [];
-    }
-
-    /**
-     * @param $code
-     * @param $controller
-     * @return void
-     */
-    public static function error($code, $controller): void
-    {
-        self::$route_error_config[] = _UrlConfig::from_array(
-            array_merge([
-                "rule" => $code,
-            ], self::process_options([$controller]))
-        );
-    }
-
-    public static function post($rule, $controller): void
-    {
-        self::$route_config[] = _UrlConfig::from_array(
-            array_merge([
-                "rule" => $rule,
-            ], [
-                "methods" => ["POST"],
-                "controller" => $controller
-            ])
-        );
-    }
-
-    public static function get($rule, $controller): void
-    {
-        self::$route_config[] = _UrlConfig::from_array(
-            array_merge([
-                "rule" => $rule,
-            ], [
-                "methods" => ["GET"],
-                "controller" => $controller
-            ])
-        );
-    }
-
-}
-
-class _UrlConfig
-{
-    public mixed $controller;
-    public mixed $method;
-    public mixed $rule;
-
-    public function __construct($properties)
-    {
-        $this->rule = $properties["rule"] ?? "";
-        $this->method = $properties["methods"] ?? "";
-        $this->controller = $properties["controller"] ?? null;
-    }
-
-    public static function from_array($arr): _UrlConfig
-    {
-        return new _UrlConfig($arr);
-    }
-
 }

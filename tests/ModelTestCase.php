@@ -9,7 +9,7 @@ require_once("../src/DB/init.php");
 
 VilleonSQL::init_database(
     new DBOptions(
-        host: "localhost", user: "root", password: "", name: "vdb"
+        host: "localhost", user: "bootstrap", password: "", name: "vdb"
     )
 );
 

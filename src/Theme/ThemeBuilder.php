@@ -8,12 +8,21 @@
 
 namespace Villeon\Theme;
 
+use JetBrains\PhpStorm\NoReturn;
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use Twig\Loader\FilesystemLoader;
 use Villeon\Core\Exceptions\FileNotExistsException;
+use Villeon\Core\OS;
 use Villeon\Core\Routing\Route;
 
 class ThemeBuilder
 {
     private string $theme_dir;
+    private string $self_theme;
+    private Environment $env;
     public static ThemeBuilder $instance;
 
     public function __construct()
@@ -25,14 +34,14 @@ class ThemeBuilder
     public function initialize($content_directory): void
     {
         if (is_dir($content_directory)) {
-            $theme = $content_directory . "/public/default";
+            $theme = $content_directory . "/public/static";
             if (is_dir($theme)) {
                 $this->init_theme($theme);
-            } else {
-
             }
         }
-        Route::route("/theme/<filename :path>", function ($filename) {
+        $this->self_theme = OS::ROOT . "/Theme";
+        $this->env = new Environment(new FilesystemLoader($this->self_theme . "/layout/"));
+        Route::get("/static/<filename :path>", function ($filename) {
             return $this->get($filename);
         });
     }
@@ -42,15 +51,20 @@ class ThemeBuilder
         $this->theme_dir = $dir;
     }
 
+
     /**
-     * @throws FileNotExistsException
+     * @param $file
+     * @return false|int
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     private function get($file)
     {
         $file = $this->theme_dir . "/$file";
         if (!file_exists($file)) {
             header("HTTP/1.1 404 Not Found");
-            exit("File not found.");
+            $this->display_404();
         }
         $mime_type = $this->getMimeType($file);
 
@@ -58,6 +72,7 @@ class ThemeBuilder
         header("Content-Type: " . $mime_type);
         header("Content-Length: " . filesize($file));
         $content = readfile($file);
+        return $content;
     }
 
     public function prepare($file): string
@@ -95,6 +110,37 @@ class ThemeBuilder
                 return 'image/x-icon';
             default:
                 return 'application/octet-stream'; // For other file types
+        }
+    }
+
+    /**
+     * @param array $info
+     * @return void
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     */
+    public function display_error(array $info): void
+    {
+//        $content = readfile($file);
+        echo $this->env->render("exception_handler.twig", $info);
+    }
+
+    /**
+     * @return void
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     */
+    #[NoReturn] public function display_404(): void
+    {
+        try {
+
+
+            http_response_code(404);
+            echo $this->env->render("error_404.twig");
+        }finally {
+            exit();
         }
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Villeon\DB;
+namespace Villeon\Database\VilleonSQL\Connection;
 
 class DBOptions
 {

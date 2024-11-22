@@ -1,6 +1,6 @@
 <?php
 
-namespace Villeon\DB\DataTypes;
+namespace Villeon\Database\VilleonSQL\DataTypes;
 class DataTypes
 {
     // Static string constants for types
