@@ -23,10 +23,13 @@ class Application
      */
     public function run(): void
     {
-        global $SRC;
+        global $SRC, $DATABASE_CONFIG;
         VilleonSQL::init_database(
             new DBOptions(
-                host: "localhost", user: "root", password: "", name: "vdb"
+                host: $DATABASE_CONFIG["host"],
+                user: $DATABASE_CONFIG["user"],
+                password: $DATABASE_CONFIG["password"],
+                name: $DATABASE_CONFIG["name"]
             )
         );
         (new VilleonSQL())->build();
