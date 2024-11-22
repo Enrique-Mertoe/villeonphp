@@ -19,8 +19,7 @@ class Render
 
     private static function initTemplateEngine(): void
     {
-        global $SRC;
-        $loader = new FilesystemLoader("$SRC/layout/");
+        $loader = new FilesystemLoader(SRC . "/layout/");
         self::$twig = new Environment($loader);
     }
 

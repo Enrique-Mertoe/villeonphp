@@ -12,6 +12,8 @@ namespace Villeon;
 
 
 use Villeon\Core\VilleonBuilder;
+use Villeon\DB\DBOptions;
+use Villeon\DB\VilleonSQL;
 
 
 class Application
@@ -22,8 +24,15 @@ class Application
     public function run(): void
     {
         global $SRC;
+        VilleonSQL::init_database(
+            new DBOptions(
+                host: "localhost", user: "root", password: "", name: "vdb"
+            )
+        );
+        (new VilleonSQL())->build();
         $app = VilleonBuilder::builder();
         $app->theme->initialize($SRC);
         $app->build();
+
     }
 }
