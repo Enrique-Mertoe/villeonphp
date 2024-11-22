@@ -17,7 +17,7 @@ class CommandLine
                     break;
                 case 'runserver':
                     echo "Starting server...\n";
-                    exec("php -S localhost:8000 -t $BASE_DIR");
+                    exec("/opt/lampp/bin/php -S localhost:8000 -t $BASE_DIR");
 
                     break;
                 default:
