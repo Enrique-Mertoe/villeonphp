@@ -2,13 +2,19 @@
 
 use Villeon\Theme\ThemeBuilder;
 
+/**
+ * @param Throwable $exception
+ * @return void
+ * @throws \Twig\Error\LoaderError
+ * @throws \Twig\Error\RuntimeError
+ * @throws \Twig\Error\SyntaxError
+ */
 function ExceptionHandler(Throwable $exception): void
 {
-    // Log error to the console
+
     error_log("[ERROR] " . $exception->getMessage());
     error_log($exception->getTraceAsString());
     http_response_code(500);
-//    $exception->getTrace()[0]::class;
     ThemeBuilder::$instance->display_error([
         "error" => [
             "message" => $exception->getMessage(),

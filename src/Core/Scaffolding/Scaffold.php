@@ -58,6 +58,7 @@ class Scaffold
      * @param $args
      * @return void
      * @throws ReflectionException
+     * @throws Exception|\Throwable
      */
     protected function dispatch(mixed $rule, callable $callback, $args): void
     {
@@ -87,15 +88,18 @@ class Scaffold
 
                 $res = call_user_func_array($callback, $args);
             } catch (Exception $e) {
+                http_response_code(500);
                 $res = $e;
             }
             $bufferedOutput = ob_get_contents();
             ob_end_clean();
-            $this->rule_logger($rule);
+
             Console::Write($bufferedOutput);
+            $this->rule_logger($rule, http_response_code());
             if ($res instanceof \Throwable) {
                 throw $res;
             }
+
             if (is_string($res))
                 print_r($res);
             elseif (is_array($res))
