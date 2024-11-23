@@ -1,6 +1,7 @@
 <?php
 
 namespace Villeon\Core\Routing;
+
 use Villeon\Utils\Collection;
 
 class Router
@@ -70,11 +71,11 @@ class Router
     }
 
     /**
-     * @param $code
-     * @param $controller
+     * @param int $code
+     * @param callable $controller
      * @return void
      */
-    public static function error($code, $controller): void
+    public static function error(int $code, callable $controller): void
     {
         self::$route_error_config[] = _UrlConfig::from_array(
             array_merge([
