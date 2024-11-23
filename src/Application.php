@@ -50,6 +50,7 @@ class Application
         Facade::setInstance("render", new RenderBuilder());
         $callback();
         Config::load_module("views");
+        Config::load_module("models");
         return $this;
     }
 }

@@ -2,8 +2,6 @@
 
 namespace Villeon\Core;
 
-session_start();
-
 class Session
 {
     public static function set(string $key, mixed $value): void

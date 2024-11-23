@@ -29,8 +29,8 @@ class VilleonBuilder extends Scaffold
 
     function build(): void
     {
+        $this->make_config();
         $this->getConfig()->merge_imported();
-        $this->error_config();
         $this->init_routes();
 
     }
@@ -40,8 +40,9 @@ class VilleonBuilder extends Scaffold
         return Facade::getFacade("config");
     }
 
-    function error_config(): void
+    function make_config(): void
     {
+        session_start();
         set_exception_handler('ExceptionHandler');
 //        set_error_handler('customErrorHandler');
     }

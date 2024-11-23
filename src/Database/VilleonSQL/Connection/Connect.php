@@ -19,7 +19,7 @@ class Connect
             $this->pdo = new PDO($dsn, $options->USER, $options->PASSWORD);
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
-            echo 'Connection failed: ' . $e->getMessage();
+            throw $e;
         }
     }
 
