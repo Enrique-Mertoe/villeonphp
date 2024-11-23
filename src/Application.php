@@ -13,7 +13,8 @@ namespace Villeon;
 
 use Villeon\Config\Config;
 use Villeon\Config\ConfigBuilder;
-use Villeon\Core\Facades\Facade;
+use Villeon\Core\Facade\Facade;
+use Villeon\Core\Rendering\RenderBuilder;
 use Villeon\Core\Routing\Router;
 use Villeon\Core\VilleonBuilder;
 use Villeon\Database\VilleonSQL\Connection\DBOptions;
@@ -46,6 +47,7 @@ class Application
     {
         Facade::setInstance("config", new ConfigBuilder());
         Facade::setInstance("route", new Router());
+        Facade::setInstance("render", new RenderBuilder());
         $callback();
         Config::load_module("views");
         return $this;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Villeon\Core\Facades;
+namespace Villeon\Core\Facade;
 
 use RuntimeException;
 use Villeon\Utils\Collection;

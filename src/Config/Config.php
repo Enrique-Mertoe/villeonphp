@@ -2,7 +2,7 @@
 
 namespace Villeon\Config;
 
-use Villeon\Core\Facades\Facade;
+use Villeon\Core\Facade\Facade;
 
 /**
  * @method static Config load_module(string $name)

@@ -16,7 +16,7 @@ use Twig\Loader\FilesystemLoader;
 use Villeon\Http\Request;
 use Villeon\Theme\ThemeBuilder;
 
-class Render
+class RenderBuilder
 {
     private static Environment $twig;
 
@@ -25,7 +25,7 @@ class Render
      */
     private static function initTemplateEngine(): void
     {
-        $loader = new FilesystemLoader(SRC . "/layout/");
+        $loader = new FilesystemLoader(SRC . "/templates/");
         self::$twig = new Environment($loader);
     }
 
@@ -37,12 +37,12 @@ class Render
      * @throws RuntimeError
      * @throws SyntaxError
      */
-    public static function Template($name, array $options = []): string
+    public function template($name, array $options = []): string
     {
         if (!isset(self::$twig)) {
             self::initTemplateEngine();
         }
-        return (new Render())->builder($name, $options);
+        return (new RenderBuilder())->builder($name, $options);
     }
 
     /**
@@ -50,7 +50,7 @@ class Render
      * @param array $context
      * @return string
      */
-    public static function Json(array $context = []): string
+    public function Json(array $context = []): string
     {
         header('Content-Type: application/json');
         return json_encode($context);
@@ -96,27 +96,4 @@ class Render
         return self::$twig->render($name, $this->process_options($options));
     }
 
-}
-
-/**
- * @param $name
- * @param array|null $options
- * @return string
- * @throws LoaderError
- * @throws RuntimeError
- * @throws SyntaxError
- */
-function template($name, array $options = null
-): string
-{
-    return Render::Template($name, $options ?? []);
-}
-
-/**
- * @param array $context
- * @return string
- */
-function jsonify(array $context = []): string
-{
-    return Render::Json($context);
 }

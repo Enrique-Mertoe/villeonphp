@@ -1,8 +1,6 @@
 <?php
 
-namespace Villeon\Core\Routing;
-
-use Villeon\Core\Facades\Facade;
+namespace Villeon\Core\Facade;
 
 /**
  * @method static Route get (string $rule, callable $controller)

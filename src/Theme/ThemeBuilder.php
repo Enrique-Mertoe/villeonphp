@@ -14,9 +14,8 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use Twig\Loader\FilesystemLoader;
-use Villeon\Core\Exceptions\FileNotExistsException;
+use Villeon\Core\Facade\Route;
 use Villeon\Core\OS;
-use Villeon\Core\Routing\Route;
 
 class ThemeBuilder
 {
@@ -34,7 +33,7 @@ class ThemeBuilder
     public function initialize($content_directory): void
     {
         if (is_dir($content_directory)) {
-            $theme = $content_directory . "/public/static";
+            $theme = $content_directory . "/public";
             if (is_dir($theme)) {
                 $this->init_theme($theme);
             }

@@ -7,7 +7,7 @@ namespace Villeon\Core;
 require "Exceptions/ExceptionHandler.php";
 
 use Villeon\Config\ConfigBuilder;
-use Villeon\Core\Facades\Facade;
+use Villeon\Core\Facade\Facade;
 use Villeon\Core\Routing\Router;
 use Villeon\Core\Scaffolding\Scaffold;
 use Villeon\Theme\ThemeBuilder;
