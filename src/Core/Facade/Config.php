@@ -1,8 +1,6 @@
 <?php
 
-namespace Villeon\Config;
-
-use Villeon\Core\Facade\Facade;
+namespace Villeon\Core\Facade;
 
 /**
  * @method static Config load_module(string $name)

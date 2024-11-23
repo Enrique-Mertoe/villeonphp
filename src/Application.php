@@ -11,8 +11,8 @@ namespace Villeon;
  */
 
 
-use Villeon\Config\Config;
 use Villeon\Config\ConfigBuilder;
+use Villeon\Core\Facade\Config;
 use Villeon\Core\Facade\Facade;
 use Villeon\Core\Rendering\RenderBuilder;
 use Villeon\Core\Routing\Router;

@@ -1,7 +1,7 @@
 <?php
 
 use Villeon\Application;
-use Villeon\Config\Config;
+use Villeon\Core\Facade\Config;
 
 require "../../vendor/autoload.php";
 require "smv-config.php";
