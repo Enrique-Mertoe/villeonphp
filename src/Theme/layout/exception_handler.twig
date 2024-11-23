@@ -2,9 +2,31 @@
 {% block content %}
     <div class="vstack">
         <div class="error-card card">
-            <h3 class="error-message">Internal Server Error</h3>
+            <h3 class="error-heading">Internal Server Error</h3>
+            <p class="error-suggest">Turn off DEBUG mode in production to avoid seeing this error.</p>
+            {% if error.class %}
+                <p class="error-trace-class">{{ error.class.class }}</p>
+            {% endif %}
+            <div class="hstack error-brand">
+                <span>{{ error.file }}</span>
+                <div class="btn">Line {{ error.line }}</div>
+            </div>
             <h4>{{ error.message }}</h4>
-            <p class="error-code">{{ error.trace }}</p>
+            <div class="error-trace">
+                <h3>Trace Back:</h3>
+                {% for trace in error.trace %}
+                    {% if trace.file %}
+                        <div class="trace-item">
+
+                            <div class="hstack">
+                                <p class="error-trace-file">{{ trace.file }}</p>
+                                <p class="error-trace-line">On line {{ trace.line }}</p>
+
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
         </div>
     </div>
 {% endblock %}

@@ -21,6 +21,7 @@ class Scaffold
 
     /**
      * @return void
+     * @throws ReflectionException
      * @throws Exception
      */
     protected function init_routes(): void
@@ -30,13 +31,7 @@ class Scaffold
         $routes = (new Router())->build();
         $this->routes = Collection::from_array($routes->rules)->array();
         $this->error_routes = Collection::from_array($routes->errors);
-        try {
-            $this->process_url_path();
-
-        } catch (Exception $exception) {
-            error_log($exception);
-            throw new Exception($exception);
-        }
+        $this->process_url_path();
     }
 
     /**
@@ -88,11 +83,19 @@ class Scaffold
         }
         if (is_callable($callback)) {
             ob_start();
-            $res = call_user_func_array($callback, $args);
+            try {
+
+                $res = call_user_func_array($callback, $args);
+            } catch (Exception $e) {
+                $res = $e;
+            }
             $bufferedOutput = ob_get_contents();
             ob_end_clean();
             $this->rule_logger($rule);
             Console::Write($bufferedOutput);
+            if ($res instanceof \Throwable) {
+                throw $res;
+            }
             if (is_string($res))
                 print_r($res);
             elseif (is_array($res))

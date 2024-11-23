@@ -5,13 +5,14 @@
         -webkit-box-sizing: border-box;
         box-sizing: border-box;
     }
+
     body {
         background: #bfd1e1;
         padding: 0;
         margin: 0;
     }
 
-    .container{
+    .container {
         --smv-gutter-x: 1.875rem;
         --smv-gutter-y: 0;
         width: 100%;
@@ -62,16 +63,101 @@
         -ms-flex-item-align: stretch;
         align-self: stretch;
     }
-    .content-center{
+
+    .content-center {
         display: flex;
         align-content: center;
         align-items: center;
         justify-content: center;
     }
-    .vh-100{
+
+    .vh-100 {
         height: 100vh;
     }
-    .text-center{
+
+    .text-center {
         text-align: center;
+    }
+
+    .hstack {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-orient: horizontal;
+        -webkit-box-direction: normal;
+        -ms-flex-direction: row;
+        flex-direction: row;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        -ms-flex-item-align: stretch;
+        align-self: stretch;
+    }
+
+    .error-brand {
+        background: rgba(0, 0, 0, 0.1);
+        padding: .3rem;
+        justify-content: space-between;
+        border-radius: .5rem;
+        color: dodgerblue;
+        cursor: pointer;
+    }
+
+    .btn {
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+        outline: 0;
+        margin-bottom: 6px;
+        border-radius: .4rem;
+    }
+    .error-heading{
+        color: orange;
+        font-size: 1.5rem;
+        margin: auto;
+        text-decoration: underline;
+    }
+    .error-suggest{
+        color: dodgerblue;
+        font-weight: bold;
+        margin: 1rem auto auto;
+    }
+
+    .error-brand .btn {
+        background: #bfd1e1;
+        padding: .3rem .75rem;
+        font-weight: 700;
+        text-decoration: none !important;
+        color: #ffffff;
+    }
+
+    .error-trace {
+        font-size: .9rem;
+
+    }
+
+    .trace-item {
+        border: 1px solid gray;
+        border-radius: .4rem;
+        padding: .4rem;
+        margin-bottom: .5rem;
+    }
+
+    .error-trace-file {
+        color: dodgerblue;
+    }
+
+    .error-trace-line {
+        font-weight: bold;
+        margin-left: 1rem;
+    }
+
+    .error-trace-class {
+        padding: .4rem;
+        background: #81868c;
+        border-radius: .4rem;
+        color: orange;
+        max-width: max-content;
+        font-size: 2rem;
     }
 </style>
