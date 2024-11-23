@@ -68,10 +68,12 @@ class ThemeBuilder
         }
         $mime_type = $this->getMimeType($file);
 
-        // Set the content type and serve the file
         header("Content-Type: " . $mime_type);
         header("Content-Length: " . filesize($file));
-        $content = readfile($file);
+        ob_start();
+        readfile($file);
+        $content = ob_get_contents();
+        ob_end_clean();
         return $content;
     }
 
@@ -84,33 +86,20 @@ class ThemeBuilder
     {
         $extension = pathinfo($file, PATHINFO_EXTENSION);
 
-        switch ($extension) {
-            case 'css':
-                return 'text/css';
-            case 'js':
-                return 'application/javascript';
-            case 'png':
-                return 'image/png';
-            case 'jpg':
-            case 'jpeg':
-                return 'image/jpeg';
-            case 'gif':
-                return 'image/gif';
-            case 'svg':
-                return 'image/svg+xml';
-            case 'woff':
-                return 'font/woff';
-            case 'woff2':
-                return 'font/woff2';
-            case 'ttf':
-                return 'font/ttf';
-            case 'otf':
-                return 'font/otf';
-            case 'ico':
-                return 'image/x-icon';
-            default:
-                return 'application/octet-stream'; // For other file types
-        }
+        return match ($extension) {
+            'css' => 'text/css',
+            'js' => 'application/javascript',
+            'png' => 'image/png',
+            'jpg', 'jpeg' => 'image/jpeg',
+            'gif' => 'image/gif',
+            'svg' => 'image/svg+xml',
+            'woff' => 'font/woff',
+            'woff2' => 'font/woff2',
+            'ttf' => 'font/ttf',
+            'otf' => 'font/otf',
+            'ico' => 'image/x-icon',
+            default => 'application/octet-stream',
+        };
     }
 
     /**
@@ -139,7 +128,7 @@ class ThemeBuilder
 
             http_response_code(404);
             echo $this->env->render("error_404.twig");
-        }finally {
+        } finally {
             exit();
         }
     }

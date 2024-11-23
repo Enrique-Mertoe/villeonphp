@@ -10,6 +10,7 @@ use Villeon\Core\Routing\Router;
 use Villeon\Http\Request;
 use Villeon\Theme\ThemeBuilder;
 use Villeon\Utils\Collection;
+use Villeon\Utils\Console;
 
 class Scaffold
 {
@@ -40,10 +41,10 @@ class Scaffold
 
     /**
      * @param $v
-     * @param $s
+     * @param bool $s
      * @return bool
      */
-    private function isDefined($v, $s = false): bool
+    private function isDefined($v, bool $s = false): bool
     {
 
         if (!$s)
@@ -88,18 +89,39 @@ class Scaffold
         if (is_callable($callback)) {
             ob_start();
             $res = call_user_func_array($callback, $args);
+            $bufferedOutput = ob_get_contents();
             ob_end_clean();
+            $this->rule_logger($rule);
+            Console::Write($bufferedOutput);
             if (is_string($res))
                 print_r($res);
             elseif (is_array($res))
                 print_r(json_encode($res));
             else {
-                throw new \Exception("View function did not return valid response");
+                throw new \Exception("View function did not return valid response: found " .
+                    gettype($res));
             }
 
 
         }
+        exit();
 
+    }
+
+    /**
+     * @param $path
+     * @param int $status
+     * @return void
+     */
+    private function rule_logger($path, int $status = 200): void
+    {
+        $method = Request::$method;
+        $timestamp = date('Y-m-d H:i:s'); // Get current timestamp
+        $logMessage = sprintf('[%s] %s %s -%s', $timestamp, $method, $path, $status);
+        if ($status !== 200)
+            Console::Warn($logMessage);
+        else
+            Console::Write($logMessage);
     }
 
     /**
@@ -205,9 +227,8 @@ class Scaffold
             $this->dispatch(404, $route, []);
             return;
         }
-
+        $this->rule_logger(Request::$path, 404);
         ThemeBuilder::$instance->display_404();
-        exit();
     }
 
     /**

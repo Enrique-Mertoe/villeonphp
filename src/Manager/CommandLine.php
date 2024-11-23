@@ -20,7 +20,11 @@ class CommandLine
                     break;
                 case 'runserver':
                     echo "Starting server...\n";
-                    exec("php -S localhost:8000 -t bootstrap bootstrap/index.php");
+                    error_reporting(0);
+                    ini_set('display_errors', 0);
+                    exec("php -S localhost:8000 -t bootstrap bootstrap/index.php -q");
+                    error_reporting(0);
+                    ini_set('display_errors', 0);
                     break;
                 default:
                     echo "Unknown command: $command\n";

@@ -8,6 +8,7 @@ use Villeon\Utils\Collection;
 class Request
 {
     public static $method;
+    public static $path;
 
 
     public static Collection $args;
@@ -68,6 +69,7 @@ class Request
         self::$form = Collection::from_array($_POST);
         self::$args = Collection::from_array($_GET);
         self::$method = $_SERVER["REQUEST_METHOD"];
+        self::$path = $_SERVER["REQUEST_URI"];
 
 
         $input = file_get_contents('php://input');
