@@ -40,7 +40,7 @@ class ThemeBuilder
         }
         $this->self_theme = OS::ROOT . "/Theme";
         $this->env = new Environment(new FilesystemLoader($this->self_theme . "/layout/"));
-        Route::get("/static/<filename :path>", function ($filename) {
+        Route::get("/static/{filename:path}", function ($filename) {
             return $this->get($filename);
         });
     }
@@ -123,9 +123,6 @@ class ThemeBuilder
     #[NoReturn] public function display_404(): void
     {
         try {
-
-
-            http_response_code(404);
             echo $this->env->render("error_404.twig");
         } finally {
             exit();

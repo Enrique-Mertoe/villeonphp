@@ -12,16 +12,14 @@ namespace Villeon;
 
 
 use Villeon\Config\ConfigBuilder;
+use Villeon\Core\ApplicationBuilder;
 use Villeon\Core\Facade\Config;
-use Villeon\Core\Facade\Facade;
-use Villeon\Core\Rendering\RenderBuilder;
-use Villeon\Core\Routing\Router;
 use Villeon\Core\VilleonBuilder;
 use Villeon\Database\VilleonSQL\Connection\DBOptions;
 use Villeon\Database\VilleonSQL\VilleonSQL;
 
 
-class Application
+final class Application extends ApplicationBuilder
 {
     /**
      * @return void
@@ -37,20 +35,18 @@ class Application
             )
         );
         (new VilleonSQL())->build();
+        $this->load_extensions();
         $app = VilleonBuilder::builder();
         $app->theme->initialize(BASE_PATH);
         $app->build();
 
     }
 
-    public function withConfig(callable $callback): static
+    public function withConfig(callable $callback): Application
     {
-        Facade::setInstance("config", new ConfigBuilder());
-        Facade::setInstance("route", new Router());
-        Facade::setInstance("render", new RenderBuilder());
         $callback();
         Config::load_module("views");
-        Config::load_module("models");
+//        Config::load_module("models");
         return $this;
     }
 }

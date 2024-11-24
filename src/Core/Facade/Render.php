@@ -3,8 +3,8 @@
 namespace Villeon\Core\Facade;
 
 /**
- * @method static Render template (string $name, array $context = [])
- * @method static Render json (array $context)
+ * @method static Extension template (string $name, array $context = [])
+ * @method static Extension json (array $context)
  */
 class Render extends Facade
 {

@@ -7,7 +7,7 @@ use ArrayAccess;
 class Collection implements ArrayAccess
 {
     public int $size;
-    private array $container = [];
+    private array $container;
 
     public static function from_array(array|null $options): Collection
     {
@@ -25,7 +25,7 @@ class Collection implements ArrayAccess
         return isset($this->container[$offset]);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset):mixed
     {
         return $this->container[$offset] ?? null;
     }

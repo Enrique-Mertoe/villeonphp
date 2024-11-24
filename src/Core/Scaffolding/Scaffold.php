@@ -6,7 +6,10 @@ use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use ReflectionException;
 use ReflectionFunction;
+use RuntimeException;
+use Villeon\Core\Routing\Route;
 use Villeon\Core\Routing\Router;
+use Villeon\Core\Routing\RouteRegistry;
 use Villeon\Http\Request;
 use Villeon\Theme\ThemeBuilder;
 use Villeon\Utils\Collection;
@@ -15,23 +18,73 @@ use Villeon\Utils\Console;
 class Scaffold
 {
     private string $url_method;
-    private array $routes;
+
+    /**
+     * @var RouteRegistry[]
+     */
+    private array $blue_prints;
+
     private string $endpoint;
     private Collection $error_routes;
 
     /**
      * @return void
-     * @throws ReflectionException
      * @throws Exception
      */
     protected function init_routes(): void
     {
 
 
-        $routes = (new Router())->build();
-        $this->routes = Collection::from_array($routes->rules)->array();
-        $this->error_routes = Collection::from_array($routes->errors);
-        $this->process_url_path();
+        $this->blue_prints = RouteRegistry::build();
+        $routes = $this->blue_prints;
+        $default = $routes["default"];
+        unset($routes["default"]);
+
+        foreach ($this->prepare_routes($default->getBluePrints()->getAll()) as $route) {
+            $this->process_route($route);
+        }
+        $stop = false;
+        foreach ($routes as $name => $group) {
+            foreach ($this->prepare_routes($group->getBluePrints()->getAll()) as $route) {
+                if ($stop = $this->process_route($route)) {
+                    return;
+                }
+            }
+        }
+        $this->manage_unknown_request();
+
+//        $this->routes = Collection::from_array($routes->rules)->array();
+//        $this->error_routes = Collection::from_array($routes->errors);
+//        $this->process_url_path();
+    }
+
+    /**
+     * @param array $routes
+     * @return array
+     */
+    private function prepare_routes(array $routes): array
+    {
+        $to_sort = $routes;
+        usort($to_sort, function ($a, $b) {
+            $aStaticParts = substr_count($a->rule, '/') - substr_count($a->rule, '<');
+            $bStaticParts = substr_count($b->rule, '/') - substr_count($b->rule, '<');
+            return $bStaticParts - $aStaticParts;
+        });
+        return $to_sort;
+    }
+
+    private function process_route(Route $route): bool
+    {
+
+        if ($match = $route->match(Request::$path)) {
+            if (($ar = array_slice($match, 1)) && $this->isDefined($ar)) {
+                return false;
+            }
+
+            $this->dispatch($route, $match);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -44,12 +97,18 @@ class Scaffold
 
         if (!$s)
             $v = implode("/", $v);
-        foreach ($this->routes as $r) {
-            if ($r->rule === "/" . $v)
-                return true;
-        }
-        return false;
 
+        $found = false;
+        foreach ($this->blue_prints as $name => $group) {
+            foreach ($this->prepare_routes($group->getBluePrints()->getAll()) as $route) {
+                if ($route->rule === "/" . $v)
+                    $found = true;
+                break;
+            }
+            if ($found) break;
+
+        }
+        return $found;
     }
 
     /**
@@ -60,33 +119,28 @@ class Scaffold
      * @throws ReflectionException
      * @throws Exception|\Throwable
      */
-    protected function dispatch(mixed $rule, callable $callback, $args): void
+    protected function dispatch(Route $route, array $args = []): void
     {
-        $rfc = new ReflectionFunction($callback);
-        $p = $rfc->getParameters();
-        $required = count($p);
-        $found = count($args);
-        if ($required < $found) {
-            exit("Too many parameters passed");
-        }
-        if ($required > $found) {
-            exit("Less parameters passed, required: $required parameters, found: $found");
-        }
-        $rule = $this->normalizeRule($rule);
-        preg_match_all('/<([^>:]+)(?::path)?>/', $rule, $defined);
-        foreach ($p as $index => $param) {
-            $name_defined = $defined[1][$index];
-            $expectedName = $param->getName();
 
-            if ($name_defined !== $expectedName) {
-                exit("Undefined $expectedName.  (Expected parameter '$name_defined', found '$expectedName' at position $index.)");
+        $controller = $route->controller;
+        $reflection = new ReflectionFunction($controller);
+        $reflectionParams = $reflection->getParameters();
+        $required = count($reflectionParams);
+        $found = count($args);
+        if ($required != $found) {
+            throw new ParameterCountException($required, $found);
+        }
+        $defined = $route->required_params;
+        foreach ($reflectionParams as $param) {
+            $expectedName = $param->getName();
+            if (!array_key_exists($expectedName, $defined)) {
+                throw new RuntimeException("Missing parameter: $expectedName");
             }
         }
-        if (is_callable($callback)) {
+        if (is_callable($route->controller)) {
             ob_start();
             try {
-
-                $res = call_user_func_array($callback, $args);
+                $res = call_user_func_array($controller, $args);
             } catch (Exception $e) {
                 http_response_code(500);
                 $res = $e;
@@ -95,7 +149,7 @@ class Scaffold
             ob_end_clean();
 
             Console::Write($bufferedOutput);
-            $this->rule_logger($rule, http_response_code());
+            $this->rule_logger($route->rule, http_response_code());
             if ($res instanceof \Throwable) {
                 throw $res;
             }
@@ -112,6 +166,13 @@ class Scaffold
 
         }
         exit();
+//        } catch (Exception $exception) {
+//            print_r("ss");
+//            throw $exception;
+//        } finally {
+//            exit();
+//        }
+
 
     }
 
@@ -149,53 +210,11 @@ class Scaffold
         $fullUri = parse_url($fullUri)["path"];
 
         $fullUri = preg_replace('#/+#', '/', $fullUri);
-//        if (($basePath = dirname(urldecode($_SERVER['SCRIPT_NAME']))) != "/")
-//            $fullUri = str_replace($basePath, '', $fullUri);
-//        print_r($basePath);
         $fullUri = trim($fullUri);
         if (!str_starts_with($fullUri, "/"))
             $fullUri = "/$fullUri";
         $this->endpoint = empty($fullUri) ? '/' : $fullUri;
     }
-
-    /**
-     * @return void
-     * @throws ReflectionException
-     */
-    private function process_url_path(): void
-    {
-        (new Request())->build();
-        $this->url_method = Request::$method;
-
-        $this->process_endpoint();
-        usort($this->routes, function ($a, $b) {
-            $aStaticParts = substr_count($a->rule, '/') - substr_count($a->rule, '<');
-            $bStaticParts = substr_count($b->rule, '/') - substr_count($b->rule, '<');
-            return $bStaticParts - $aStaticParts;
-        });
-        foreach ($this->routes as $route) {
-
-
-            $rule = $this->normalizeRule($route->rule);
-            $pattern = '#^' . preg_replace('/<(\w+):path>/', '(.+)', preg_replace('/<(\w+)>/', '([^/]+)', $rule)) . '$#';
-
-
-            if (preg_match($pattern, $this->endpoint, $matches)) {
-                $this->checkAllowedMethods($route->method, Request::$method);
-                if (($ar = array_slice($matches, 1)) && $this->isDefined($ar)) {
-                    continue;
-                }
-
-                $this->dispatch($route->rule, $route->controller, array_slice($matches, 1));
-
-                return;
-            }
-
-
-        }
-        $this->manage_bad_request();
-    }
-
 
     /**
      * @param $rootMethods
@@ -209,33 +228,26 @@ class Scaffold
     }
 
     /**
-     * @param $v
-     * @return null
+     * @return Route|null
      */
-    private function isErrorPageDefined($v)
+    private function is404Defined(): ?Route
     {
-        foreach ($this->error_routes->array() as $r) {
-            if ($r->rule === $v) {
-                return $r->controller;
-            }
-        }
-        return null;
-
+        return $this->blue_prints["default"]->getErrorHandlerBluePrint()->get404();
     }
 
     /**
      * @return void
-     * @throws Exception
+     * @throws Exception|\Throwable
      */
-    private function manage_bad_request(): void
+    private function manage_unknown_request(): void
     {
-        $route = $this->isErrorPageDefined(404);
-        if (is_callable($route)) {
-            $this->dispatch(404, $route, []);
-            return;
+        http_response_code(404);
+        if ($route = $this->is404Defined()) {
+            $this->dispatch($route);
+        } else {
+            ThemeBuilder::$instance->display_404();
         }
-        $this->rule_logger(Request::$path, 404);
-        ThemeBuilder::$instance->display_404();
+
     }
 
     /**

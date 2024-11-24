@@ -4,25 +4,9 @@ namespace Villeon\Core\Routing;
 
 use Villeon\Utils\Collection;
 
-class Router
+class Router extends RouteRegistry
 {
-    private static array $route_config = [];
-    private static array $route_error_config = [];
 
-    public function __construct()
-    {
-    }
-
-    /**
-     * @return object
-     */
-    function build(): object
-    {
-        return (object)[
-            "errors" => self::$route_error_config,
-            "rules" => self::$route_config,
-        ];
-    }
 
     /**
      * @param $rule
@@ -31,11 +15,7 @@ class Router
      */
     public function route($rule, ...$options): void
     {
-        self::$route_config[] = _UrlConfig::from_array(
-            array_merge([
-                "rule" => $rule,
-            ], self::process_options($options))
-        );
+        $this->addRoute($rule, ...self::process_options($options));
     }
 
     /**
@@ -72,40 +52,46 @@ class Router
 
     /**
      * @param int $code
-     * @param callable $controller
-     * @return void
+     * @param \Closure $controller
+     * @return Route
      */
-    public static function error(int $code, callable $controller): void
+    public function error_handler(int $code, \Closure $controller): Route
     {
-        self::$route_error_config[] = _UrlConfig::from_array(
-            array_merge([
-                "rule" => $code,
-            ], self::process_options([$controller]))
-        );
+        return $this->addErrorHandler($code, $controller);
     }
 
-    public function post($rule, $controller): void
+    public function post($rule, \Closure $controller): Route
     {
-        self::$route_config[] = _UrlConfig::from_array(
-            array_merge([
-                "rule" => $rule,
-            ], [
-                "methods" => ["POST"],
-                "controller" => $controller
-            ])
-        );
+        return $this->addRoute($rule, ["POST"], $controller);
     }
 
-    public function get($rule, $controller): void
+    public function get(string $rule, \Closure $controller): Route
     {
-        self::$route_config[] = _UrlConfig::from_array(
-            array_merge([
-                "rule" => $rule,
-            ], [
-                "methods" => ["GET"],
-                "controller" => $controller
-            ])
-        );
+        return $this->addRoute($rule, ["GET"], $controller);
+    }
+
+    /**
+     * @param string $rule
+     * @param array $methods
+     * @param \Closure $controller
+     * @return Route
+     */
+    private function addRoute(string $rule, array $methods, \Closure $controller): Route
+    {
+        $route = new Route($rule, $methods, $controller);
+        $route->prefix = $this->prefix;
+        $this->routes->add($route);
+        return $route;
+    }
+
+    private function addErrorHandler(int $code, \Closure $controller): Route
+    {
+        $methods = ["GET"];
+        $route = new Route((string)$code, $methods, $controller);
+        $route->prefix = $this->prefix;
+        $route->code_handler = $code;
+        $this->error_handlers->add($route);
+        return $route;
     }
 
 }

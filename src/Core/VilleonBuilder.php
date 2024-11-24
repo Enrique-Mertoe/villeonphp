@@ -10,6 +10,7 @@ use Villeon\Config\ConfigBuilder;
 use Villeon\Core\Facade\Facade;
 use Villeon\Core\Routing\Router;
 use Villeon\Core\Scaffolding\Scaffold;
+use Villeon\Http\Request;
 use Villeon\Theme\ThemeBuilder;
 
 class VilleonBuilder extends Scaffold
@@ -30,6 +31,7 @@ class VilleonBuilder extends Scaffold
     function build(): void
     {
         $this->make_config();
+        (new Request)->build();
         $this->getConfig()->merge_imported();
         $this->init_routes();
 
