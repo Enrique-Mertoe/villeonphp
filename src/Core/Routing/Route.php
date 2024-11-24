@@ -3,6 +3,7 @@
 namespace Villeon\Core\Routing;
 
 use Villeon\Http\Request;
+use Villeon\Utils\Collection;
 use Villeon\Utils\Console;
 
 class Route
@@ -27,6 +28,8 @@ class Route
      */
     public ?int $code_handler = null;
 
+    public array $required_params = [];
+
     /**
      * @var string $name
      */
@@ -37,11 +40,6 @@ class Route
      * @var array<string,mixed> $config
      */
     public array $config;
-
-    /**
-     * @var array<string,string> $required_params
-     */
-    public array $required_params;
 
     /**
      * @param string $rule
@@ -77,46 +75,39 @@ class Route
 
     }
 
+    /**
+     * Match a URL against the route's pattern to check if it corresponds to this route.
+     * @param $url
+     * @return array
+     */
     public function match($url): array
     {
         if ($this->prefix)
             $this->rule = $this->prefix . $this->rule;
         $this->normalise_rule();
-        $pattern = '#^' . preg_replace('/<(\w+):path>/', '(.+)', preg_replace('/<(\w+)>/', '([^/]+)', $this->rule)) . '$#';
         $mapping = [];
-        $regex = preg_replace_callback('#\{(!?)([\w\x80-\xFF]++)(:[\w\x80-\xFF]++)?(<.*?>)?(\?[^\}]*+)?\}#', function ($m) use (&$mapping) {
+        $mapper = function ($item, $regex) use (&$mapping) {
+            $mapping[$item] = $regex;
+        };
+        $regex = preg_replace_callback('#\{(!?)([\w\x80-\xFF]++)(:[\w\x80-\xFF]++)?(<.*?>)?(\?[^\}]*+)?\}#', function ($m) use (&$mapper) {
+
             $name = $m[2];
             $type = $m[3] ?? ':string';
-            $regex = '([^/]+)';
-            if ($type == ":path") {
-                $regex = '(.+?\.[a-zA-Z0-9]+)';
-            } elseif ($type === ':int') {
-                $regex = '(\d+)';
-            }
-
-            $mapping[$name] = $regex;
+            $regex = match ($type) {
+                ":all" => '(.*)',
+                ":path" => '(.+?\.[a-zA-Z0-9]+)',
+                ":int" => '(\d+)',
+                default => '([^/]+)'
+            };
+            $mapper($name, $regex);
             return $regex;
         }, $this->rule);
         if (preg_match('#^' . $regex . '$#', $url, $matches)) {
             array_shift($matches);
             $this->required_params = array_combine(array_keys($mapping), $matches);
-            return $matches;
+            return [true, $matches];
         }
-
-//        if (preg_match($pattern, $url, $matches)) {
-//            Console::Write("matched $this->rule and $url");
-//
-////            $this->checkAllowedMethods($route->method, Request::$method);
-////            if (($ar = array_slice($matches, 1)) && $this->isDefined($ar)) {
-////                continue;
-////            }
-////
-////            $this->dispatch($route->rule, $route->controller, array_slice($matches, 1));
-////
-//            print_r($matches);
-//            return [];
-//        }
-        return [];
+        return [false, null];
     }
 
     function normalise_rule(): void

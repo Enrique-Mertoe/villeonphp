@@ -71,7 +71,7 @@ class RenderBuilder
         $theme = ThemeBuilder::$instance;
         return $options + [
                 "session" => $_SESSION,
-                "args" => Request::$args->array(),
+                "args" => Request::$args,
                 "form" => Request::$form->array(),
                 "theme" => [
                     "css" => [

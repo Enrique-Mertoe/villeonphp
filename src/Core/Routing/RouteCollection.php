@@ -7,7 +7,7 @@ class RouteCollection
     /**
      * @var Route[]
      */
-    private array $routes;
+    private array $routes = [];
 
     public function add(Route $route): void
     {
@@ -35,7 +35,6 @@ class RouteCollection
     public function get404(): ?Route
     {
         foreach ($this->routes as $route) {
-            print_r($route->rule);
             if ($route->code_handler == 404) {
                 return $route;
             }

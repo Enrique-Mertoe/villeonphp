@@ -40,7 +40,8 @@ class ThemeBuilder
         }
         $this->self_theme = OS::ROOT . "/Theme";
         $this->env = new Environment(new FilesystemLoader($this->self_theme . "/layout/"));
-        Route::get("/static/{filename:path}", function ($filename) {
+
+        Route::get("/static/{filename:all}", function ($filename) {
             return $this->get($filename);
         });
     }

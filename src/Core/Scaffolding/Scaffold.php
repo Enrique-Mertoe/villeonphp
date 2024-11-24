@@ -11,25 +11,23 @@ use Villeon\Core\Routing\Route;
 use Villeon\Core\Routing\Router;
 use Villeon\Core\Routing\RouteRegistry;
 use Villeon\Http\Request;
+use Villeon\Http\Response;
 use Villeon\Theme\ThemeBuilder;
 use Villeon\Utils\Collection;
 use Villeon\Utils\Console;
 
 class Scaffold
 {
-    private string $url_method;
-
     /**
      * @var RouteRegistry[]
      */
     private array $blue_prints;
 
     private string $endpoint;
-    private Collection $error_routes;
 
     /**
      * @return void
-     * @throws Exception
+     * @throws Exception|\Throwable
      */
     protected function init_routes(): void
     {
@@ -43,19 +41,14 @@ class Scaffold
         foreach ($this->prepare_routes($default->getBluePrints()->getAll()) as $route) {
             $this->process_route($route);
         }
-        $stop = false;
         foreach ($routes as $name => $group) {
             foreach ($this->prepare_routes($group->getBluePrints()->getAll()) as $route) {
-                if ($stop = $this->process_route($route)) {
+                if ($this->process_route($route)) {
                     return;
                 }
             }
         }
         $this->manage_unknown_request();
-
-//        $this->routes = Collection::from_array($routes->rules)->array();
-//        $this->error_routes = Collection::from_array($routes->errors);
-//        $this->process_url_path();
     }
 
     /**
@@ -64,60 +57,71 @@ class Scaffold
      */
     private function prepare_routes(array $routes): array
     {
-        $to_sort = $routes;
-        usort($to_sort, function ($a, $b) {
-            $aStaticParts = substr_count($a->rule, '/') - substr_count($a->rule, '<');
-            $bStaticParts = substr_count($b->rule, '/') - substr_count($b->rule, '<');
-            return $bStaticParts - $aStaticParts;
+        usort($routes, function ($a, $b) {
+            return $this->routePriority($b->rule) <=> $this->routePriority($a->rule);
         });
-        return $to_sort;
+        return $routes;
+    }
+
+    private function routePriority($route): int|string
+    {
+        $segments = explode('/', trim($route, '/'));
+        $priority = 0;
+        $lastSegment = end($segments);
+        if (preg_match('/\{(\w+):path}/', $lastSegment)) {
+            $priority += 1000;
+        }
+        if (preg_match('/\{(\w+):all}/', $lastSegment)) {
+            $priority += 1;
+        }
+
+        foreach ($segments as $index => $segment) {
+            if (!preg_match('/\{(\w+)}/', $segment)) {
+                $priority += 10 ** (count($segments) - $index);
+            }
+        }
+        $priority = max(0, $priority - count($segments));
+        return $priority - count($segments);
     }
 
     private function process_route(Route $route): bool
     {
-
-        if ($match = $route->match(Request::$path)) {
-            if (($ar = array_slice($match, 1)) && $this->isDefined($ar)) {
-                return false;
+        $match = $route->match(Request::$uri);
+        if ($match[0]) {
+            $match = $match[1];
+            if ($route->required_params && ($defined = $this->isDefined(array_slice($match, count($route->required_params) - 1)))) {
+                $this->dispatch($defined);
+                exit();
             }
-
             $this->dispatch($route, $match);
             return true;
+
         }
         return false;
     }
 
     /**
      * @param $v
-     * @param bool $s
-     * @return bool
+     * @return Route|null
      */
-    private function isDefined($v, bool $s = false): bool
+    private function isDefined($v): ?Route
     {
-
-        if (!$s)
-            $v = implode("/", $v);
-
-        $found = false;
+        $v = implode("/", $v);
         foreach ($this->blue_prints as $name => $group) {
             foreach ($this->prepare_routes($group->getBluePrints()->getAll()) as $route) {
                 if ($route->rule === "/" . $v)
-                    $found = true;
-                break;
+                    return $route;
             }
-            if ($found) break;
-
         }
-        return $found;
+        return null;
     }
 
     /**
-     * @param mixed $rule
-     * @param callable $callback
-     * @param $args
+     * @param Route $route
+     * @param array $args
      * @return void
      * @throws ReflectionException
-     * @throws Exception|\Throwable
+     * @throws \Throwable
      */
     protected function dispatch(Route $route, array $args = []): void
     {
@@ -149,7 +153,7 @@ class Scaffold
             ob_end_clean();
 
             Console::Write($bufferedOutput);
-            $this->rule_logger($route->rule, http_response_code());
+            $this->rule_logger(Request::$uri, http_response_code());
             if ($res instanceof \Throwable) {
                 throw $res;
             }
@@ -165,15 +169,13 @@ class Scaffold
 
 
         }
+        $this->commit(new Response);
+    }
+
+    #[NoReturn] private function commit(Response $response): void
+    {
+//        $response->send();
         exit();
-//        } catch (Exception $exception) {
-//            print_r("ss");
-//            throw $exception;
-//        } finally {
-//            exit();
-//        }
-
-
     }
 
     /**
@@ -193,15 +195,6 @@ class Scaffold
     }
 
     /**
-     * @param $rule
-     * @return array|string|null
-     */
-    private function normalizeRule($rule): array|string|null
-    {
-        return preg_replace('/\s*:\s*/', ':', $rule);
-    }
-
-    /**
      * @return void
      */
     private function process_endpoint(): void
@@ -214,17 +207,6 @@ class Scaffold
         if (!str_starts_with($fullUri, "/"))
             $fullUri = "/$fullUri";
         $this->endpoint = empty($fullUri) ? '/' : $fullUri;
-    }
-
-    /**
-     * @param $rootMethods
-     * @param $m
-     * @return void
-     */
-    private function checkAllowedMethods($rootMethods, $m): void
-    {
-        if (!in_array($m, $rootMethods))
-            self::handleError(403);
     }
 
     /**
@@ -241,7 +223,7 @@ class Scaffold
      */
     private function manage_unknown_request(): void
     {
-        http_response_code(404);
+//        http_response_code(404);
         if ($route = $this->is404Defined()) {
             $this->dispatch($route);
         } else {

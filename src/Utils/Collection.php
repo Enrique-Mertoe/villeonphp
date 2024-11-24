@@ -14,7 +14,7 @@ class Collection implements ArrayAccess
         return new Collection($options);
     }
 
-    public function __construct($items)
+    public function __construct($items = [])
     {
         $this->container = $items ?? [];
         $this->size = count($this->container);
