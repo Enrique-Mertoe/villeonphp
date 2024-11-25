@@ -18,7 +18,7 @@ class Environment extends \Twig\Environment
     private function extend_methods(): void
     {
         $this->addFunction(new TwigFunction("url_for", function ($endpoint, ...$args) {
-            return url_for($endpoint,null, ...$args[0]);
+            return url_for($endpoint,null, ...($args[0] ?? []));
         }));
     }
 }

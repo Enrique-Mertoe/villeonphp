@@ -18,7 +18,7 @@ use Villeon\Core\OS;
 
 class ThemeBuilder
 {
-    private string $theme_dir;
+    private string $static_dir;
     private string $self_theme;
     private Environment $env;
     public static ThemeBuilder $instance;
@@ -42,25 +42,22 @@ class ThemeBuilder
 
         Route::get("/static/{filename:all}", function ($filename) {
             return $this->get($filename);
-        });
+        })->name("static");
     }
 
     private function init_theme($dir): void
     {
-        $this->theme_dir = $dir;
+        $this->static_dir = $dir;
     }
 
 
     /**
      * @param $file
      * @return false|int
-     * @throws LoaderError
-     * @throws RuntimeError
-     * @throws SyntaxError
      */
     private function get($file)
     {
-        $file = $this->theme_dir . "/$file";
+        $file = $this->static_dir . "/$file";
         if (!file_exists($file)) {
             header("HTTP/1.1 404 Not Found");
             $this->display_404();
@@ -121,10 +118,9 @@ class ThemeBuilder
     {
         try {
             echo $this->env->render("error_404.twig");
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             throw new \RuntimeException($e);
-        }
-        finally {
+        } finally {
             exit();
         }
     }

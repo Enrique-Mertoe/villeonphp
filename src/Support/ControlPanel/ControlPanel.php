@@ -30,7 +30,7 @@ final class ControlPanel extends ExtensionBuilder
         $bp = Blueprint::define("panel", url_prefix: "/control-panel");
         $bp->get("/", function () {
             return "control panel home";
-        });
+        })->name("dashboard");
         $bp->get("/control", function () {
             return "control panel";
         });

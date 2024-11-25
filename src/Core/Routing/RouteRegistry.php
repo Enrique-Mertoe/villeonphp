@@ -5,6 +5,7 @@ namespace Villeon\Core\Routing;
 
 use RuntimeException;
 use Villeon\Error\RuntimeError;
+use Villeon\Utils\Console;
 
 abstract class RouteRegistry
 {
@@ -73,6 +74,14 @@ abstract class RouteRegistry
         }
         return null;
     }
+    private static function get_endpoint_details($endpoint): array
+    {
+        $segments = explode(".", $endpoint, 2);
+        if (count($segments)>1){
+            return [$segments[1],$segments[0]];
+        }
+        return [$segments[0],self::DEFAULT_BLUEPRINT];
+    }
 
     /**
      * @param string $endpoint
@@ -83,45 +92,24 @@ abstract class RouteRegistry
     public static final function build_url_endpoint(string $endpoint, ?bool $external, array $args): string
     {
         if (empty($endpoint))
-            throw new RuntimeError("Cannot build url of null endpoint");
-        $segments = explode(".", $endpoint, 2);
-        if (count($segments) > 1) {
-            $blueprint = $segments[0];
-            $endpoint = $segments[1];
-        } else {
-            $blueprint = self::DEFAULT_BLUEPRINT;
-            $endpoint = $segments[0];
-        }
+            throw new RuntimeError("Cannot build URL of null endpoint");
 
-        if (!empty($blueprint)) {
-            if (!isset(self::$resolvedInstances[$blueprint])) {
-                throw new RuntimeError("");
-            }
+        [$endpoint, $blueprint] = self::get_endpoint_details($endpoint);
+        if (isset(self::$resolvedInstances[$blueprint])) {
+
             $bp = self::$resolvedInstances[$blueprint];
             if ($route = $bp->get_defined_routes()->get($endpoint)) {
                 $params = $route->get_rule_params();
-                if (!empty($params)) {
-                    {
-                        $url_args = [];
-                        foreach ($params as $param) {
-                            if (isset($args[$param])) {
-                                $url_args[] = $args[$param];
-                                unset($args[$param]);
-                            } else
-                                throw new RuntimeError("Parameter $param is not set");
-                        }
-                        return $route->build_endpoint($url_args, $args);
+                $url_args = array_map(function ($param) use (&$args) {
+                    if (!isset($args[$param])) {
+                        throw new RuntimeError("Parameter $param is not set");
                     }
-                }
-                return $route->rule;
-            }
-        }
 
-        foreach (self::$resolvedInstances as $instance) {
-            foreach ($instance->get_defined_routes()->getAll() as $item) {
-                if ($item->rule == $endpoint) {
-                    return $item->rule;
-                }
+                    $value = $args[$param];
+                    unset($args[$param]);
+                    return $value;
+                }, $params);
+                return $route->build_endpoint($url_args, $args);
             }
         }
         throw new RuntimeError("Cannot build url endpoint for $endpoint. Ensure your Route has a name by assigning ->name(route-name)");

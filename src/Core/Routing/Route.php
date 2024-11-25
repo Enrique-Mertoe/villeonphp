@@ -1,11 +1,6 @@
 <?php
 
 namespace Villeon\Core\Routing;
-
-use Villeon\Http\Request;
-use Villeon\Utils\Collection;
-use Villeon\Utils\Console;
-
 class Route
 {
     /**
@@ -89,7 +84,7 @@ class Route
         $mapper = function ($item, $regex) use (&$mapping) {
             $mapping[$item] = $regex;
         };
-        $regex = preg_replace_callback('#\{(!?)([\w\x80-\xFF]++)(:[\w\x80-\xFF]++)?(<.*?>)?(\?[^\}]*+)?\}#', function ($m) use (&$mapper) {
+        $regex = preg_replace_callback('#\{(!?)([\w\x80-\xFF]++)(:[\w\x80-\xFF]++)?(<.*?>)?(\?[^}]*+)?}#', function ($m) use (&$mapper) {
 
             $name = $m[2];
             $type = $m[3] ?? ':string';
@@ -118,8 +113,10 @@ class Route
         $segments = explode('/', trim($this->rule, '/'));
         $params = [];
         foreach ($segments as $index => $segment) {
-            if (preg_match('/\{(\w+)}/', $segment)) {
-                $params[] = preg_replace('/[{}]/', "", $segment);
+            if (preg_match('/\{(\w+)}/', $segment, $matches)) {
+                $params[] = $matches[1];
+            } elseif (preg_match('/\{(\w+:\w+)}/', $segment, $matches)) {
+                $params[] = explode(":", $matches[1])[0];
             }
         }
         return $params;
@@ -139,20 +136,11 @@ class Route
     public function build_endpoint(array $url_args, array $args): string
     {
         $segments = explode('/', trim($this->rule, '/'));
-        $params = [];
         $url_args = array_reverse($url_args);
-        foreach ($segments as $index => $segment) {
-            if (preg_match('/\{(\w+)}/', $segment)) {
-                $params[] = array_pop($url_args);
-            } else
-                $params[] = $segment;
-        }
-        $arg = '';
-        foreach ($args as $key => $value) {
-            $arg .= "$key=$value&";
-        }
-        if (!empty($arg))
-            $arg = "?" . rtrim($arg, "&");
-        return "/" . implode("/", $params) . $arg;
+        $params = array_map(function ($segment) use (&$url_args) {
+            return preg_match('/\{(\w+)(?::\w+)?}/', $segment) ? array_pop($url_args) : $segment;
+        }, $segments);
+        $queryString = http_build_query($args);
+        return $this->prefix ?? "/" . implode('/', $params) . ($queryString ? '?' . $queryString : '');
     }
 }
