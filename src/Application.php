@@ -36,9 +36,7 @@ final class Application extends ApplicationBuilder
         );
         (new VilleonSQL())->build();
         $this->load_extensions();
-        $app = VilleonBuilder::builder();
-        $app->theme->initialize(BASE_PATH);
-        $app->build();
+        $this->app->build();
 
     }
 

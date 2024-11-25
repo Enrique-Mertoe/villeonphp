@@ -40,9 +40,6 @@ abstract class RouteRegistry
         return $this->error_handlers;
     }
 
-    protected static array $route_error_config = [];
-    protected static array $route_config = [];
-
     /**
      * @return RouteRegistry[]
      */
@@ -74,13 +71,14 @@ abstract class RouteRegistry
         }
         return null;
     }
+
     private static function get_endpoint_details($endpoint): array
     {
         $segments = explode(".", $endpoint, 2);
-        if (count($segments)>1){
-            return [$segments[1],$segments[0]];
+        if (count($segments) > 1) {
+            return [$segments[1], $segments[0]];
         }
-        return [$segments[0],self::DEFAULT_BLUEPRINT];
+        return [$segments[0], self::DEFAULT_BLUEPRINT];
     }
 
     /**
@@ -96,7 +94,6 @@ abstract class RouteRegistry
 
         [$endpoint, $blueprint] = self::get_endpoint_details($endpoint);
         if (isset(self::$resolvedInstances[$blueprint])) {
-
             $bp = self::$resolvedInstances[$blueprint];
             if ($route = $bp->get_defined_routes()->get($endpoint)) {
                 $params = $route->get_rule_params();
@@ -112,7 +109,8 @@ abstract class RouteRegistry
                 return $route->build_endpoint($url_args, $args);
             }
         }
-        throw new RuntimeError("Cannot build url endpoint for $endpoint. Ensure your Route has a name by assigning ->name(route-name)");
+        $target = str_replace("default", "", $blueprint) . $endpoint;
+        throw new RuntimeError("Cannot build url endpoint for $target. Ensure your Route has a name by assigning ->name(route-name)");
 
     }
 

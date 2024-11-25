@@ -1,6 +1,10 @@
 <?php
 
 namespace Villeon\Core\Routing;
+
+use Villeon\Error\RuntimeError;
+use Villeon\Utils\Console;
+
 class Route
 {
     /**
@@ -36,18 +40,23 @@ class Route
      */
     public array $config;
 
+    public RouteRegistry $registry;
+
     /**
      * @param string $rule
      * @param string[] $methods
      * @param \Closure $controller
+     * @param RouteRegistry $registry
      * @param array ...$options
      */
-    public function __construct(string $rule, array $methods, \Closure $controller, ...$options)
+    public function __construct(string $rule, array $methods, \Closure $controller, RouteRegistry $registry, ...$options)
     {
         $this->rule = $rule;
         $this->controller = $controller;
         $this->allowed_methods = $methods;
+        $this->registry = $registry;
         $this->config_options($options);
+        $this->name = $this->define_name();
     }
 
     /**
@@ -57,8 +66,27 @@ class Route
      */
     public function name(string $name): static
     {
-        $this->name = $name;
+        try {
+            $old = $this->name;
+            $this->name = $name;
+            $this->registry->get_defined_routes()->update($this, $old);
+        } catch (\Exception $e) {
+            throw new RuntimeError($e->getMessage());
+        }
         return $this;
+    }
+
+    private function define_name(): string
+    {
+        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+
+        for ($i = 0; $i < 10; $i++) {
+            $randomString .= $characters[random_int(0, $charactersLength - 1)];
+        }
+
+        return "default" . $randomString;
     }
 
     /**

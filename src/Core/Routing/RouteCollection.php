@@ -2,6 +2,8 @@
 
 namespace Villeon\Core\Routing;
 
+use Villeon\Error\RuntimeError;
+
 class RouteCollection
 {
     /**
@@ -11,7 +13,12 @@ class RouteCollection
 
     public function add(Route $route): void
     {
-        $this->routes[] = $route;
+        if (($index = $this->getIndex()) && $route->rule == "/") {
+            unset($this->routes[$index->name]);
+        }
+        if (isset($this->routes[$route->name]))
+            throw new \RuntimeException("A root is overriding an existing route name $route->name");
+        $this->routes[$route->name] = $route;
     }
 
     /**
@@ -20,12 +27,17 @@ class RouteCollection
      */
     public function get(string $name): ?Route
     {
-        foreach ($this->routes as $route) {
-            if ($route->name == $name) {
-                return $route;
-            }
-        }
+        if (isset($this->routes[$name]))
+            return $this->routes[$name];
         return null;
+    }
+
+    public function update(Route $route, string $oldName): void
+    {
+        if (isset($this->routes[$oldName])) {
+            $this->add($route);
+            unset($this->routes[$oldName]);
+        }
     }
 
     public function getAll(): array

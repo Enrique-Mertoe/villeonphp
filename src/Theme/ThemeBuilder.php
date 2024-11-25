@@ -29,7 +29,7 @@ class ThemeBuilder
 
     }
 
-    public function initialize($content_directory): void
+    public function initialize($content_directory): ThemeBuilder
     {
         if (is_dir($content_directory)) {
             $theme = $content_directory . "/public";
@@ -39,10 +39,7 @@ class ThemeBuilder
         }
         $this->self_theme = OS::ROOT . "/Theme";
         $this->env = new Environment(new FilesystemLoader($this->self_theme . "/layout/"));
-
-        Route::get("/static/{filename:all}", function ($filename) {
-            return $this->get($filename);
-        })->name("static");
+        return $this;
     }
 
     private function init_theme($dir): void
@@ -76,6 +73,21 @@ class ThemeBuilder
     public function prepare($file): string
     {
         return "/theme/$file";
+    }
+
+    private function init_dom(): void
+    {
+        Route::get("/static/{filename:all}", function ($filename) {
+            return $this->get($filename);
+        })->name("static");
+        Route::get("/", function () {
+            return "home page";
+        });
+    }
+
+    public function ensure_configured(): void
+    {
+        $this->init_dom();
     }
 
     private function getMimeType($file): string

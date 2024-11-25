@@ -10,6 +10,7 @@ use RuntimeException;
 use Throwable;
 use Villeon\Core\Routing\Route;
 use Villeon\Core\Routing\RouteRegistry;
+use Villeon\Error\RuntimeError;
 use Villeon\Http\Request;
 use Villeon\Http\Response;
 use Villeon\Theme\ThemeBuilder;
@@ -87,13 +88,17 @@ class Scaffold
     {
         $match = $route->match(Request::$uri);
         if ($match[0]) {
-            $match = $match[1];
-            if ($route->required_params && ($defined = $this->isDefined(array_slice($match, count($route->required_params) - 1)))) {
-                $this->dispatch($defined);
-                exit();
+            try {
+                $match = $match[1];
+                if ($route->required_params && ($defined = $this->isDefined(array_slice($match, count($route->required_params) - 1)))) {
+                    $this->dispatch($defined);
+                    exit();
+                }
+                $this->dispatch($route, $match);
+                return true;
+            }catch (Throwable $e){
+                throw new RuntimeError($e->getMessage());
             }
-            $this->dispatch($route, $match);
-            return true;
 
         }
         return false;

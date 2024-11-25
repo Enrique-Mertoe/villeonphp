@@ -12,13 +12,20 @@ use Villeon\Support\Extensions\ExtensionManager;
 
 class ApplicationBuilder
 {
+    protected VilleonBuilder $app;
+
     public function __construct()
     {
         $this->init_components();
+        $this->app = VilleonBuilder::builder();
+        $this->app->theme->initialize(BASE_PATH)
+        ->ensure_configured();
+        $this->app->make_config();
     }
 
     private function init_components(): void
     {
+
         $this->init_facades();
         ExtensionManager::init();
         ControlPanel::builder();
@@ -35,4 +42,6 @@ class ApplicationBuilder
     {
         ExtensionManager::load_all();
     }
+
+
 }
