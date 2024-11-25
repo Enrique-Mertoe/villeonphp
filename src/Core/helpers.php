@@ -3,28 +3,26 @@
 use Villeon\Core\Facade\Render;
 use Villeon\Http\Response;
 
-if (!function_exists('render_template')) {
+if (!function_exists('view')) {
     /**
-     * @param string $name
+     * @param string $template_name
      * @param array $context
      * @return string
      */
-    function render_template(string $name, array $context = []): string
+    function view(string $template_name, array $context = []): string
     {
-        return Render::template($name, $context);
+        return Render::template($template_name, $context);
     }
 }
 
 
 if (!function_exists('response')) {
     /**
-     * @param mixed $response
+     * @param mixed $content
      * @return Response
      */
-    function response(mixed $response): Response
+    function response(mixed $content): Response
     {
-        $res = new Response;
-        $res->setContent($response);
-        return $res;
+        return (new Response)->setContent($content);
     }
 }
