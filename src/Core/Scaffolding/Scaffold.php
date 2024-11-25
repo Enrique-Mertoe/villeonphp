@@ -34,6 +34,10 @@ class Scaffold
         $routes = $this->blue_prints;
         $default = $routes["default"];
         unset($routes["default"]);
+        if ($bp = $this->is_blueprint_defined()) {
+            Dispatcher::redirect(Request::$uri . "/");
+        }
+
 
         foreach ($this->prepare_routes($default->get_defined_routes()->getAll()) as $route) {
             $this->process_route($route);
@@ -47,6 +51,11 @@ class Scaffold
         }
         $this->manage_defined_blue_prints();
         $this->manage_unknown_request();
+    }
+
+    function is_blueprint_defined(): ?RouteRegistry
+    {
+        return RouteRegistry::get_by_prefix(Request::$uri);
     }
 
     /**
@@ -88,7 +97,7 @@ class Scaffold
         if ($match[0]) {
 
             try {
-                if (!$route->method_allowed()){
+                if (!$route->method_allowed()) {
                     http_response_code(405);
                     ThemeBuilder::$instance->display_error_page(405);
                 }
@@ -100,7 +109,7 @@ class Scaffold
                 }
                 $this->dispatch($route, $match);
                 return true;
-            }catch (Throwable $e){
+            } catch (Throwable $e) {
                 throw new RuntimeError($e->getMessage());
             }
 
@@ -257,7 +266,7 @@ class Scaffold
             } else {
                 ThemeBuilder::$instance->display_error_page(404);
             }
-        }catch (Throwable $e){
+        } catch (Throwable $e) {
             throw new RuntimeError($e->getMessage());
         }
 
