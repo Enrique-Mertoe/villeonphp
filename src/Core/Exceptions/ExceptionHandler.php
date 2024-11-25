@@ -1,13 +1,16 @@
 <?php
 
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use Villeon\Theme\ThemeBuilder;
 
 /**
  * @param Throwable $exception
  * @return void
- * @throws \Twig\Error\LoaderError
- * @throws \Twig\Error\RuntimeError
- * @throws \Twig\Error\SyntaxError
+ * @throws LoaderError
+ * @throws RuntimeError
+ * @throws SyntaxError
  */
 function ExceptionHandler(Throwable $exception): void
 {

@@ -103,7 +103,8 @@ class Request
         self::$form = Collection::from_array($_POST);
         self::$args = $_GET;
         self::$method = $_SERVER["REQUEST_METHOD"];
-        self::$uri = $_SERVER["REQUEST_URI"];
+        $uri = parse_url(urldecode($_SERVER['REQUEST_URI']));
+        self::$uri = trim(preg_replace('#/+#', '/', $uri["path"]));
         self::$headers = getallheaders();
 
         $input = file_get_contents('php://input');

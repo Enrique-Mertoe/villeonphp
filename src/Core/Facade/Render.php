@@ -2,9 +2,11 @@
 
 namespace Villeon\Core\Facade;
 
+use Villeon\Http\Response;
+
 /**
  * @method static string template (string $name, array $context = [])
- * @method static Extension json (array $context)
+ * @method static Response json (array $context)
  */
 class Render extends Facade
 {

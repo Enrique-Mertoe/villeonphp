@@ -42,7 +42,11 @@ class DataTypes
      * $stringColumn = DataTypes::STRING(100, false, ['charset' => 'utf8']);
      * ```
      */
-    public static function STRING(?int $length = 255, bool $binary = false, array $options = []): StringDataType
+    public static function STRING(
+        ?int  $length = 255,
+        bool  $binary = false,
+        array $options = []
+    ): StringDataType
     {
         return new StringDataType($length, $binary, $options);
     }

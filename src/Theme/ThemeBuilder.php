@@ -9,7 +9,6 @@
 namespace Villeon\Theme;
 
 use JetBrains\PhpStorm\NoReturn;
-use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -117,15 +116,15 @@ class ThemeBuilder
 
     /**
      * @return void
-     * @throws LoaderError
-     * @throws RuntimeError
-     * @throws SyntaxError
      */
     #[NoReturn] public function display_404(): void
     {
         try {
             echo $this->env->render("error_404.twig");
-        } finally {
+        }catch (\Exception $e){
+            throw new \RuntimeException($e);
+        }
+        finally {
             exit();
         }
     }

@@ -31,9 +31,9 @@ class Route
     public array $required_params = [];
 
     /**
-     * @var string $name
+     * @var string | null $name
      */
-    public string $name;
+    public ?string $name = null;
     public ?string $prefix;
 
     /**
@@ -110,8 +110,49 @@ class Route
         return [false, null];
     }
 
+    /**
+     * @return string[]
+     */
+    function get_rule_params(): array
+    {
+        $segments = explode('/', trim($this->rule, '/'));
+        $params = [];
+        foreach ($segments as $index => $segment) {
+            if (preg_match('/\{(\w+)}/', $segment)) {
+                $params[] = preg_replace('/[{}]/', "", $segment);
+            }
+        }
+        return $params;
+
+    }
+
     function normalise_rule(): void
     {
         $this->rule = preg_replace('/\s+/', '', $this->rule);
+    }
+
+    /**
+     * @param array $url_args
+     * @param array $args
+     * @return string
+     */
+    public function build_endpoint(array $url_args, array $args): string
+    {
+        $segments = explode('/', trim($this->rule, '/'));
+        $params = [];
+        $url_args = array_reverse($url_args);
+        foreach ($segments as $index => $segment) {
+            if (preg_match('/\{(\w+)}/', $segment)) {
+                $params[] = array_pop($url_args);
+            } else
+                $params[] = $segment;
+        }
+        $arg = '';
+        foreach ($args as $key => $value) {
+            $arg .= "$key=$value&";
+        }
+        if (!empty($arg))
+            $arg = "?" . rtrim($arg, "&");
+        return "/" . implode("/", $params) . $arg;
     }
 }

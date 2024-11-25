@@ -4,6 +4,7 @@ namespace Villeon\Http;
 
 class Response
 {
+    private const DEFAULT_STATUS_CODE = 200;
     /**
      * @var string $content
      */
@@ -12,7 +13,7 @@ class Response
     /**
      * @var int $statusCode
      */
-    protected int $statusCode;
+    protected int $statusCode = 200;
 
     /**
      * @var array $headers
@@ -20,14 +21,31 @@ class Response
     protected array $headers = [];
 
     /**
+     * @var string | null $location
+     */
+    private ?string $location;
+
+    /**
      * Response constructor.
      * @param string $content
      * @param int $statusCode
+     * @param Response|null $response
      */
-    public function __construct(string $content = '', int $statusCode = 200)
+    public function __construct(string $content = '', int $statusCode = 200, ?Response $response = null)
     {
         $this->content = $content;
         $this->statusCode = $statusCode;
+        $this->location = null;
+        if ($response)
+            $this->clone($response);
+    }
+
+    private function clone(Response $response): void
+    {
+        $this->statusCode = $response->statusCode;
+        $this->location = $response->location;
+        $this->content = $response->content;
+        $this->headers = $response->headers;
     }
 
     /**
@@ -38,6 +56,12 @@ class Response
     public function setContent(string $content): static
     {
         $this->content = $content;
+        return $this;
+    }
+
+    public function setLocation(string $location): static
+    {
+        $this->location = $location;
         return $this;
     }
 
@@ -52,12 +76,12 @@ class Response
 
     /**
      * Set the HTTP status code.
-     * @param int $statusCode
+     * @param int|null $statusCode
      * @return Response
      */
-    public function setStatusCode(int $statusCode): static
+    public function setStatusCode(?int $statusCode): static
     {
-        $this->statusCode = $statusCode;
+        $this->statusCode = $statusCode ?? self::DEFAULT_STATUS_CODE;
         return $this;
     }
 
@@ -88,16 +112,11 @@ class Response
      */
     public function send(): void
     {
-        // Set status code
+
         http_response_code($this->statusCode);
 
-        // Set headers
-        foreach ($this->headers as $name => $value) {
-            header("$name: $value");
-        }
 
-        // Output content
-        echo $this->content;
+        print_r($this->content);
     }
 
     /**
@@ -110,5 +129,28 @@ class Response
         $this->setHeader('Content-Type', 'application/json');
         $this->setContent(json_encode($data));
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return "";
+    }
+
+    public static function from(Response $response): Response
+    {
+        return new Response(response: $response);
+    }
+
+    /**
+     * @return array
+     */
+    public function resolved(): array
+    {
+        return [
+            "headers" => $this->headers,
+            "code" => $this->statusCode,
+            "content" => $this->content,
+            "location" => $this->location
+        ];
     }
 }

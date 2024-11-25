@@ -3,7 +3,6 @@
 namespace Villeon\Support\ControlPanel;
 
 use Villeon\Core\Facade\Extension;
-use Villeon\Core\Facade\Route;
 use Villeon\Core\Routing\Blueprint;
 use Villeon\Support\Extensions\ExtensionBuilder;
 
@@ -28,7 +27,7 @@ final class ControlPanel extends ExtensionBuilder
 
     public function build_routes(): void
     {
-        $bp = Blueprint::define("panel", url_prefix: "/control_panel");
+        $bp = Blueprint::define("panel", url_prefix: "/control-panel");
         $bp->get("/", function () {
             return "control panel home";
         });

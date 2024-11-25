@@ -1,6 +1,7 @@
 <?php
 
 use Villeon\Core\Facade\Render;
+use Villeon\Core\Routing\Router;
 use Villeon\Http\Response;
 
 if (!function_exists('view')) {
@@ -15,6 +16,17 @@ if (!function_exists('view')) {
     }
 }
 
+if (!function_exists('jsonify')) {
+    /**
+     * @param array $context
+     * @return string
+     */
+    function jsonify(array $context = []): string
+    {
+        return Render::json($context);
+    }
+}
+
 
 if (!function_exists('response')) {
     /**
@@ -24,5 +36,41 @@ if (!function_exists('response')) {
     function response(mixed $content): Response
     {
         return (new Response)->setContent($content);
+    }
+}
+
+if (!function_exists('redirect')) {
+    /**
+     * @param string $location
+     * @param int|null $code
+     * @return Response
+     */
+    function redirect(string $location, ?int $code = null): Response
+    {
+        return (new Response)->setLocation($location)->setStatusCode($code);
+    }
+}
+
+if (!function_exists('abort')) {
+    /**
+     * @param int|null $code
+     * @return Response
+     */
+    function abort(int $code = null): Response
+    {
+        return new Response;
+    }
+}
+
+if (!function_exists('url_for')) {
+    /**
+     * @param string $endpoint
+     * @param bool|null $external
+     * @param mixed ...$arguments
+     * @return string     *
+     */
+    function url_for(string $endpoint, ?bool $external = null, ...$arguments): string
+    {
+        return Router::build_url_endpoint($endpoint, $external, $arguments);
     }
 }

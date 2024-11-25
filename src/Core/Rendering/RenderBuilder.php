@@ -8,12 +8,12 @@
 
 namespace Villeon\Core\Rendering;
 
-use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use Twig\Loader\FilesystemLoader;
 use Villeon\Http\Request;
+use Villeon\Theme\Environment;
 use Villeon\Theme\ThemeBuilder;
 
 class RenderBuilder

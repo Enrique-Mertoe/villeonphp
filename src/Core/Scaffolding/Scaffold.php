@@ -7,13 +7,12 @@ use JetBrains\PhpStorm\NoReturn;
 use ReflectionException;
 use ReflectionFunction;
 use RuntimeException;
+use Throwable;
 use Villeon\Core\Routing\Route;
-use Villeon\Core\Routing\Router;
 use Villeon\Core\Routing\RouteRegistry;
 use Villeon\Http\Request;
 use Villeon\Http\Response;
 use Villeon\Theme\ThemeBuilder;
-use Villeon\Utils\Collection;
 use Villeon\Utils\Console;
 
 class Scaffold
@@ -27,7 +26,6 @@ class Scaffold
 
     /**
      * @return void
-     * @throws Exception|\Throwable
      */
     protected function init_routes(): void
     {
@@ -38,16 +36,17 @@ class Scaffold
         $default = $routes["default"];
         unset($routes["default"]);
 
-        foreach ($this->prepare_routes($default->getBluePrints()->getAll()) as $route) {
+        foreach ($this->prepare_routes($default->get_defined_routes()->getAll()) as $route) {
             $this->process_route($route);
         }
         foreach ($routes as $name => $group) {
-            foreach ($this->prepare_routes($group->getBluePrints()->getAll()) as $route) {
+            foreach ($this->prepare_routes($group->get_defined_routes()->getAll()) as $route) {
                 if ($this->process_route($route)) {
                     return;
                 }
             }
         }
+        $this->manage_defined_blue_prints();
         $this->manage_unknown_request();
     }
 
@@ -108,7 +107,7 @@ class Scaffold
     {
         $v = implode("/", $v);
         foreach ($this->blue_prints as $name => $group) {
-            foreach ($this->prepare_routes($group->getBluePrints()->getAll()) as $route) {
+            foreach ($this->prepare_routes($group->get_defined_routes()->getAll()) as $route) {
                 if ($route->rule === "/" . $v)
                     return $route;
             }
@@ -117,17 +116,34 @@ class Scaffold
     }
 
     /**
+     * If no matching url, check the current uri with the url prefix of defined blueprints
+     * then redirect to its index page
+     * @return void
+     */
+    private function manage_defined_blue_prints(): void
+    {
+        $uri = Request::$uri;
+        if (RouteRegistry::get_by_prefix($uri)) {
+            header("Location: $uri/");
+            exit;
+        }
+    }
+
+    /**
      * @param Route $route
      * @param array $args
      * @return void
-     * @throws ReflectionException
-     * @throws \Throwable
+     * @throws Throwable
      */
     protected function dispatch(Route $route, array $args = []): void
     {
 
         $controller = $route->controller;
-        $reflection = new ReflectionFunction($controller);
+        try {
+            $reflection = new ReflectionFunction($controller);
+        } catch (ReflectionException $e) {
+            throw new RuntimeException($e);
+        }
         $reflectionParams = $reflection->getParameters();
         $required = count($reflectionParams);
         $found = count($args);
@@ -154,18 +170,21 @@ class Scaffold
 
             Console::Write($bufferedOutput);
             $this->rule_logger(Request::$uri, http_response_code());
-            if ($res instanceof \Throwable) {
+            if ($res instanceof Throwable) {
                 throw $res;
             }
+            if ($res instanceof Response)
+                $this->commit(Response::from($res));
 
-            if (is_string($res))
-                print_r($res);
-            elseif (is_array($res))
-                print_r(json_encode($res));
+            if (is_string($res)) {
+                $content = $res;
+            } elseif (is_array($res))
+                $content = json_encode($res);
             else {
-                throw new \Exception("View function did not return valid response: found " .
+                throw new RuntimeException("View function did not return valid response: found " .
                     gettype($res));
             }
+            $this->commit(new Response($content));
 
 
         }
@@ -174,8 +193,22 @@ class Scaffold
 
     #[NoReturn] private function commit(Response $response): void
     {
-//        $response->send();
-        exit();
+        if ($response = $response->resolved()) {
+            http_response_code($response["code"]);
+            if (!empty($response["headers"]))
+                $this->set_headers($response["headers"]);
+            if (!empty($response["location"]))
+                header("Location: " . $response["location"]);
+            print_r($response["content"]);
+            exit;
+        }
+    }
+
+    private function set_headers(array $headers): void
+    {
+        foreach ($headers as $name => $value) {
+            header("$name: $value");
+        }
     }
 
     /**
@@ -195,21 +228,6 @@ class Scaffold
     }
 
     /**
-     * @return void
-     */
-    private function process_endpoint(): void
-    {
-        $fullUri = urldecode($_SERVER['REQUEST_URI']);
-        $fullUri = parse_url($fullUri)["path"];
-
-        $fullUri = preg_replace('#/+#', '/', $fullUri);
-        $fullUri = trim($fullUri);
-        if (!str_starts_with($fullUri, "/"))
-            $fullUri = "/$fullUri";
-        $this->endpoint = empty($fullUri) ? '/' : $fullUri;
-    }
-
-    /**
      * @return Route|null
      */
     private function is404Defined(): ?Route
@@ -219,7 +237,6 @@ class Scaffold
 
     /**
      * @return void
-     * @throws Exception|\Throwable
      */
     private function manage_unknown_request(): void
     {

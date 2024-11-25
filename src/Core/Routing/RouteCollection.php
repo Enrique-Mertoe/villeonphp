@@ -32,10 +32,21 @@ class RouteCollection
     {
         return $this->routes;
     }
+
     public function get404(): ?Route
     {
         foreach ($this->routes as $route) {
             if ($route->code_handler == 404) {
+                return $route;
+            }
+        }
+        return null;
+    }
+
+    public function getIndex(string $prefix = ""): ?Route
+    {
+        foreach ($this->routes as $route) {
+            if ($route->rule == $prefix . "/") {
                 return $route;
             }
         }
