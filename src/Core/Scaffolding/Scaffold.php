@@ -23,8 +23,6 @@ class Scaffold
      */
     private array $blue_prints;
 
-    private string $endpoint;
-
     /**
      * @return void
      */
@@ -40,7 +38,7 @@ class Scaffold
         foreach ($this->prepare_routes($default->get_defined_routes()->getAll()) as $route) {
             $this->process_route($route);
         }
-        foreach ($routes as $name => $group) {
+        foreach ($routes as $group) {
             foreach ($this->prepare_routes($group->get_defined_routes()->getAll()) as $route) {
                 if ($this->process_route($route)) {
                     return;
@@ -88,7 +86,13 @@ class Scaffold
     {
         $match = $route->match(Request::$uri);
         if ($match[0]) {
+
             try {
+                if (!$route->method_allowed()){
+                    http_response_code(405);
+                    ThemeBuilder::$instance->display_error_page(405);
+                }
+
                 $match = $match[1];
                 if ($route->required_params && ($defined = $this->isDefined(array_slice($match, count($route->required_params) - 1)))) {
                     $this->dispatch($defined);
@@ -111,7 +115,7 @@ class Scaffold
     private function isDefined($v): ?Route
     {
         $v = implode("/", $v);
-        foreach ($this->blue_prints as $name => $group) {
+        foreach ($this->blue_prints as $group) {
             foreach ($this->prepare_routes($group->get_defined_routes()->getAll()) as $route) {
                 if ($route->rule === "/" . $v)
                     return $route;
@@ -245,22 +249,18 @@ class Scaffold
      */
     private function manage_unknown_request(): void
     {
-//        http_response_code(404);
-        if ($route = $this->is404Defined()) {
-            $this->dispatch($route);
-        } else {
-            ThemeBuilder::$instance->display_404();
+        try {
+
+
+            if ($route = $this->is404Defined()) {
+                $this->dispatch($route);
+            } else {
+                ThemeBuilder::$instance->display_error_page(404);
+            }
+        }catch (Throwable $e){
+            throw new RuntimeError($e->getMessage());
         }
 
-    }
-
-    /**
-     * @param int $code
-     * @return void
-     */
-    #[NoReturn] private static function handleError(int $code): void
-    {
-        exit("method not allowed");
     }
 
 

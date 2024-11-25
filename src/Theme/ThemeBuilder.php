@@ -57,7 +57,7 @@ class ThemeBuilder
         $file = $this->static_dir . "/$file";
         if (!file_exists($file)) {
             header("HTTP/1.1 404 Not Found");
-            $this->display_404();
+            $this->display_error_page();
         }
         $mime_type = $this->getMimeType($file);
 
@@ -124,12 +124,13 @@ class ThemeBuilder
     }
 
     /**
+     * @param int $code
      * @return void
      */
-    #[NoReturn] public function display_404(): void
+    #[NoReturn] public function display_error_page(int $code): void
     {
         try {
-            echo $this->env->render("error_404.twig");
+            echo $this->env->render("error_page.twig", ["error" => $code]);
         } catch (\Exception $e) {
             throw new \RuntimeException($e);
         } finally {

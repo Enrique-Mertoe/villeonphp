@@ -3,6 +3,7 @@
 namespace Villeon\Core\Routing;
 
 use Villeon\Error\RuntimeError;
+use Villeon\Http\Request;
 use Villeon\Utils\Console;
 
 class Route
@@ -170,5 +171,10 @@ class Route
         }, $segments);
         $queryString = http_build_query($args);
         return $this->prefix ?? "/" . implode('/', $params) . ($queryString ? '?' . $queryString : '');
+    }
+
+    public function method_allowed(): bool
+    {
+        return in_array(Request::$method, $this->allowed_methods);
     }
 }

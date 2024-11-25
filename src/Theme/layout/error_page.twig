@@ -1,0 +1,14 @@
+{% extends "Base.twig" %}
+{% block title %} Page not found {% endblock %}
+{% block content %}
+    <div class="vstack vh-100 content-center">
+        <div class="text-center">
+            <h3>{{ error }}</h3>
+            {% if error == 404 %}
+                <p>NOT FOUND</p>
+            {% elseif error == 405 %}
+                <p>METHOD NOT ALLOWED</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
