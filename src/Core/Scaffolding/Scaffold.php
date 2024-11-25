@@ -133,7 +133,7 @@ class Scaffold
     private function manage_defined_blueprints(): void
     {
         $uri = Request::$uri;
-        if (($registry = RouteRegistry::get_by_prefix($uri)) && $registry->get_defined_routes()->getIndex()) {
+        if (($registry = RouteRegistry::get_by_prefix($uri))) {
             Dispatcher::redirect("$uri/");
         }
     }
