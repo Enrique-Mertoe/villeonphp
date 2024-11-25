@@ -15,6 +15,7 @@ use Twig\Error\SyntaxError;
 use Twig\Loader\FilesystemLoader;
 use Villeon\Core\Facade\Route;
 use Villeon\Core\OS;
+use Villeon\Utils\Console;
 
 class ThemeBuilder
 {
@@ -54,10 +55,13 @@ class ThemeBuilder
      */
     private function get($file)
     {
-        $file = $this->static_dir . "/$file";
+        if (str_starts_with(trim($file), "villeon/"))
+            $file = $this->self_theme . "/assets/" . str_replace("villeon/", "", $file);
+        else
+            $file = $this->static_dir . "/$file";
         if (!file_exists($file)) {
             header("HTTP/1.1 404 Not Found");
-            $this->display_error_page();
+            $this->display_error_page(404);
         }
         $mime_type = $this->getMimeType($file);
 
