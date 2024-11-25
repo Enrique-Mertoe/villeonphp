@@ -81,7 +81,7 @@ class ThemeBuilder
             return $this->get($filename);
         })->name("static");
         Route::get("/", function () {
-            return "home page";
+            return $this->env->render("home.twig");
         });
     }
 
