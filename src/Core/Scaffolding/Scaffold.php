@@ -34,9 +34,7 @@ class Scaffold
         $routes = $this->blue_prints;
         $default = $routes["default"];
         unset($routes["default"]);
-        if ($bp = $this->is_blueprint_defined()) {
-            Dispatcher::redirect(Request::$uri . "/");
-        }
+        $this->manage_defined_blue_prints();
 
 
         foreach ($this->prepare_routes($default->get_defined_routes()->getAll()) as $route) {
@@ -49,7 +47,7 @@ class Scaffold
                 }
             }
         }
-        $this->manage_defined_blue_prints();
+
         $this->manage_unknown_request();
     }
 
@@ -142,8 +140,7 @@ class Scaffold
     {
         $uri = Request::$uri;
         if (RouteRegistry::get_by_prefix($uri)) {
-            header("Location: $uri/");
-            exit;
+            Dispatcher::redirect("$uri/");
         }
     }
 
