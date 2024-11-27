@@ -2,15 +2,22 @@
 
 namespace Villeon\Support\ControlPanel;
 
+use Twig\Loader\FilesystemLoader;
 use Villeon\Core\Facade\Extension;
+use Villeon\Core\OS;
 use Villeon\Core\Routing\Blueprint;
+use Villeon\Error\RuntimeError;
+use Villeon\Http\Request;
 use Villeon\Support\Extensions\ExtensionBuilder;
+use Villeon\Theme\Environment;
 
 final class ControlPanel extends ExtensionBuilder
 {
+    private Environment $environment;
 
     public function __construct()
     {
+        $this->environment = new Environment(new FilesystemLoader(OS::ROOT . "/Theme/layout/panel"));
         Extension::add("control_panel", builder: $this);
     }
 
@@ -29,11 +36,21 @@ final class ControlPanel extends ExtensionBuilder
     {
         $bp = Blueprint::define("panel", url_prefix: "/control-panel");
         $bp->get("/", function () {
-            return "control panel home";
+            return $this->render("base.twig");
         })->name("dashboard");
-        $bp->get("/control", function () {
-            return "control panel";
+        $bp->post("/actions", function () {
+            $r = [$this, "render"];
+            return ActionBuilder::get(Request::args("type"), $r);
         });
 
+    }
+
+    public function render($name, ...$args): string
+    {
+        try {
+            return $this->environment->render($name, $args);
+        } catch (\Exception $e) {
+            throw new RuntimeError($e->getMessage());
+        }
     }
 }

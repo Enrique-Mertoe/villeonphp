@@ -13,6 +13,7 @@ use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use Twig\Loader\FilesystemLoader;
 use Villeon\Http\Request;
+use Villeon\Http\Response;
 use Villeon\Theme\Environment;
 use Villeon\Theme\ThemeBuilder;
 
@@ -48,13 +49,12 @@ class RenderBuilder
     /**
      * Render a json based response
      * @param array $context
-     * @return string
+     * @return Response
      */
-    public function Json(array $context = []): string
+    public function Json(array $context = []): Response
     {
-        header('Content-Type: application/json');
-        return json_encode($context);
-
+        return (new Response(json_encode($context)))
+            ->setHeader("Content-Type", "application/json");
     }
 
     private static function tData($cont, $type): array

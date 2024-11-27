@@ -134,6 +134,7 @@ class ThemeBuilder
     #[NoReturn] public function display_error_page(int $code): void
     {
         try {
+            http_response_code($code);
             echo $this->env->render("error_page.twig", ["error" => $code]);
         } catch (\Exception $e) {
             throw new \RuntimeException($e);

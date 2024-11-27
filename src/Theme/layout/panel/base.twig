@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Control panel</title>
+    <link rel="stylesheet" href="{{ url_for('static',{filename:'villeon/panel/panel.css'}) }}">
+    <link rel="icon" href="{{ url_for('static',{filename:'villeon/villeon.png'}) }}">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container">
+    <div class="container-layout row">
+        <div class="main-sidebar">
+            <div class="sidebar-content">
+                <div class="sidebar-header">
+                    <img class="panel-logo" src="{{ url_for('static',{filename:'villeon/villeon.png'}) }}" alt="">
+                    <h3 class="logo-text">anel</h3>
+                </div>
+            </div>
+        </div>
+        <div class="main-view">
+            <div class="vstack">
+                <div class="card layout-header pad-2">
+                    <div class="hstack gap-2">
+                        <div class="vsatck layout-header-item content-center">
+                            <h3>Models</h3>
+                            <h1>6</h1>
+                        </div>
+                        <div class="vsatck layout-header-item content-center">
+                            <h3>Extensions</h3>
+                            <h1>6</h1>
+                        </div>
+                        <div class="vsatck layout-header-item content-center">
+                            <h3>Models</h3>
+                            <h1>6</h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="layout-content">
+                    <div class="vstack">
+                        <div class="hstack">
+                            <div class="btn model-btn">Create new model</div>
+                        </div>
+                        <div class="row">
+                            <div class="grid-col">
+                                <ul class="list-view hover-bg-light">
+                                    <li class="list-item">
+                                        <div class="vstack">
+                                            <div class="hstack model-info">
+                                                <span class="model-name">User</span>
+                                                <div class="model-table">
+                                                    users
+                                                </div>
+                                                <div class="model-options">
+                                                    <span class="btn">delete</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-item">
+                                        <div class="vstack">
+                                            <div class="hstack">
+                                                <span>User</span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="grid-col-4">
+                                <div class="card">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{#<div class="modal show modal-new-model" style="display: block" tabindex="-1">#}
+{#    <div class="modal-dialog modal-dialog-centered">#}
+{#        <div class="modal-content">#}
+{#            <div class="modal-header">#}
+{#                <h5 class="modal-title" id="modalVerticallyCenteredLabel">Modal title</h5>#}
+{#                <button type="button" class="btn-close" aria-label="Close"></button>#}
+{#            </div>#}
+{#            <div class="modal-body">...</div>#}
+{#            <div class="modal-footer">#}
+{#                <button type="button" class="btn btn-secondary">Close</button>#}
+{#                <button type="button" class="btn btn-primary">Save changes</button>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{#</div>#}
+
+<script src="https://cdn.bobgroganconsulting.com/js/smallville.min.js"></script>
+<script src="{{ url_for('static',{filename:'villeon/panel/main.js'}) }}"></script>
+</body>
+</html>

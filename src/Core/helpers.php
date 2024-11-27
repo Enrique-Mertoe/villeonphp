@@ -19,9 +19,9 @@ if (!function_exists('view')) {
 if (!function_exists('jsonify')) {
     /**
      * @param array $context
-     * @return string
+     * @return Response
      */
-    function jsonify(array $context = []): string
+    function jsonify(array $context = []): Response
     {
         return Render::json($context);
     }

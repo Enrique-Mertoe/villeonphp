@@ -68,7 +68,7 @@ class Request
         return $_POST;
     }
 
-    public static function args($param = null): array|null
+    public static function args($param = null): array|string|null
     {
         if ($param)
             return $_GET[$param] ?? null;
