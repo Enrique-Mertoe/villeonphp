@@ -7,7 +7,7 @@ use Villeon\Core\Facade\Facade;
 use Villeon\Core\Rendering\RenderBuilder;
 use Villeon\Core\Routing\Router;
 use Villeon\Support\ControlPanel\ControlPanel;
-use Villeon\Support\Extensions\ExtensionBuilder;
+use Villeon\Support\AppEnvironmentVars;
 use Villeon\Support\Extensions\ExtensionManager;
 
 class ApplicationBuilder
@@ -36,6 +36,7 @@ class ApplicationBuilder
         Facade::setInstance("config", new ConfigBuilder());
         Facade::setInstance("route", new Router("default"));
         Facade::setInstance("render", new RenderBuilder());
+        Facade::setInstance("env", new AppEnvironmentVars(BASE_PATH));
     }
 
     protected function load_extensions(): void

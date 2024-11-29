@@ -2,6 +2,8 @@
 
 namespace Villeon\Config;
 
+use Villeon\Core\Facade\Env;
+
 class ConfigBuilder
 {
     private string $SRC_DIR;
@@ -33,5 +35,10 @@ class ConfigBuilder
         foreach ($this->modules as $module) {
             require $this->SRC_DIR . "/$module.php";
         }
+    }
+
+    function db_info(): array
+    {
+        return Env::has("DB_SERVER", "DB_NAME", "DB_PASSWORD", "DB_USER");
     }
 }

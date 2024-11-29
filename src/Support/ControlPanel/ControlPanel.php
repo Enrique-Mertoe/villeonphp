@@ -3,13 +3,16 @@
 namespace Villeon\Support\ControlPanel;
 
 use Twig\Loader\FilesystemLoader;
+use Villeon\Core\Facade\Config;
 use Villeon\Core\Facade\Extension;
 use Villeon\Core\OS;
 use Villeon\Core\Routing\Blueprint;
+use Villeon\Database\VilleonSQL\Model;
 use Villeon\Error\RuntimeError;
 use Villeon\Http\Request;
 use Villeon\Support\Extensions\ExtensionBuilder;
 use Villeon\Theme\Environment;
+use Villeon\Utils\Log;
 
 final class ControlPanel extends ExtensionBuilder
 {
@@ -36,16 +39,23 @@ final class ControlPanel extends ExtensionBuilder
     {
         $bp = Blueprint::define("panel", url_prefix: "/control-panel");
         $bp->get("/", function () {
-            return $this->render("base.twig");
+            $options = [
+                "db" => Config::db_info(),
+                "tables" => Model::getAll()
+            ];
+            return $this->render("dashboard.twig", ['panel' => $options]);
         })->name("dashboard");
         $bp->post("/actions", function () {
             $r = [$this, "render"];
             return ActionBuilder::get(Request::args("type"), $r);
         });
+        $bp->get("/settings", function () {
+            return $this->render("settings.twig");
+        });
 
     }
 
-    public function render($name, ...$args): string
+    public function render($name, $args = []): string
     {
         try {
             return $this->environment->render($name, $args);

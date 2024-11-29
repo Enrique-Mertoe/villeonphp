@@ -5,6 +5,7 @@ namespace Villeon\Database\VilleonSQL;
 use Exception;
 use PDO;
 use Villeon\Database\VilleonSQL\DataTypes\AbstractDataType;
+use Villeon\Error\RuntimeError;
 
 class QueryBuilder
 {
@@ -77,14 +78,10 @@ class QueryBuilder
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
-    /**
-     * @throws Exception
-     */
     public static function fromAttributes(array $attributes): string
     {
 
-        $tableName = $attributes['__table_name__'] ?? throw new Exception('Table name not defined.');
+        $tableName = $attributes['__table_name__'] ?? throw new RuntimeError('Table name not defined.');
 
         $columns = $attributes;
         unset($columns['__table_name__']);
@@ -96,13 +93,13 @@ class QueryBuilder
         foreach ($columns as $name => $definition) {
             $columnDef = "`$name` ";
 
-            $type = $definition['type'] ?? throw new Exception("Type not defined for column `$name`.");
+            $type = $definition['type'] ?? throw new RuntimeError("Type not defined for column `$name`.");
             if ($type instanceof AbstractDataType) {
                 $columnDef .= $type->toSql();
             } elseif (is_string($type)) {
                 $columnDef .= $type;
             } else {
-                throw new Exception("Invalid type for column `$name`.");
+                throw new RuntimeError("Invalid type for column `$name`.");
             }
 
 

@@ -1,5 +1,7 @@
 <?php
 
+
+use Villeon\Core\Facade\Env;
 use Villeon\Core\Facade\Render;
 use Villeon\Core\Routing\Router;
 use Villeon\Http\Response;
@@ -64,6 +66,7 @@ if (!function_exists('abort')) {
 
 if (!function_exists('url_for')) {
     /**
+     * Build URL endpoint for a given Route
      * @param string $endpoint
      * @param bool|null $external
      * @param mixed ...$arguments
@@ -72,5 +75,18 @@ if (!function_exists('url_for')) {
     function url_for(string $endpoint, ?bool $external = null, ...$arguments): string
     {
         return Router::build_url_endpoint($endpoint, $external, $arguments);
+    }
+}
+
+if (! function_exists('env')) {
+    /**
+     * Gets the value of an environment variable.
+     * @param string $key
+     * @param mixed|null $default
+     * @return mixed
+     */
+    function env(string $key, mixed $default = null): mixed
+    {
+        return Env::get($key, $default);
     }
 }

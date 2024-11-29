@@ -23,13 +23,12 @@ class Model
         $this->pdo = $pdo;
     }
 
-    public static function init_model(): void
+    public function init_model(): void
     {
-        foreach (self::$model_definitions as $defined) {
-            $defined->attributes["__table_name__"] = $defined->table;
-            $qry = QueryBuilder::fromAttributes($defined->attributes);
-            $defined->pdo->exec($qry);
-        }
+        $this->attributes["__table_name__"] = $this->table;
+        $qry = QueryBuilder::fromAttributes($this->attributes);
+        $this->pdo->exec($qry);
+
     }
 
     private function setTable($table): Model
@@ -110,6 +109,15 @@ class Model
         $model->setTable($name)->setAttributes($attributes);
         self::$model_definitions[] = $model;
         return $model;
+    }
+
+    public static function getAll(): array
+    {
+        try {
+            return ModelFactory::getInstance()->getAll();
+        }catch (\Exception){
+            return [];
+        }
     }
 
 }

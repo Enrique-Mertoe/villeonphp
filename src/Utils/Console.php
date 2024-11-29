@@ -18,9 +18,15 @@ class Console
     {
         (new Console())->doWrite($message, "white");
     }
+
     public static function Warn($message): void
     {
         (new Console())->doWrite($message, "yellow");
+    }
+
+    public static function Success($message): void
+    {
+        (new Console())->doWrite($message, "green");
     }
 
     function doWrite($message, $color = null): void

@@ -28,10 +28,10 @@ final class Application extends ApplicationBuilder
     {
         VilleonSQL::init_database(
             new DBOptions(
-                host: DATABASE_CONFIG["host"],
-                user: DATABASE_CONFIG["user"],
-                password: DATABASE_CONFIG["password"],
-                name: DATABASE_CONFIG["name"]
+                host: env("DB_SERVER", ''),
+                user: env("DB_USER", ''),
+                password: env("DB_PASSWORD", ''),
+                name: env("DB_NAME", '')
             )
         );
         (new VilleonSQL())->build();
