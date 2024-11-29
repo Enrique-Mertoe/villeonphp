@@ -30,7 +30,7 @@ final class AppEnvironmentVars
     {
         $file = $this->base_path . "/.env";
         if (!file_exists($file))
-            $this->loaded_vars = [];
+            fopen($file, "w");
         $content = explode("\n", file_get_contents($file));
 
         foreach ($content as $line) {
