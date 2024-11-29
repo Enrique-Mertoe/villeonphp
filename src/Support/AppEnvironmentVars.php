@@ -29,6 +29,7 @@ final class AppEnvironmentVars
     private function load_vars(): void
     {
         $file = $this->base_path . "/.env";
+        $this->loaded_vars = [];
         if (!file_exists($file))
             fopen($file, "w");
         $content = explode("\n", file_get_contents($file));
