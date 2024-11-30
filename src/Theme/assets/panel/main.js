@@ -7,7 +7,8 @@
     let main = {
         init() {
             document.addEventListener("DOMContentLoaded", function () {
-                main.load_components()
+                main.admin_config();
+                main.load_components();
             });
         },
         load_components() {
@@ -17,6 +18,20 @@
                         store.componets = res.data;
                     }
                 })
+        },
+        admin_config(){
+          $$(".secure-view").modal("show",function (md) {
+              md.onClose(function (){
+                  if (md.body.find('form input:checked').size) {
+                      $$.post("/control-panel/actions?type=disable_secure"
+                      )
+                  }
+
+              });
+              md.onClosed(function (){
+                  $$(".secure-view").remove();
+              });
+          })
         },
         ui: {
             get_component(name) {
@@ -210,6 +225,7 @@
     $$('.table-item').each(function () {
         Table(this);
     });
+
 
 
 });

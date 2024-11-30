@@ -90,3 +90,4 @@ if (! function_exists('env')) {
         return Env::get($key, $default);
     }
 }
+

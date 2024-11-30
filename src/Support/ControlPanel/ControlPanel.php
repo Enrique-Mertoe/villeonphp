@@ -7,6 +7,7 @@ use Villeon\Core\Facade\Config;
 use Villeon\Core\Facade\Extension;
 use Villeon\Core\OS;
 use Villeon\Core\Routing\Blueprint;
+use Villeon\Core\Session;
 use Villeon\Database\VilleonSQL\Model;
 use Villeon\Error\RuntimeError;
 use Villeon\Http\Request;
@@ -39,6 +40,8 @@ final class ControlPanel extends ExtensionBuilder
     {
         $bp = Blueprint::define("panel", url_prefix: "/control-panel");
         $bp->get("/", function () {
+            if (env("PANEL_SECURED") && !Session::has("admin-session"))
+                return redirect(url_for('admin.auth'));
             $options = [
                 "db" => Config::db_info(),
                 "tables" => Model::getAll()

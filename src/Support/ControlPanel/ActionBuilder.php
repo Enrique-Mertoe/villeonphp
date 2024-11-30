@@ -3,6 +3,7 @@
 namespace Villeon\Support\ControlPanel;
 
 use Closure;
+use Villeon\Core\Facade\Settings;
 use Villeon\Database\VilleonSQL\Model;
 use Villeon\Database\VilleonSQL\VilleonSQL;
 use Villeon\Http\Request;
@@ -85,6 +86,11 @@ class ActionBuilder
     {
         [$db_server, $db_user, $db_password, $db_name] = array_values(Request::$form->array());
         VilleonSQL::save_connection_string("$db_server//$db_user//$db_password//$db_name");
+        return $this->make_res(ok: true);
+    }
+    public function disable_secure(): Response
+    {
+        Settings::set("SHOW_ADMIN_SECURE_WIZARD",false);
         return $this->make_res(ok: true);
     }
 

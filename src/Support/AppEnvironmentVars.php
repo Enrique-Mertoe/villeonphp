@@ -18,6 +18,11 @@ final class AppEnvironmentVars
         return $this->loaded_vars[$key] ?? $default;
     }
 
+    function all(): array
+    {
+        return $this->loaded_vars;
+    }
+
     function has(...$keys): array
     {
         return array_intersect_key($this->loaded_vars, array_flip($keys));

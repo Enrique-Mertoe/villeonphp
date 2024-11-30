@@ -303,6 +303,9 @@ a.btn{
     cursor: pointer;
     transition: .2s;
 }
+.btn-sm{
+    padding:0 .3rem;
+}
 .btn-primary{
     background: var(--color-main);
     color: #ffffff;
@@ -345,7 +348,6 @@ a.btn{
 .bg-danger-soft,
 .bg-danger\:soft
 {
-    color: var(--danger);
     background: var(--danger-soft);
 }
 
@@ -545,7 +547,10 @@ a.btn{
     outline: 0;
     background: rgba(0, 0, 0, 0.09);
 }
-
+.modal.is-shown{
+    display: block;
+    opacity: 1;
+}
 .modal-dialog {
     position: relative;
     width: auto;
