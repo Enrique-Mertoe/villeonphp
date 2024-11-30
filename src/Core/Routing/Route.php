@@ -5,6 +5,7 @@ namespace Villeon\Core\Routing;
 use Villeon\Error\RuntimeError;
 use Villeon\Http\Request;
 use Villeon\Utils\Console;
+use Villeon\Utils\Log;
 
 class Route
 {
@@ -106,8 +107,9 @@ class Route
      */
     public function match($url): array
     {
+        $rule = $this->rule;
         if ($this->prefix)
-            $this->rule = $this->prefix . $this->rule;
+            $rule = $this->prefix . $this->rule;
         $this->normalise_rule();
         $mapping = [];
         $mapper = function ($item, $regex) use (&$mapping) {
@@ -125,7 +127,7 @@ class Route
             };
             $mapper($name, $regex);
             return $regex;
-        }, $this->rule);
+        }, $rule);
         if (preg_match('#^' . $regex . '$#', $url, $matches)) {
             array_shift($matches);
             $this->required_params = array_combine(array_keys($mapping), $matches);
@@ -165,12 +167,17 @@ class Route
     public function build_endpoint(array $url_args, array $args): string
     {
         $segments = explode('/', trim($this->rule, '/'));
+
         $url_args = array_reverse($url_args);
         $params = array_map(function ($segment) use (&$url_args) {
             return preg_match('/\{(\w+)(?::\w+)?}/', $segment) ? array_pop($url_args) : $segment;
         }, $segments);
-        $queryString = http_build_query($args);
-        return $this->prefix ?? "/" . implode('/', $params) . ($queryString ? '?' . $queryString : '');
+
+        $queryString = !empty($args) ? '?' . http_build_query($args) : '';
+        $path = implode('/', $params);
+        $prefix = rtrim($this->prefix ?? '/', '/');
+        $path = ltrim($path, '/');
+        return $prefix . '/' . $path . $queryString;
     }
 
     public function method_allowed(): bool

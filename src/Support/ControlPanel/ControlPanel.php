@@ -51,7 +51,7 @@ final class ControlPanel extends ExtensionBuilder
         });
         $bp->get("/settings", function () {
             return $this->render("settings.twig");
-        });
+        })->name("settings");
 
     }
 

@@ -1339,4 +1339,31 @@ a.btn{
     color: var(--color-main);
 }
 
+.sidebar-menu{
+    display: flex;
+    flex-direction: column;
+    list-style-type: none;
+    padding: 0;
 
+}
+.sidebar-menu .menu-item{
+    width: 100%!important;
+}
+.sidebar-menu .menu-link{
+    width: 100%;
+    padding: .4rem .3rem;
+    color: rgba(0, 0, 0, 0.74);
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+    align-self: stretch;
+    text-decoration: none;
+}
+
+.sidebar-menu .menu-link svg{
+    width: 24px;
+    height: 24px;
+}
+.sidebar-menu .menu-link:hover{
+    background: rgba(0,0,0,0.04);
+}

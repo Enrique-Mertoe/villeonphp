@@ -835,3 +835,6 @@
 .color-green {
     color: #09B850;
 }
+.capitalize{
+    text-transform: capitalize;
+}

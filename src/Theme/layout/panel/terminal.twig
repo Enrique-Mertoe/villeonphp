@@ -1,0 +1,84 @@
+{% extends "base.twig" %}
+{% block content %}
+    <div class="">
+        <style>
+            #terminal {
+                background-color: #333;
+                padding: 10px;
+                width: 100%;
+                height: 400px;
+                overflow-y: auto;
+                border-radius: 5px;
+                font-size: 14px;
+                white-space: pre-wrap;
+            }
+            input {
+                background-color: #222;
+                color: #f1f1f1;
+                border: none;
+                width: 100%;
+                padding: 10px;
+                font-size: 14px;
+                margin-top: 10px;
+            }
+            input:focus {
+                outline: none;
+            }
+        </style>
+        <div id="terminal"></div>
+        <input type="text" id="commandInput" placeholder="Type a command..." autofocus />
+
+        <script>
+            const terminalDiv = document.getElementById('terminal');
+            const commandInput = document.getElementById('commandInput');
+
+            // Function to handle user input and execute commands
+            function handleInput(event) {
+                if (event.key === 'Enter') {
+                    const command = commandInput.value.trim();
+                    if (command) {
+                        displayCommand(command);
+                        executeCommand(command);
+                    }
+                    commandInput.value = ''; // Clear the input
+                }
+            }
+
+            // Display the command in the terminal UI
+            function displayCommand(command) {
+                const newCommandLine = document.createElement('div');
+                newCommandLine.textContent = `$ ${command}`;
+                terminalDiv.appendChild(newCommandLine);
+                terminalDiv.scrollTop = terminalDiv.scrollHeight; // Scroll to the bottom
+            }
+
+            // Display the output of the command in the terminal UI
+            function displayOutput(output) {
+                const newOutputLine = document.createElement('div');
+                newOutputLine.textContent = output;
+                terminalDiv.appendChild(newOutputLine);
+                terminalDiv.scrollTop = terminalDiv.scrollHeight; // Scroll to the bottom
+            }
+
+            // Function to send the command to the PHP backend
+            async function executeCommand(command) {
+                try {
+                    const response = await fetch('http://127.0.0.1:5000/terminal', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: 'command=' + encodeURIComponent(command),
+                    });
+                    const result = await response.json();
+                    displayOutput(result); // Display the output from the server
+                } catch (error) {
+                    console.log(error)
+                    displayOutput('Error executing command: ' + error);
+                }
+            }
+
+            commandInput.addEventListener('keydown', handleInput);
+        </script>
+    </div>
+{% endblock %}

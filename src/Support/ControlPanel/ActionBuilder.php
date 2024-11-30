@@ -88,6 +88,20 @@ class ActionBuilder
         return $this->make_res(ok: true);
     }
 
+    public function table_delete(): Response
+    {
+        [$table] = array_values(Request::$form->array());
+        Model::removeModel($table);
+        return $this->make_res(ok: true);
+    }
+    public function table_info(): Response
+    {
+        [$table] = array_values(Request::$form->array());
+        Log::i("kkk",$table);
+        $data = $this->view("comp/model_view.twig",["model_info"=>Model::infoSchema($table)]);
+        return $this->make_res(ok: true,data: $data);
+    }
+
     /**
      * @return Response
      */

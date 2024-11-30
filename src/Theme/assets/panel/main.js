@@ -80,7 +80,7 @@
             })
             .onOpen(function (ev) {
                 let modal = this;
-                if (args){
+                if (args) {
                     this.view.find('[name=db_server]').val(args[0]);
                     this.view.find('[name=db_user]').val(args[1]);
                     this.view.find('[name=db_name]').val(args[2]);
@@ -146,7 +146,70 @@
         if (!$$(ev.target).closest(".menu").size && !$$(ev.target).is("[data-smv-toggle=dropdown]")) {
             $$(".menu-options").rClass("show");
         }
-    })
+    });
+
+    const ModelView = function () {
+        return new ModelView.init(...arguments);
+    };
+    (ModelView.init = function (trigger, view, table) {
+        view = $$(view);
+        this.trigger = trigger = $$(trigger);
+        this.table = table;
+        this.view = view;
+        let body = view.find(".wizard-body");
+        $$(".model-view-container").html(view);
+        view.find(".model-table-name").txt(table.name);
+        view.find(".wizard-body").html("Please Wait...");
+        let fd = new FormData();
+        fd.append("table",table.name)
+        $$.post({
+            url: "/control-panel/actions?type=table_info",
+            data: fd
+        }).then(res=>{
+            if (res.ok){
+                let d = document.createElement("div");
+                d.innerHTML =res.data;
+                body.html($$(d).find(".wizard-body").html());
+            }
+        })
+
+    }).prototype = {};
+
+    const Table = function () {
+        return new Table.init(...arguments);
+    };
+    (Table.init = function (view) {
+        this.view = view = $$(view);
+        this.name = view.find(".model-name").txt();
+        let self = this;
+        view.on("click", function () {
+            ModelView(this, main.ui.get_component(".model-view"), self);
+        });
+        view.find('[data-t-del]').on("click", function (ev) {
+            ev.stopPropagation();
+            if (confirm("This table is going to be deleted")) {
+                let fd = new FormData();
+                fd.append("table", view.find(".model-name").txt())
+                $$.post({
+                    url: '/control-panel/actions?type=table_delete',
+                    data: fd
+                }).then(res => {
+                    if (res.ok) {
+                        view.remove()
+                    } else {
+                        alert(res.data)
+                    }
+                })
+
+            }
+        })
+    }).prototype = {
+        constructor: Table,
+    };
+    w.Table = Table;
+    $$('.table-item').each(function () {
+        Table(this);
+    });
 
 
 });

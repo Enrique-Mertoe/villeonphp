@@ -115,7 +115,25 @@ class Model
     {
         try {
             return ModelFactory::getInstance()->getAll();
-        }catch (\Exception){
+        } catch (\Exception) {
+            return [];
+        }
+    }
+
+    public static function removeModel($name): bool
+    {
+        try {
+            return ModelFactory::getInstance()->removeModel($name);
+        } catch (\Exception) {
+            return false;
+        }
+    }
+
+    public static function infoSchema($name): array
+    {
+        try {
+            return ModelFactory::getInstance()->infoSchema($name);
+        } catch (\Exception) {
             return [];
         }
     }

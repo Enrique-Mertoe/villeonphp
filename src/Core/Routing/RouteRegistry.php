@@ -6,6 +6,7 @@ namespace Villeon\Core\Routing;
 use RuntimeException;
 use Villeon\Error\RuntimeError;
 use Villeon\Utils\Console;
+use Villeon\Utils\Log;
 
 abstract class RouteRegistry
 {
