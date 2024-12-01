@@ -1,7 +1,7 @@
 {% extends "base.twig" %}
 {% block content %}
     <div class="vstack">
-        <div class="card my2 {{ panel.db ? 'bg-green:soft' : 'bg-danger:soft' }}">
+        <div class="card my2 {{ panel.db ? 'bg-green:soft __can-connect' : 'bg-danger:soft' }}">
             {% if panel.db %}
                 <div class="hstack px-2">
                     <i class="color-green">

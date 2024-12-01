@@ -132,3 +132,35 @@
 </div>
 
 {% include "comp/model_view.twig" %}
+
+<div class="modal center-grow admin-form" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-tixtle" id="modalVerticallyCenteredLabel">
+                    Create Super Admin
+                </h5>
+                <button data-smv-dismiss="modal" type="button" class="btn-close" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form class="vstack form-new-model gap-3">
+                    <div>
+                        <label>Email</label>
+                        <input type="email" name="admin-email" class="form-input" placeholder="Email">
+                    </div>
+                    <div>
+                        <label>Password</label>
+                        <input type="password" name="password" class="form-input" placeholder="**********">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger-soft:hover py-1 btn-secondary">Cancel</button>
+                        <button type="submit" class="btn btn-loader btn-primary-soft py-1 btn-primary">
+                            Create
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>

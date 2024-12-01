@@ -134,7 +134,7 @@ class Request
     /**
      * @return bool
      */
-    public function isPost(): bool
+    public static function isPost(): bool
     {
         return self::$method === 'POST';
     }
@@ -142,7 +142,7 @@ class Request
     /**
      * @return bool
      */
-    public function isGet(): bool
+    public static function isGet(): bool
     {
         return self::$method === 'GET';
     }

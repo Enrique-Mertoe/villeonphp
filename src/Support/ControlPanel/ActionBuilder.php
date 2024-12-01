@@ -4,6 +4,7 @@ namespace Villeon\Support\ControlPanel;
 
 use Closure;
 use Villeon\Core\Facade\Settings;
+use Villeon\Database\VilleonSQL\DataTypes\DataTypes;
 use Villeon\Database\VilleonSQL\Model;
 use Villeon\Database\VilleonSQL\VilleonSQL;
 use Villeon\Http\Request;
@@ -56,10 +57,12 @@ class ActionBuilder
      */
     private function process_action(): Response
     {
+        $required = ["create_super_admin"];
         if (!method_exists($this, $this->action))
             return $this->make_res();
         $action = $this->action;
         try {
+
             return $this->$action();
         } catch (\Exception $e) {
             return $this->make_res(data: $e->getMessage());
@@ -88,9 +91,32 @@ class ActionBuilder
         VilleonSQL::save_connection_string("$db_server//$db_user//$db_password//$db_name");
         return $this->make_res(ok: true);
     }
+
     public function disable_secure(): Response
     {
-        Settings::set("SHOW_ADMIN_SECURE_WIZARD",false);
+        Settings::set("SHOW_ADMIN_SECURE_WIZARD", false);
+        return $this->make_res(ok: true);
+    }
+
+    public function create_super_admin(): Response
+    {
+        [$email, $password] = array_values(Request::$form->array());
+        $model = Model::define("villeon_admin", [
+            "email" => [
+                "type" => DataTypes::STRING(),
+                "unique" => true
+            ],
+            "password" => [
+                "type" => DataTypes::STRING()
+            ]
+        ]);
+        $model->init_model();
+        $model->create([
+            "email" => $email,
+            "password" => $password
+        ]);
+        Settings::set("SHOW_ADMIN_SECURE_WIZARD", false);
+        Settings::set("PANEL_SECURED", true);
         return $this->make_res(ok: true);
     }
 
@@ -100,12 +126,13 @@ class ActionBuilder
         Model::removeModel($table);
         return $this->make_res(ok: true);
     }
+
     public function table_info(): Response
     {
         [$table] = array_values(Request::$form->array());
-        Log::i("kkk",$table);
-        $data = $this->view("comp/model_view.twig",["model_info"=>Model::infoSchema($table)]);
-        return $this->make_res(ok: true,data: $data);
+        Log::i("kkk", $table);
+        $data = $this->view("comp/model_view.twig", ["model_info" => Model::infoSchema($table)]);
+        return $this->make_res(ok: true, data: $data);
     }
 
     /**

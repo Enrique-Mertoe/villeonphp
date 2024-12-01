@@ -19,19 +19,28 @@
                     }
                 })
         },
-        admin_config(){
-          $$(".secure-view").modal("show",function (md) {
-              md.onClose(function (){
-                  if (md.body.find('form input:checked').size) {
-                      $$.post("/control-panel/actions?type=disable_secure"
-                      )
-                  }
+        admin_config() {
+            $$(".secure-view").modal("show", function (md) {
+                md.onClose(function () {
+                    if (md.body.find('form input:checked').size) {
+                        $$.post("/control-panel/actions?type=disable_secure"
+                        )
+                    }
 
-              });
-              md.onClosed(function (){
-                  $$(".secure-view").remove();
-              });
-          })
+                });
+                md.onClosed(function () {
+                    $$(".secure-view").remove();
+                });
+
+                md.body.find('[data-smv-next]').click(function (ev) {
+                    ev.preventDefault();
+                    if (!$$(".__can-connect").size) {
+                        main.settings.db_config()
+                    }else{
+                        main.settings.create_admin();
+                    }
+                })
+            })
         },
         ui: {
             get_component(name) {
@@ -51,6 +60,66 @@
                         return this;
                     }
                 }
+            }
+        },
+        settings: {
+            db_config(e) {
+                let comp = main.ui.get_component(".comp-db-config");
+                $$("body").append(comp);
+
+                const args = e instanceof Element ?
+                    $$(e).attr("href").substring(2).split(',') : null;
+                Modal(comp)
+                    .onDismiss(function (ev) {
+                        ev.clear()
+                    })
+                    .onOpen(function (ev) {
+                        let modal = this;
+                        if (args) {
+                            this.view.find('[name=db_server]').val(args[0]);
+                            this.view.find('[name=db_user]').val(args[1]);
+                            this.view.find('[name=db_name]').val(args[2]);
+                        }
+                        this.view.find(".form-db-config").on("submit", function (ev) {
+                            ev.preventDefault();
+                            let self = this;
+                            let btn = main.ui.btnLoader($$(this).find("button[type=submit]")).load();
+                            let fd = new FormData(this);
+                            $$.post({url: "/control-panel/actions?type=db_config", data: fd})
+                                .then(res => {
+                                    btn.dismiss();
+                                    if (res.ok) {
+                                        modal.dismiss();
+                                        location.reload()
+                                    }
+                                });
+                        });
+                    })
+                    .show();
+            },
+            create_admin() {
+                let comp = main.ui.get_component(".admin-form");
+                $$("body").append(comp);
+                Modal(comp)
+                    .onOpen(function (ev){
+                        let modal= this;
+                        this.view.find("form").on("submit", function (ev) {
+                            ev.preventDefault();
+                            let self = this;
+                            let btn = main.ui.btnLoader($$(this).find("button[type=submit]")).load();
+                            let fd = new FormData(this);
+                            $$.post({url: "/control-panel/actions?type=create_super_admin", data: fd})
+                                .then(res => {
+                                    btn.dismiss();
+                                    if (res.ok) {
+                                        modal.dismiss();
+                                        location.reload()
+                                    }
+                                });
+                        });
+
+                    })
+                    .show();
             }
         }
     }
@@ -85,38 +154,7 @@
     });
     $$(document).on("click", "[data-smv-component=db-config", function (ev) {
         ev.preventDefault()
-        let comp = main.ui.get_component(".comp-db-config");
-        $$("body").append(comp);
-
-        const args = $$(this).attr("href").substring(2).split(',')
-        Modal(comp)
-            .onDismiss(function (ev) {
-                ev.clear()
-            })
-            .onOpen(function (ev) {
-                let modal = this;
-                if (args) {
-                    this.view.find('[name=db_server]').val(args[0]);
-                    this.view.find('[name=db_user]').val(args[1]);
-                    this.view.find('[name=db_name]').val(args[2]);
-                }
-                this.view.find(".form-db-config").on("submit", function (ev) {
-                    ev.preventDefault();
-                    let self = this;
-                    let btn = main.ui.btnLoader($$(this).find("button[type=submit]")).load();
-                    let fd = new FormData(this);
-                    $$.post({url: "/control-panel/actions?type=db_config", data: fd})
-                        .then(res => {
-                            btn.dismiss();
-                            if (res.ok) {
-                                modal.dismiss();
-                                location.reload()
-                            }
-                        });
-                });
-            })
-            .show();
-
+        main.settings.db_config(this);
 
     })
     $$(document).on("click", "[data-smv-toggle=model-item", function (ev) {
@@ -176,14 +214,14 @@
         view.find(".model-table-name").txt(table.name);
         view.find(".wizard-body").html("Please Wait...");
         let fd = new FormData();
-        fd.append("table",table.name)
+        fd.append("table", table.name)
         $$.post({
             url: "/control-panel/actions?type=table_info",
             data: fd
-        }).then(res=>{
-            if (res.ok){
+        }).then(res => {
+            if (res.ok) {
                 let d = document.createElement("div");
-                d.innerHTML =res.data;
+                d.innerHTML = res.data;
                 body.html($$(d).find(".wizard-body").html());
             }
         })
@@ -225,7 +263,6 @@
     $$('.table-item').each(function () {
         Table(this);
     });
-
 
 
 });

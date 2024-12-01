@@ -11,11 +11,11 @@ class Router extends RouteRegistry
     /**
      * @param $rule
      * @param ...$options
-     * @return void
+     * @return Route
      */
-    public function route($rule, ...$options): void
+    public function route($rule, ...$options): Route
     {
-        $this->addRoute($rule, ...self::process_options($options));
+        return $this->addRoute($rule, ...self::process_options($options));
     }
 
     /**
@@ -78,7 +78,7 @@ class Router extends RouteRegistry
      */
     private function addRoute(string $rule, array $methods, \Closure $controller): Route
     {
-        $route = new Route($rule, $methods, $controller,$this);
+        $route = new Route($rule, $methods, $controller, $this);
         $route->prefix = $this->prefix;
         $this->routes->add($route);
         return $route;
@@ -87,7 +87,7 @@ class Router extends RouteRegistry
     private function addErrorHandler(int $code, \Closure $controller): Route
     {
         $methods = ["GET"];
-        $route = new Route((string)$code, $methods, $controller,$this);
+        $route = new Route((string)$code, $methods, $controller, $this);
         $route->prefix = $this->prefix;
         $route->code_handler = $code;
         $this->error_handlers->add($route);
