@@ -9,6 +9,7 @@
   },
   "require": {
     "php": "^8.0",
+    "villeon/villeon-orm": "@dev",
     "twig/twig": "^3.0",
     "ext-pdo": "*",
     "ext-mysqli": "*"

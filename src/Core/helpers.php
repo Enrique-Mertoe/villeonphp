@@ -3,6 +3,7 @@
 
 use Villeon\Core\Facade\Env;
 use Villeon\Core\Facade\Render;
+use Villeon\Core\Messages;
 use Villeon\Core\Routing\Router;
 use Villeon\Http\Response;
 
@@ -78,7 +79,7 @@ if (!function_exists('url_for')) {
     }
 }
 
-if (! function_exists('env')) {
+if (!function_exists('env')) {
     /**
      * Gets the value of an environment variable.
      * @param string $key
@@ -88,6 +89,41 @@ if (! function_exists('env')) {
     function env(string $key, mixed $default = null): mixed
     {
         return Env::get($key, $default);
+    }
+}
+
+if (!function_exists("flash")) {
+    /**
+     * Flashes a message to the next request.  In order to remove the
+     * flashed message from the session and to display it to the user,
+     * the template has to call :func:`get_flashed_messages`.
+     * @param string $message
+     * @param int $category
+     * @return void
+     */
+    function flash(string $message,int $category = Messages::MESSAGE): void
+    {
+        Messages::add($message,$category);
+    }
+}
+if (!function_exists("get_flashed_messages")) {
+    /**
+     * Pulls all flashed messages from the session and returns them.
+     * Further calls in the same request to the function will return
+     * the same messages.
+     * By default, just the messages are returned,
+     * but when `with_categories` is set to ``true``, the return value will
+     * be an ``array<key,value>`` instead.
+     *
+     * Filter the flashed messages to one or more categories by providing those
+     * categories in `category_filter`.
+     * @param bool $with_categories
+     * @param array $category_filter
+     * @return array
+     */
+    function get_flashed_messages(bool $with_categories=false,array $category_filter=[]): array
+    {
+        return Messages::all($with_categories,$category_filter);
     }
 }
 

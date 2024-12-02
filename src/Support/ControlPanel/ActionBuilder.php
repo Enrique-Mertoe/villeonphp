@@ -110,10 +110,11 @@ class ActionBuilder
                 "type" => DataTypes::STRING()
             ]
         ]);
+        $algorithm = defined('PASSWORD_ARGON2ID') ? PASSWORD_ARGON2ID : PASSWORD_BCRYPT;
         $model->init_model();
         $model->create([
             "email" => $email,
-            "password" => $password
+            "password" => password_hash($password, $algorithm)
         ]);
         Settings::set("SHOW_ADMIN_SECURE_WIZARD", false);
         Settings::set("PANEL_SECURED", true);

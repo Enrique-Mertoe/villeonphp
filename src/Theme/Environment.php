@@ -6,6 +6,7 @@ use Twig\Loader\LoaderInterface;
 use Twig\TwigFunction;
 use Villeon\Core\Facade\Env;
 use Villeon\Core\Facade\Settings;
+use Villeon\Utils\Log;
 
 /**
  *
@@ -31,6 +32,11 @@ class Environment extends \Twig\Environment
         $this->addFunction(new TwigFunction("url_for", function ($endpoint, ...$args) {
             return url_for($endpoint, null, ...($args[0] ?? []));
         }));
+        $this->addFunction(new TwigFunction("get_flashed_messages",
+                function (bool $with_categories = false, array $category_filter = []) {
+                     return get_flashed_messages($with_categories, $category_filter);
+                })
+        );
     }
 
     /**

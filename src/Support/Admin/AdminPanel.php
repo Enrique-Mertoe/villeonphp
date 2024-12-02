@@ -4,6 +4,7 @@ namespace Villeon\Support\Admin;
 
 use Twig\Loader\FilesystemLoader;
 use Villeon\Core\Facade\Extension;
+use Villeon\Core\Messages;
 use Villeon\Core\OS;
 use Villeon\Core\Routing\Blueprint;
 use Villeon\Core\Session;
@@ -42,7 +43,12 @@ class AdminPanel extends ExtensionBuilder
         })->name("dashboard");
         $bp->route("/auth/login", ["GET", "POST"], function () {
             if (Request::isPost()) {
-
+                [$email, $password] = array_values(Request::$form->array());
+                if (AdminAuth::login($email, $password)) {
+                    Session::set("admin-session", $email);
+                    return redirect(url_for("panel.dashboard"));
+                } else
+                    flash("Unable to login_admin",Messages::ERROR);
             }
             return $this->render("auth.twig");
         })->name("auth");
