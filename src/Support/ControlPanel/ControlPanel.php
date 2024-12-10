@@ -41,13 +41,14 @@ final class ControlPanel extends ExtensionBuilder
     {
         $bp = Blueprint::define("panel", url_prefix: "/control-panel");
         $bp->get("/", function () {
-            if (Settings::get("PANEL_SECURED") && !Session::has("admin-session"))
-                return redirect(url_for('admin.auth'));
+//            if (Settings::get("PANEL_SECURED") && !Session::has("admin-session"))
+//                return redirect(url_for('admin.auth'));
+
             $options = [
                 "db" => Config::db_info(),
                 "tables" => Model::getAll()
             ];
-            return $this->render("dashboard.twig", ['panel' => $options]);
+            return $this->render("dashboard.t wig", ['panel' => $options]);
         })->name("dashboard");
         $bp->post("/actions", function () {
             $r = [$this, "render"];

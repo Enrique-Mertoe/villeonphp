@@ -5,14 +5,17 @@
     "psr-4": {
       "Villeon\\": "src/"
     },
-    "files": ["src/Core/helpers.php"]
+    "files": [
+      "src/Core/helpers.php",
+      "src/Utils/functions.php"
+    ]
   },
   "require": {
     "php": "^8.0",
-    "villeon/villeon-orm": "@dev",
     "twig/twig": "^3.0",
     "ext-pdo": "*",
-    "ext-mysqli": "*"
+    "ext-mysqli": "*",
+    "ext-pcntl": "*"
   },
   "scripts": {
     "test": "phpunit"

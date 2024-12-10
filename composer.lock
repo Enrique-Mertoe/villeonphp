@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "70455012ba7d8e7f5c8c0ce2f53b40dc",
+    "content-hash": "df11a5a5fcd9987c9f7fe19b031c0fab",
     "packages": [
         {
             "name": "symfony/deprecation-contracts",
@@ -387,46 +387,12 @@
                 }
             ],
             "time": "2024-11-29T08:27:05+00:00"
-        },
-        {
-            "name": "villeon/villeon-orm",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Enrique-Mertoe/villeon-orm.git",
-                "reference": "2f8b9cb3b5e61517af4f35c65c271c125643ec7a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Enrique-Mertoe/villeon-orm/zipball/2f8b9cb3b5e61517af4f35c65c271c125643ec7a",
-                "reference": "2f8b9cb3b5e61517af4f35c65c271c125643ec7a",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.4"
-            },
-            "default-branch": true,
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Villeon/VilleonORM\\": "src/VilleonORM"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "description": "A lightweight ORM for PHP as part of VilleonPHP framework.",
-            "support": {
-                "issues": "https://github.com/Enrique-Mertoe/villeon-orm/issues",
-                "source": "https://github.com/Enrique-Mertoe/villeon-orm/tree/master"
-            },
-            "time": "2024-12-02T12:56:10+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "villeon/villeon-orm": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

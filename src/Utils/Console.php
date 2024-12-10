@@ -16,17 +16,21 @@ class Console
 
     public static function Write($message): void
     {
-        (new Console())->doWrite($message, "white");
+        (new Console)->doWrite($message, "white");
     }
 
     public static function Warn($message): void
     {
-        (new Console())->doWrite($message, "yellow");
+        (new Console)->doWrite($message, "yellow");
     }
 
     public static function Success($message): void
     {
         (new Console())->doWrite($message, "green");
+    }
+    public static function Error($message): void
+    {
+        (new Console())->doWrite($message, "red");
     }
 
     function doWrite($message, $color = null): void
