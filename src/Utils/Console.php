@@ -1,4 +1,17 @@
 <?php
+/**
+ * Console.php
+ *
+ * This file contains the implementation of the ServerCommand class,
+ * which manages a PHP development server process and handles console output.
+ *
+ * @package    Villeon\Utils
+ * @author     Abuti Martin <abutimartin778@gmail.com>
+ * @copyright  2024 Villeon
+ * @license    MIT License
+ * @version    1.1.0
+ * @link       https://github.com/Enrique-Mertoe/villeonphp
+ */
 
 namespace Villeon\Utils;
 
@@ -19,6 +32,11 @@ class Console
         (new Console)->doWrite($message, "white");
     }
 
+    public static function Info($message): void
+    {
+        (new Console)->doWrite($message, "info");
+    }
+
     public static function Warn($message): void
     {
         (new Console)->doWrite($message, "yellow");
@@ -28,6 +46,7 @@ class Console
     {
         (new Console())->doWrite($message, "green");
     }
+
     public static function Error($message): void
     {
         (new Console())->doWrite($message, "red");
@@ -35,6 +54,7 @@ class Console
 
     function doWrite($message, $color = null): void
     {
+        $message = $this->formatMessage($message);
         if ($color) {
             $message = $this->applyColor($message, $color);
         }
@@ -43,13 +63,21 @@ class Console
         fflush($this->stream);
     }
 
+    private function formatMessage($input): array|string|null
+    {
+        $input = preg_replace_callback('/<i>(.*?)<\/i>/', function ($matches) {
+            return "\033[3m" . $matches[1] . "\033[0m";
+        }, $input);
+        return preg_replace_callback('/<b>(.*?)<\/b>/', function ($matches) {
+            return "\033[1m" . $matches[1] . "\033[0m";
+        }, $input);
+    }
+
     private function openErrorStream()
     {
         if (!$this->hasStderrSupport()) {
             return fopen('php://output', 'w');
         }
-
-        // Use STDERR when possible to prevent from opening too many file descriptors
         return \defined('STDERR') ? \STDERR : (@fopen('php://stderr', 'w') ?: fopen('php://output', 'w'));
     }
 
@@ -82,6 +110,7 @@ class Console
             'white' => '15',
             'bold' => '1',
             'reset' => '0',
+            'info' => '34'
         ];
 
         if (array_key_exists($color, $colors)) {

@@ -42,7 +42,6 @@ class VilleonBuilder extends Scaffold
 
     public function make_config(): void
     {
-        session_start();
         set_exception_handler('ExceptionHandler');
 //        set_error_handler('ExceptionHandler');
     }

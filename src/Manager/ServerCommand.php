@@ -1,118 +1,119 @@
 <?php
+/**
+ * ServerCommand.php
+ *
+ * This file contains the implementation of the ServerCommand class,
+ * which manages a PHP development server process and handles console output.
+ *
+ * @package    Villeon\Manager
+ * @author     Abuti Martin <abutimartin778@gmail.com>
+ * @copyright  2024 Villeon
+ * @license    MIT License
+ * @version    1.1.0
+ * @link       https://github.com/Enrique-Mertoe/villeonphp
+ */
 
 namespace Villeon\Manager;
 
-use Villeon\Support\Components\Process;
-use Villeon\Support\Components\Signals;
+use Closure;
+use Villeon\Manager\Process\Process;
 use Villeon\Utils\Console;
-use Villeon\Utils\Log;
-use function Symfony\Component\String\b;
-
-function runPhpServer($cmd): void
-{
-    // Define the PHP command to run
-//    $cmd = 'C:\xampp\php\php.exe -S 127.0.0.1:500';
-
-    // Define the paths for the output and error logs
-    $outputFile = "C:\\Users\\LOM-TE~1\\AppData\\Local\\Temp\\sf_proc_0.out";
-    $errorFile = "C:\\Users\\LOM-TE~1\\AppData\\Local\\Temp\\sf_proc_0.err";
-
-    // Open the process
-    $descriptorspec = [
-        0 => ["pipe", "r"],  // stdin is a pipe that you can write to
-        1 => ["file", $outputFile, "w"],  // stdout is redirected to a file
-        2 => ["file", $errorFile, "w"]  // stderr is redirected to a file
-    ];
-
-    $process = proc_open($cmd, $descriptorspec, $pipes);
-
-
-    if (is_resource($process)) {
-        // Optionally, you can interact with the process, write to stdin or read from stdout
-        // Example: You can write data to stdin if needed
-        // fwrite($pipes[0], 'your input data');
-
-        // Close pipes
-        fclose($pipes[0]);
-
-        print_r("fff");
-        // Wait for the process to finish and get the status
-//        $return_value = proc_close($process);
-        print_r("fff");
-
-        // You can check the return value to ensure the process was successful
-//        if ($return_value === 0) {
-//            echo "Process completed successfully.";
-//        } else {
-//            echo "Process failed with exit code: $return_value";
-//        }
-        print_r("fff");
-    } else {
-        echo "Failed to start process.";
-        print_r("fff");
-    }
-}
 
 class ServerCommand
 {
-
-    private string $buffer = '';
-
-
     public function __construct()
     {
-        $command = implode(' ', [
-            php_executor(),
-            "-S", "127.0.0.1:500",
-            __DIR__ . "/s.php"
-        ]);
-        $this->startProcess($command);
+        $command = [
+            PHP_BINARY,
+            "-S",
+            "localhost:3500",
+            "\"" . __DIR__ . "/server.php\""
+        ];
+        $command = implode(" ", $command);
+        $process = new Process($command);
 
-    }
 
+        $process->on("stop", function () {
 
-    public static function serve(): ServerCommand
-    {
-        return new static;
-    }
+        });
+        $process->on("update", function ($type, $data) {
+            foreach ($data as $d) {
+                $this->flash($d);
+            }
+        });
 
-    private function startProcess($command): void
-    {
-        $process = new Process($command, callback: $this->handleOutPut(), env: array(
-            'PATH' => dirname(BASE_PATH),
-        ), cwd: "bootstrap");
         $process->start();
-        while (true){
-//            if (function_exists('pcntl_signal_dispatch')) {
-//                print_r("sss");
-//                pcntl_signal_dispatch();
-//            }
-//            $process = $this->getProcess($command);
-            $process->update();
-            print_r("ml");
-            usleep(500 * 1000);
+
+    }
+
+    private function debug($directoryPath, Closure $callback)
+    {
+        print_r($directoryPath);
+        $previousState = [];
+
+        while (true) {
+            // Get all files in the directory
+            $files = glob($directoryPath . '/*'); // or use scandir for more control
+
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    // Get file modification time
+                    $modTime = filemtime($file);
+
+                    // If the file is modified, print out a message
+                    if (!isset($previousState[$file]) || $previousState[$file] !== $modTime) {
+                        $previousState[$file] = $modTime;  // Update the stored modification time
+                        $callback();
+                    }
+                }
+            }
+
+            usleep(1000000); // Check every 1 second
         }
     }
 
-
-    private function handleOutPut(): \Closure
+    /**
+     * Starts the server by creating a new instance of ServerCommand.
+     *
+     * @return ServerCommand The instance of the ServerCommand.
+     */
+    public static function serve(): ServerCommand
     {
-        return function ($type, $buffer) {
-            $this->buffer = $buffer;
-//            $this->flash();
-            if ($type = Process::OUT)
-                Console::Error($this->buffer);
-            else
-                Console::Error($this->buffer);
-
-        };
+        return new ServerCommand;
     }
 
-    private function flash(): void
+    /**
+     * Processes and formats server output for console display.
+     *
+     * @param string $data The data output by the server process.
+     */
+    private function flash(string $data): void
     {
-        $str = $this->buffer;
-        Console::Error($str);
+
+        if (str_contains($data, "Development Server")) {
+            Console::Success("SERVER: <b>[http://localhost:3500]</b>");
+            Console::Error("<b>DEBUG: OFF</b>");
+            Console::Warn("<b><i>Press CTR + C to stop.</i></b>");
+        } else if (str_contains($data, " GET /")) {
+            Console::Write($this->formatBuffer($data));
+        } else if (str_contains($data, " Warning:")) {
+            Console::Warn($data);
+        }
     }
 
+    private function formatBuffer($buffer)
+    {
+        $cleanBuffer = preg_replace('#\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])#', '', $buffer);
+        $pattern = '/\[(.*?)] (\S+) (.*?) (\S+)/';
+        if (preg_match($pattern, $cleanBuffer, $matches)) {
+            $time = $matches[1];
+            $method = $matches[2];
+            $uri = $matches[3];
+            $status = str_replace("-", "", $matches[4]);
+
+            return "~$time   <b>$method:$status</b> › <i>$uri</i>";
+        }
+        return $buffer;
+    }
 
 }

@@ -125,6 +125,7 @@ class Process
         }
         fclose($this->pipes[0]);
 
+
         $this->status = self::STARTED;
         if ($this->callback !== null) {
             $this->handleOutput();

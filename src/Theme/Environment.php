@@ -1,4 +1,13 @@
 <?php
+/**
+ * Environment.php
+ * @package    Villeon\Theme
+ * @author     Abuti Martin <abutimartin778@gmail.com>
+ * @copyright  2024 Villeon
+ * @license    MIT License
+ * @version    1.1.0
+ * @link       https://github.com/Enrique-Mertoe/villeonphp
+ */
 
 namespace Villeon\Theme;
 
@@ -47,7 +56,7 @@ class Environment extends \Twig\Environment
         return [
             "app" => [
                 "env" => Env::all(),
-                "session" => $_SESSION,
+                "session" => [],
                 "settings" => Settings::all()
             ]
         ];
