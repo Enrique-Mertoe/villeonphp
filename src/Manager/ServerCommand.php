@@ -19,23 +19,19 @@ use Closure;
 use Villeon\Manager\Process\Process;
 use Villeon\Utils\Console;
 
+/**
+ *
+ */
 class ServerCommand
 {
+    /**
+     *
+     */
     public function __construct()
     {
-        $command = [
-            PHP_BINARY,
-            "-S",
-            "localhost:3500",
-            "\"" . __DIR__ . "/server.php\""
-        ];
+        $command = $this->command();
         $command = implode(" ", $command);
         $process = new Process($command);
-
-
-        $process->on("stop", function () {
-
-        });
         $process->on("update", function ($type, $data) {
             foreach ($data as $d) {
                 $this->flash($d);
@@ -46,9 +42,14 @@ class ServerCommand
 
     }
 
-    private function debug($directoryPath, Closure $callback)
+    /**
+     * @param $directoryPath
+     * @param Closure $callback
+     * @return mixed
+     */
+    private function debug($directoryPath, Closure $callback): mixed
     {
-        print_r($directoryPath);
+
         $previousState = [];
 
         while (true) {
@@ -94,26 +95,57 @@ class ServerCommand
             Console::Success("SERVER: <b>[http://localhost:3500]</b>");
             Console::Error("<b>DEBUG: OFF</b>");
             Console::Warn("<b><i>Press CTR + C to stop.</i></b>");
-        } else if (str_contains($data, " GET /")) {
-            Console::Write($this->formatBuffer($data));
+        } else if (str_contains($data, "[GET:200]") || str_contains($data, "[POST:200]")) {
+            $this->display($this->formatBuffer($data));
+        } else if (str_contains($data, "[GET:400]") || str_contains($data, "[POST:400]")) {
+            $this->display($this->formatBuffer($data));
         } else if (str_contains($data, " Warning:")) {
-            Console::Warn($data);
+//            Console::Warn($data);
         }
     }
 
-    private function formatBuffer($buffer)
+
+    /**
+     * @param string $buffer
+     * @return array
+     */
+    private function formatBuffer(string $buffer): array
     {
         $cleanBuffer = preg_replace('#\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])#', '', $buffer);
-        $pattern = '/\[(.*?)] (\S+) (.*?) (\S+)/';
+        $pattern = '/\[(.*?)] (\[.*?]) (\S+)/';
+        $type = null;
         if (preg_match($pattern, $cleanBuffer, $matches)) {
             $time = $matches[1];
-            $method = $matches[2];
+            $method_status = $matches[2];
             $uri = $matches[3];
-            $status = str_replace("-", "", $matches[4]);
-
-            return "~$time   <b>$method:$status</b> › <i>$uri</i>";
+            $type = intval(str_replace("]", '', explode(":", $method_status)[1]));
+            $t = "\t";
+            $buffer = "~$time $method_status $t › <i>$uri</i>";
         }
-        return $buffer;
+        return [$buffer, $type];
+    }
+
+    private function display($buffer): void
+    {
+        if ($buffer[1] != 200) {
+            $buffer[1] == 400 ? Console::Error($buffer[0])
+                : Console::Warn($buffer[0]);
+        } else {
+            Console::Write($buffer[0]);
+        }
+    }
+
+    /**
+     * @return array
+     */
+    private function command(): array
+    {
+        return [
+            PHP_BINARY,
+            "-S",
+            "localhost:3500",
+            "\"" . __DIR__ . "/server.php\""
+        ];
     }
 
 }

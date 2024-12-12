@@ -9,21 +9,11 @@
  * @link       https://github.com/Enrique-Mertoe/villeonphp
  */
 
-// Get the current working directory (public path)
 $cwd = getcwd();
-
-// Decode the URL path from the request URI
-// `parse_url` breaks down the URL, `PHP_URL_PATH` retrieves the path (e.g., `/index.php`)
-// `urldecode` decodes any URL-encoded characters
 $current_uri = urldecode(
     parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? ''
 );
-
-// Check if the URI is not the root (/) and if the corresponding file exists
-// If the file exists, the script will stop processing (return false)
-// This allows the server to serve static files directly (like images, CSS, JS)
-if ($current_uri !== '/' && file_exists($cwd . $current_uri)) {
-    return false;
+if ($current_uri !== '/' && file_exists($cwd ."/public/" . $current_uri)) {
+    return readfile($cwd ."/public/" . $current_uri);
 }
-require_once $cwd . '/bootstrap/index.php';
-
+require_once $cwd . '/www/index.php';

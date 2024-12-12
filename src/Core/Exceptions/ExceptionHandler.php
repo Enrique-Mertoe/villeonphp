@@ -1,9 +1,12 @@
 <?php
 
+use JetBrains\PhpStorm\NoReturn;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+use Villeon\Http\Request;
 use Villeon\Theme\ThemeBuilder;
+use Villeon\Utils\Console;
 
 /**
  * @param Throwable $exception
@@ -12,7 +15,7 @@ use Villeon\Theme\ThemeBuilder;
  * @throws RuntimeError
  * @throws SyntaxError
  */
-function ExceptionHandler(Throwable $exception): void
+#[NoReturn] function ExceptionHandler(Throwable $exception): void
 {
 
     error_log("[ERROR] " . $exception->getMessage());
@@ -29,4 +32,5 @@ function ExceptionHandler(Throwable $exception): void
 
         ]
     ]);
+    exit;
 }

@@ -23,17 +23,15 @@ class UnixPipes extends Pipes
         ];
     }
 
-    public function read_pipes()
+    public function read_pipes(): array
     {
         $content = [];
         unset($this->pipes[0]);
         foreach ($this->pipes as $index => $pipe) {
-
             stream_set_blocking($pipe, false);
             if (!feof($pipe)) {
                 $content[$index] = stream_get_contents($pipe);
             }
-
             stream_set_blocking($pipe, true);
 
         }

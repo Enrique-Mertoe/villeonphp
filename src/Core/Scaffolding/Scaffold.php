@@ -173,6 +173,7 @@ class Scaffold
             } catch (Exception $e) {
                 http_response_code(500);
                 $res = $e;
+                throw new \RuntimeException($e->getMessage());
             }
             $bufferedOutput = ob_get_contents();
             ob_end_clean();
@@ -228,12 +229,12 @@ class Scaffold
     private function rule_logger($path, int $status = 200): void
     {
         $method = Request::$method;
-        $timestamp = date('Y-m-d H:i:s'); // Get current timestamp
-        $logMessage = sprintf('[%s] %s %s -%s', $timestamp, $method, $path, $status);
-        if ($status !== 200)
-            Console::Warn($logMessage);
-        else
-            Console::Write($logMessage);
+        $timestamp = date('M j Y H:i:s'); // Get current timestamp
+        $logMessage = sprintf('[%s] [%s:%s] %s', $timestamp, $method, $status, $path);
+
+        if ($args = http_build_query(Request::$args))
+            $logMessage .= "?$args";
+        Console::Write($logMessage);
     }
 
     /**
@@ -255,6 +256,7 @@ class Scaffold
             if ($route = $this->is404Defined()) {
                 $this->dispatch($route);
             } else {
+                $this->rule_logger(Request::$uri, 400);
                 ThemeBuilder::$instance->display_error_page(404);
             }
         } catch (Throwable $e) {

@@ -2,38 +2,72 @@
 
 namespace Villeon\Manager\Process;
 
+/**
+ *
+ */
 abstract class Pipes
 {
 
-    public array $pipes;
-    protected array $files;
-    protected array $fileHandlers;
+    /**
+     * @var array $pipes
+     */
+    public array $pipes=[];
+    /**
+     * @var string $bufferFile
+     */
+    protected string $bufferFile;
 
-    public function __construct()
+    /**
+     * @var resource $fileHandler
+     */
+    protected $fileHandler;
+    /**
+     * @var resource $lock
+     */
+    protected $lock = null;
+    /**
+     * @return void
+     */
+    protected function initWinPipes(): void
     {
-        $this->pipes = [];
         $tempDir = sys_get_temp_dir();
-
-        foreach ([1 => "out", 2 => "err"] as $index => $file) {
-            $filePath = sprintf('%s/smv_proc_%02X.%s', $tempDir, $index, $file);
-
-            $handler = fopen($filePath, 'c+');
-            if (!$handler) {
-                throw new RuntimeException("Cannot open file: $filePath");
+        //Suppress errors
+        set_error_handler(fn() => null);
+        for ($i = 0; ; ++$i) {
+            $filePath = sprintf('%s/smv_process_%02X.out', $tempDir, $i);
+            if (!($handler = fopen($filePath, 'w'))
+                || !fclose($handler) ||
+                !$handler = fopen($filePath, 'r')) {
+                continue;
             }
-
-            $this->fileHandlers[$index] = $handler;
-            $this->files[$index] = $filePath;
+            $this->fileHandler = $handler;
+            $this->bufferFile = $filePath;
+            break;
         }
+        //restore errors
+        restore_error_handler();
 
     }
 
+    /**
+     * @return array
+     */
     abstract public function getDescriptors(): array;
 
+    /**
+     * @return mixed
+     */
     abstract public function read_pipes();
 
+    /**
+     * @param string $command
+     * @return string
+     */
     abstract public function prepareCommand(string $command): string;
 
+    /**
+     * @return static
+     */
     final static function instance(): static
     {
         return new static;

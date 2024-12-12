@@ -123,7 +123,6 @@ class ThemeBuilder
      */
     public function display_error(array $info): void
     {
-//        $content = readfile($file);
         echo $this->env->render("exception_handler.twig", $info);
     }
 

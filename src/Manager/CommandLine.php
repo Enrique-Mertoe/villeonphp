@@ -1,6 +1,12 @@
 <?php
 
 namespace Villeon\Manager;
+
+use Villeon\Utils\Log;
+
+/**
+ *
+ */
 class CommandLine
 {
     /**
@@ -15,27 +21,36 @@ class CommandLine
 
             switch ($command) {
                 case 'migrate':
-                    echo "Running migrations...\n";
+                    Log::d(self::TAG,"Running migrations...");
                     break;
                 case 'runserver':
                     ServerCommand::serve();
                     break;
                 default:
-                    echo "Unknown command: $command\n";
-                    echo "Available commands: migrate, runserver\n";
+                    Log::e(self::TAG, "Unknown command: $command");
+                    Log::i(self::TAG, "Available commands: migrate, runserver\n");
                     break;
             }
         } else {
-            echo "No command provided.\n";
-            echo "Usage: php script.php [command]\n";
+            Log::e(self::TAG, "No command provided.");
+            Log::i(self::TAG, "Usage: php manage [command]");
         }
 
     }
 
+    /**
+     * @param $args
+     * @return void
+     */
     public static function run_command_line($args = null): void
     {
-        (new CommandLine())->execute($args);
+        (new CommandLine)->execute($args);
     }
+
+    /**
+     *
+     */
+    public const TAG = "CommandLine";
 }
 
 
