@@ -46,7 +46,7 @@ class ContentManager implements ContentMiddleWare
     private function initFacades(): void
     {
         Facade::setFacade("env", new AppEnvironmentVars($this->appCombat->basePath));
-        Facade::setFacade("settings", new Settings());
+        Facade::setFacade("settings", new Settings($this->appCombat->basePath));
         Facade::setFacade("config", new ConfigBuilder());
         Facade::setFacade("route", new Router("default"));
 
@@ -71,7 +71,8 @@ class ContentManager implements ContentMiddleWare
         $this->appCombat->loadAll();
         ExtensionManager::init();
         RenderBuilder::config($this->appCombat);
-        ControlPanel::builder();
+        if (env("REQUIRE_PANEL"))
+            ControlPanel::builder();
         AdminPanel::builder();
         $this->loadExtensions();
         $this->srcConfig();

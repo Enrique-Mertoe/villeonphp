@@ -6,7 +6,7 @@ use PDO;
 use Villeon\Core\ORM\ConnectionWatcher;
 use Villeon\Core\ORM\DBVars;
 
-class Connector
+class SQLConnector
 {
     use ConnectionWatcher;
     protected function connect(DBVars $config)

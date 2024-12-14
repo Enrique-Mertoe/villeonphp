@@ -135,12 +135,12 @@ class ServerCommand
 
     private function display($buffer): void
     {
-        if ($buffer[1] != 200) {
-            listOf(404, 500)->has($buffer[1]) ? Console::Error($buffer[0])
-                : Console::Warn($buffer[0]);
-        } else {
-            Console::Write($buffer[0]);
-        }
+        match ($buffer[1]) {
+            200 => Console::Write($buffer[0]),
+            404 => Console::Info($buffer[0]),
+            500 => Console::Error($buffer[0]),
+            default => Console::Warn($buffer[0]),
+        };
     }
 
     /**

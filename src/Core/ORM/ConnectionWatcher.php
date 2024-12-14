@@ -3,7 +3,6 @@
 namespace Villeon\Core\ORM;
 
 use Throwable;
-use Villeon\Utils\Str;
 
 trait ConnectionWatcher
 {
@@ -11,7 +10,7 @@ trait ConnectionWatcher
     {
         $message = $e->getMessage();
 
-        return Str::contains($message, [
+        return str($message)->contains([
             'server has gone away',
             'Server has gone away',
             'no connection to the server',

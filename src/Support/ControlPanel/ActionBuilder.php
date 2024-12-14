@@ -3,6 +3,7 @@
 namespace Villeon\Support\ControlPanel;
 
 use Closure;
+use Villeon\Core\Facade\Env;
 use Villeon\Core\Facade\Settings;
 use Villeon\Database\VilleonSQL\DataTypes\DataTypes;
 use Villeon\Database\VilleonSQL\Model;

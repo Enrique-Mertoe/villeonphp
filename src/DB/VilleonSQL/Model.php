@@ -1,6 +1,6 @@
 <?php
 
-namespace Villeon\Database\VilleonSQL;
+namespace Villeon\DB\VilleonSQL;
 
 use PDO;
 use Villeon\Database\VilleonSQL\Connection\Connect;
