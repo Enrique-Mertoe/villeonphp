@@ -6,6 +6,11 @@ use Villeon\Core\Facade\Render;
 use Villeon\Core\Messages;
 use Villeon\Core\Routing\Router;
 use Villeon\Http\Response;
+use Villeon\Library\Collection\ImmutableList;
+use Villeon\Library\Collection\Dict;
+use Villeon\Library\Collection\IMutableDict;
+use Villeon\Library\Collection\MutableList;
+use Villeon\Library\Str;
 
 if (!function_exists('view')) {
     /**
@@ -101,9 +106,9 @@ if (!function_exists("flash")) {
      * @param int $category
      * @return void
      */
-    function flash(string $message,int $category = Messages::MESSAGE): void
+    function flash(string $message, int $category = Messages::MESSAGE): void
     {
-        Messages::add($message,$category);
+        Messages::add($message, $category);
     }
 }
 if (!function_exists("get_flashed_messages")) {
@@ -121,9 +126,75 @@ if (!function_exists("get_flashed_messages")) {
      * @param array $category_filter
      * @return array
      */
-    function get_flashed_messages(bool $with_categories=false,array $category_filter=[]): array
+    function get_flashed_messages(bool $with_categories = false, array $category_filter = []): array
     {
-        return Messages::all($with_categories,$category_filter);
+        return Messages::all($with_categories, $category_filter);
     }
 }
 
+if (!function_exists("listOf")) {
+    /**
+     * @param mixed ...$elements
+     * @return ImmutableList
+     */
+    function listOf(...$elements): ImmutableList
+    {
+        return ImmutableList::from($elements);
+    }
+}
+if (!function_exists("arrayOf")) {
+    /**
+     * @param mixed ...$elements
+     * @return MutableList
+     */
+    function arrayOf(...$elements): MutableList
+    {
+        return MutableList::from($elements);
+    }
+}
+
+if (!function_exists("mutableListOf")) {
+    /**
+     * @param ...$elements
+     * @return MutableList
+     */
+    function mutableListOf(...$elements): MutableList
+    {
+        return MutableList::from($elements);
+    }
+}
+if (!function_exists("str")) {
+    /**
+     * @param string $str
+     * @return Str
+     */
+    function str(string $str): Str
+    {
+        return Str::from($str);
+    }
+}
+if (!function_exists("dict")) {
+
+    /**
+     * Key value pair
+     * @param array<string|int,mixed> $elements
+     * @return Dict
+     */
+    function dict(array $elements = []): Dict
+    {
+        return Dict::from($elements);
+    }
+}
+
+if (!function_exists("dictOf")) {
+
+    /**
+     * Key value pair
+     * @param array<string|int,mixed> $elements
+     * @return IMutableDict
+     */
+    function dictOf(array $elements): IMutableDict
+    {
+        return IMutableDict::from($elements);
+    }
+}

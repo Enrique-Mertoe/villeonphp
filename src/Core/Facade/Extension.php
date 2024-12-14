@@ -11,7 +11,7 @@ use Villeon\Support\Extensions\ExtensionBuilder;
  */
 class Extension extends Facade
 {
-    protected static function accessor(): string
+    protected static function getFacadeRef(): string
     {
         return "extension";
     }

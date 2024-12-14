@@ -1,6 +1,6 @@
 <?php
 
-namespace Villeon\Core\Scaffolding;
+namespace Villeon\Core\Kernel;
 
 use JetBrains\PhpStorm\NoReturn;
 use Villeon\Core\Routing\Route;

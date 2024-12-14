@@ -76,7 +76,7 @@ class Process
     /**
      * @return int|mixed
      */
-    public function isActive()
+    public function isActive(): mixed
     {
         $this->update();
         return $this->status["running"] ?? 0;
@@ -137,9 +137,10 @@ class Process
 
         $pipes = [1 => Process::OUT, 2 => Process::ERR];
         foreach ($result as $type => $res) {
-            if (empty($res)) continue;
-            $res = explode("\n", $res);
-            $this->handleEvent("update", 0, $res);
+            if ($res) {
+                $res = explode("\n", $res);
+                $this->handleEvent("update", 0, $res);
+            }
         }
     }
 
@@ -227,7 +228,6 @@ class Process
             return;
         $descriptors = $this->descriptors();
         $command = $this->pipesHandler->prepareCommand($this->command);
-//        print_r($command);
         $this->process = proc_open($command, $descriptors, $this->pipesHandler->pipes);
     }
 

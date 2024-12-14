@@ -8,6 +8,7 @@ use ReflectionException;
 use ReflectionFunction;
 use RuntimeException;
 use Throwable;
+use Villeon\Core\Kernel\Dispatcher;
 use Villeon\Core\Routing\Route;
 use Villeon\Core\Routing\RouteRegistry;
 use Villeon\Error\RuntimeError;

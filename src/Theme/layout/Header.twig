@@ -7,7 +7,7 @@
     }
 
     body {
-        background: #bfd1e1;
+        background: #e3eaf1;
         padding: 0;
         margin: 0;
     }
@@ -116,11 +116,17 @@
         font-size: 1.5rem;
         margin: auto;
         text-decoration: underline;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
     }
     .error-suggest{
-        color: dodgerblue;
+        color: red;
         font-weight: bold;
         margin: 1rem auto auto;
+        background: #ffdede;
+        padding: .5rem .3rem;
+        border-radius: .5rem;
     }
 
     .error-brand .btn {
@@ -159,5 +165,35 @@
         color: orange;
         max-width: max-content;
         font-size: 2rem;
+    }
+    .error-icon{
+        background: #a6d8f6;
+        padding: 1rem;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 4rem;
+        height: 4rem;
+        position: relative;
+        isolation: isolate;
+        margin: auto;
+    }
+    .error-icon:before{
+        content: "";
+        background: radial-gradient(#eaf2f6,transparent);
+        padding: 1rem;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 4rem;
+        height: 4rem;
+        position: absolute;
+        z-index: -1;
+    }
+    .error-icon svg{
+        stroke: #cac7c7;
+        border-radius: 50%;
     }
 </style>

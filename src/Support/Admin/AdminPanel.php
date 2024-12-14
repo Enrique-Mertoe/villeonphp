@@ -11,7 +11,7 @@ use Villeon\Core\Session;
 use Villeon\Error\RuntimeError;
 use Villeon\Http\Request;
 use Villeon\Support\Extensions\ExtensionBuilder;
-use Villeon\Theme\Environment;
+use Villeon\Theme\Environment\Environment;
 
 class AdminPanel extends ExtensionBuilder
 {

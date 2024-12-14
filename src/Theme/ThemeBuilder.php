@@ -13,50 +13,62 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use Twig\Loader\FilesystemLoader;
+use Villeon\Core\Content\AppContext;
+use Villeon\Core\Content\Context;
+use Villeon\Core\Content\AppCombat;
 use Villeon\Core\Facade\Route;
 use Villeon\Core\OS;
+use Villeon\Theme\Environment\Environment;
+use Villeon\Theme\Environment\ThemeEnvironment;
 use Villeon\Utils\Console;
 
 class ThemeBuilder
 {
     private string $static_dir;
+    private string $template_dir;
     private string $self_theme;
     private Environment $env;
     public static ThemeBuilder $instance;
+    private Context $context;
+    private Environment $appEnv;
 
-    public function __construct()
+    public function __construct(Context $context)
     {
         self::$instance = $this;
+        $this->context = $context;
+        $this->initialize();
 
     }
 
-    public function initialize($content_directory): ThemeBuilder
+    private function initialize(): void
     {
-        if (is_dir($content_directory)) {
-            $theme = $content_directory . "/public";
-            if (is_dir($theme)) {
-                $this->init_theme($theme);
-            }
+        if (is_dir($this->context->basePath)) {
+            $this->static_dir = $this->context->basePath . "/public";
+            $this->template_dir = $this->context->basePath . "/templates";
         }
+        $this->context->setStaticDir($this->static_dir);
+        $this->context->setTemplateDir($this->template_dir);
         $this->self_theme = OS::ROOT . "/Theme";
-        $this->env = new Environment(new FilesystemLoader($this->self_theme . "/layout/"));
-        return $this;
+        $this->env = new ThemeEnvironment(new FilesystemLoader($this->self_theme . "/layout/"));
+        $this->appEnv = new Environment(new FilesystemLoader($this->template_dir));
+        $this->init_static();
     }
 
-    private function init_theme($dir): void
+    public function getRenderEnv(): Environment
     {
-        $this->static_dir = $dir;
+        return $this->appEnv;
     }
 
 
     /**
      * @param $file
-     * @return false|int
+     * @return false|string
      */
     private function get($file)
     {
-        if (str_starts_with(trim($file), "villeon/"))
-            $file = $this->self_theme . "/assets/" . str_replace("villeon/", "", $file);
+        $file = str($file)->trim();
+        if ($file->startsWith("villeon/"))
+            $file = $this->self_theme . "/assets/" . $file->replace("villeon/", "");
         else
             $file = $this->static_dir . "/$file";
         if (!file_exists($file)) {
@@ -79,25 +91,17 @@ class ThemeBuilder
         return "/theme/$file";
     }
 
-    private function init_dom(): void
+    private function init_static(): void
     {
         Route::get("/static/{filename:all}", function ($filename) {
             return $this->get($filename);
         })->name("static");
-        Route::get("/", function () {
-            return $this->env->render("home.twig");
-        });
-    }
-
-    public function ensure_configured(): void
-    {
-        $this->init_dom();
     }
 
     private function getMimeType($file): string
     {
-        $extension = pathinfo($file, PATHINFO_EXTENSION);
 
+        $extension = pathinfo($file, PATHINFO_EXTENSION);
         return match ($extension) {
             'css' => 'text/css',
             'js' => 'application/javascript',
@@ -115,30 +119,31 @@ class ThemeBuilder
     }
 
     /**
-     * @param array $info
-     * @return void
-     * @throws LoaderError
-     * @throws RuntimeError
-     * @throws SyntaxError
+     * @param \Throwable $exception
+     * @return string
      */
-    public function display_error(array $info): void
+    public function display_error(\Throwable $exception): string
     {
-        echo $this->env->render("exception_handler.twig", $info);
+        $info = [
+            "error" => [
+                "message" => $exception->getMessage(),
+                "line" => $exception->getLine(),
+                "trace" => $exception->getTrace(),
+                "file" => $exception->getFile(),
+                "code" => $exception->getCode(),
+                "class" => $exception->getTrace()[0],
+
+            ]
+        ];
+        return $this->env->render("exception_handler.twig", $info);
     }
 
     /**
      * @param int $code
-     * @return void
+     * @return string
      */
-    #[NoReturn] public function display_error_page(int $code): void
+    public function display_error_page(int $code): string
     {
-        try {
-            http_response_code($code);
-            echo $this->env->render("error_page.twig", ["error" => $code]);
-        } catch (\Exception $e) {
-            throw new \RuntimeException($e);
-        } finally {
-            exit();
-        }
+        return $this->env->render("error_page.twig", ["error" => $code]);
     }
 }

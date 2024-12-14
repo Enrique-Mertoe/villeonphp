@@ -10,7 +10,7 @@ use Villeon\Http\Response;
  */
 class Render extends Facade
 {
-    protected static function accessor(): string
+    protected static function getFacadeRef(): string
     {
         return "render";
     }

@@ -18,6 +18,7 @@ use Villeon\Utils\Console;
 #[NoReturn] function ExceptionHandler(Throwable $exception): void
 {
 
+
     error_log("[ERROR] " . $exception->getMessage());
     error_log($exception->getTraceAsString());
     http_response_code(500);

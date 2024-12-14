@@ -98,7 +98,7 @@ class Request
     {
     }
 
-    function build(): void
+    function build(): Request
     {
         self::$form = Collection::from_array($_POST);
         self::$args = $_GET;
@@ -112,8 +112,7 @@ class Request
         if ($this->isJson()) {
             self::$json = Collection::from_array(json_decode($input, true));
         }
-
-
+        return $this;
     }
 
     private static function isJson(): bool

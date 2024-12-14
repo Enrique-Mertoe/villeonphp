@@ -18,12 +18,15 @@ namespace Villeon\Manager;
 use Closure;
 use Villeon\Manager\Process\Process;
 use Villeon\Utils\Console;
+use Villeon\Utils\Log;
 
 /**
  *
  */
 class ServerCommand
 {
+    private const TAG = "SERVER";
+
     /**
      *
      */
@@ -90,17 +93,22 @@ class ServerCommand
      */
     private function flash(string $data): void
     {
-
+        $data = str($data);
         if (str_contains($data, "Development Server")) {
             Console::Success("SERVER: <b>[http://localhost:3500]</b>");
             Console::Error("<b>DEBUG: OFF</b>");
             Console::Warn("<b><i>Press CTR + C to stop.</i></b>");
-        } else if (str_contains($data, "[GET:200]") || str_contains($data, "[POST:200]")) {
+        } else if (str_contains($data, "[GET:") || str_contains($data, "[POST:")) {
             $this->display($this->formatBuffer($data));
         } else if (str_contains($data, "[GET:400]") || str_contains($data, "[POST:400]")) {
             $this->display($this->formatBuffer($data));
-        } else if (str_contains($data, " Warning:")) {
-//            Console::Warn($data);
+        } else if (str_contains($data, "[ERROR]")) {
+            $data = str($data);
+            $data->replace(["__smv__", "[ERROR]"], ["\n", ""])->trim();
+            Log::e(self::TAG, $data);
+        } elseif ($data->contains("[USER_OUT]")) {
+            $data->replace(["__smv__", "[USER_OUT]"], ["\n", ""])->trim();
+            Log::d("SYSTEM OUT", $data);
         }
     }
 
@@ -120,7 +128,7 @@ class ServerCommand
             $uri = $matches[3];
             $type = intval(str_replace("]", '', explode(":", $method_status)[1]));
             $t = "\t";
-            $buffer = "~$time $method_status $t › <i>$uri</i>";
+            $buffer = "~$time $method_status › <i>$uri</i>";
         }
         return [$buffer, $type];
     }
@@ -128,7 +136,7 @@ class ServerCommand
     private function display($buffer): void
     {
         if ($buffer[1] != 200) {
-            $buffer[1] == 400 ? Console::Error($buffer[0])
+            listOf(404, 500)->has($buffer[1]) ? Console::Error($buffer[0])
                 : Console::Warn($buffer[0]);
         } else {
             Console::Write($buffer[0]);

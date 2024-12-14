@@ -25,6 +25,8 @@ class Response
      */
     private ?string $location;
 
+    private ?\Throwable $error = null;
+
     /**
      * Response constructor.
      * @param string $content
@@ -150,7 +152,23 @@ class Response
             "headers" => $this->headers,
             "code" => $this->statusCode,
             "content" => $this->content,
-            "location" => $this->location
+            "location" => $this->location,
+            "error"=>$this->error
+
         ];
+    }
+
+    public function uri(): string
+    {
+        if ($args = http_build_query(Request::args())) {
+            return Request::$uri . "?" . $args;
+        }
+        return Request::$uri;
+    }
+
+    public function setError(?\Throwable $error): static
+    {
+        $this->error = $error;
+        return $this;
     }
 }

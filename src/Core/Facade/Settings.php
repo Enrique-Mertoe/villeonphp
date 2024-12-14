@@ -10,7 +10,7 @@ namespace Villeon\Core\Facade;
  */
 class Settings extends Facade
 {
-    protected static function accessor(): string
+    protected static function getFacadeRef(): string
     {
         return "settings";
     }

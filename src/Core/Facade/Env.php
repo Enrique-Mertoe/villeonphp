@@ -9,7 +9,7 @@ namespace Villeon\Core\Facade;
  */
 class Env extends Facade
 {
-    protected static function accessor(): string
+    protected static function getFacadeRef(): string
     {
         return "env";
     }

@@ -6,7 +6,6 @@ namespace Villeon\Core\Routing;
 use RuntimeException;
 use Villeon\Error\RuntimeError;
 use Villeon\Utils\Console;
-use Villeon\Utils\Log;
 
 abstract class RouteRegistry
 {
@@ -95,6 +94,7 @@ abstract class RouteRegistry
 
         [$endpoint, $blueprint] = self::get_endpoint_details($endpoint);
         if (isset(self::$resolvedInstances[$blueprint])) {
+
             $bp = self::$resolvedInstances[$blueprint];
             if ($route = $bp->get_defined_routes()->get($endpoint)) {
                 $params = $route->get_rule_params();
@@ -111,7 +111,7 @@ abstract class RouteRegistry
             }
         }
         $target = str_replace("default", "", $blueprint) . $endpoint;
-        throw new RuntimeError("Cannot build url endpoint for $target. Ensure your Route has a name by assigning ->name(route-name)");
+        throw new RuntimeException("Cannot build url endpoint for $target. Ensure your Route has a name by assigning ->name(route-name)");
 
     }
 

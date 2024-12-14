@@ -9,13 +9,12 @@
  * @link       https://github.com/Enrique-Mertoe/villeonphp
  */
 
-namespace Villeon\Theme;
+namespace Villeon\Theme\Environment;
 
 use Twig\Loader\LoaderInterface;
 use Twig\TwigFunction;
 use Villeon\Core\Facade\Env;
 use Villeon\Core\Facade\Settings;
-use Villeon\Utils\Log;
 
 /**
  *

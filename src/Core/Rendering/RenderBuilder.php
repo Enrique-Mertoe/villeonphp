@@ -8,42 +8,37 @@
 
 namespace Villeon\Core\Rendering;
 
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
-use Twig\Loader\FilesystemLoader;
+use Villeon\Core\Content\AppContext;
+use Villeon\Core\Facade\Facade;
 use Villeon\Http\Request;
 use Villeon\Http\Response;
-use Villeon\Theme\Environment;
+use Villeon\Theme\Environment\Environment;
 use Villeon\Theme\ThemeBuilder;
 
 class RenderBuilder
 {
-    private static Environment $twig;
+    private Environment $twig;
+    private AppContext $context;
 
-    /**
-     * @return void
-     */
-    private static function initTemplateEngine(): void
+    public function __construct(AppContext $context)
     {
-        $loader = new FilesystemLoader(SRC . "/templates/");
-        self::$twig = new Environment($loader);
+        $this->context = $context;
+        $this->twig = $this->context->getEnv();
+    }
+
+    public static function config(AppContext $context): void
+    {
+        Facade::setFacade("render", new RenderBuilder($context));
     }
 
     /**
      * @param $name
-     * @param array $options
+     * @param array $context
      * @return string
-     * @throws LoaderError
-     * @throws RuntimeError
-     * @throws SyntaxError
      */
-    public function template($name, array $options = []): string
+    public function template($name, array $context = []): string
     {
-        if (!isset(self::$twig)) {
-            self::initTemplateEngine();
-        }
-        return (new RenderBuilder())->builder($name, $options);
+        return $this->twig->render($name, $this->process_options($context));
     }
 
     /**
@@ -55,11 +50,6 @@ class RenderBuilder
     {
         return (new Response(json_encode($context)))
             ->setHeader("Content-Type", "application/json");
-    }
-
-    private static function tData($cont, $type): array
-    {
-        return ["src" => $cont, "type" => $type];
     }
 
     /**
@@ -81,19 +71,6 @@ class RenderBuilder
                     "img" => []
                 ]
             ];
-    }
-
-    /**
-     * @param $name
-     * @param $options
-     * @return string
-     * @throws LoaderError
-     * @throws RuntimeError
-     * @throws SyntaxError
-     */
-    private function builder($name, $options): string
-    {
-        return self::$twig->render($name, $this->process_options($options));
     }
 
 }

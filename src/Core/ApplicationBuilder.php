@@ -20,16 +20,14 @@ class ApplicationBuilder
     {
         $this->init_components();
         $this->app = VilleonBuilder::builder();
-        $this->app->theme->initialize(BASE_PATH)
-            ->ensure_configured();
+//        $this->app->theme->initialize(BASE_PATH)
+//            ->ensure_configured();
         $this->app->make_config();
     }
 
     private function init_components(): void
     {
-
         $this->init_facades();
-
         ExtensionManager::init();
         ControlPanel::builder();
         AdminPanel::builder();
@@ -37,11 +35,11 @@ class ApplicationBuilder
 
     private function init_facades(): void
     {
-        Facade::setInstance("settings", new Settings());
-        Facade::setInstance("config", new ConfigBuilder());
-        Facade::setInstance("route", new Router("default"));
-        Facade::setInstance("render", new RenderBuilder());
-        Facade::setInstance("env", new AppEnvironmentVars(BASE_PATH));
+        Facade::setFacade("settings", new Settings());
+        Facade::setFacade("config", new ConfigBuilder());
+        Facade::setFacade("route", new Router("default"));
+        Facade::setFacade("render", new RenderBuilder());
+        Facade::setFacade("env", new AppEnvironmentVars(BASE_PATH));
     }
 
     protected function load_extensions(): void

@@ -1,9 +1,22 @@
 {% extends "Base.twig" %}
 {% block content %}
-    <div class="vstack">
+    <div class="vstack" style="padding: 2rem 5rem">
         <div class="error-card card">
-            <h3 class="error-heading">Internal Server Error</h3>
-            <p class="error-suggest">Turn off DEBUG mode in production to avoid seeing this error.</p>
+            <h3 class="error-heading">
+                <i class="error-icon">
+                    <svg width="34" height="34" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                         stroke-width="1.5" stroke="currentColor"
+                         class="h-6 w-6 fill-red-500 text-gray-50 dark:text-gray-950">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"></path>
+                    </svg>
+                </i>
+                Internal Server Error
+            </h3>
+            <p class="error-suggest">
+                Please disable DEBUG mode in production to prevent sensitive information from
+                being displayed.
+            </p>
             {% if error.class %}
                 <p class="error-trace-class">{{ error.class.class }}</p>
             {% endif %}
@@ -12,6 +25,9 @@
                 <div class="btn">Line {{ error.line }}</div>
             </div>
             <h4>{{ error.message }}</h4>
+
+        </div>
+        <div class="error-card card mt5">
             <div class="error-trace">
                 <h3>Trace Back:</h3>
                 {% for trace in error.trace %}

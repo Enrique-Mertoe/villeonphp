@@ -26,10 +26,10 @@ class ExtensionManager
     public static function init(): void
     {
         self::$manager = new static();
-        Facade::setInstance("extension", self::$manager);
+        Facade::setFacade("extension", self::$manager);
     }
 
-    public static function load_all()
+    public static function load_all(): void
     {
         foreach (self::$manager->resolvedInstances as $instance) {
             if ($instance->isEnabled()) {

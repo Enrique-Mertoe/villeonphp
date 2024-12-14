@@ -13,8 +13,7 @@ use Villeon\Database\VilleonSQL\Model;
 use Villeon\Error\RuntimeError;
 use Villeon\Http\Request;
 use Villeon\Support\Extensions\ExtensionBuilder;
-use Villeon\Theme\Environment;
-use Villeon\Utils\Log;
+use Villeon\Theme\Environment\Environment;
 
 final class ControlPanel extends ExtensionBuilder
 {

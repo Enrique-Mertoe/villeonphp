@@ -2,6 +2,7 @@
 
 namespace Villeon\Manager;
 
+use JetBrains\PhpStorm\NoReturn;
 use Villeon\Utils\Log;
 
 /**
@@ -42,8 +43,9 @@ class CommandLine
      * @param $args
      * @return void
      */
-    public static function run_command_line($args = null): void
+    #[NoReturn] public static function run_command_line($args = null): void
     {
+
         (new CommandLine)->execute($args);
     }
 
