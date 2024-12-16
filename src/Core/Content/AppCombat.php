@@ -89,29 +89,6 @@ class AppCombat extends AppContext implements AppEventHandler
 
     private function error_logger(?\Throwable $error): void
     {
-        if (!$error) return;
-        $throwable = $error;
-        $errorMessage = sprintf(
-            "[%s] %s in %s:%d",
-            get_class($throwable),
-            $throwable->getMessage(),
-            $throwable->getFile(),
-            $throwable->getLine()
-        );
-        $display = "[ERROR]" . $errorMessage . "\n";
-        $stackTrace = $throwable->getTrace();
-        foreach ($stackTrace as $index => $trace) {
-            if (isset($trace['file'], $trace['line'])) {
-                $file = $trace['file'];
-                $line = $trace['line'];
-                $clickableLink = sprintf("%s:%d", $file, $line);
-                $display .= sprintf("#%d %s\n", $index, $clickableLink);
-            } else {
-                $display .= $trace . "\n";
-            }
-        }
-        $display = str($display);
-        $display->replace(["\n\n", "\n"], "__smv__");
-        Console::Write($display);
+        log_error($error);
     }
 }

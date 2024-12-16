@@ -8,6 +8,8 @@ use Villeon\Core\Facade\Settings;
 use Villeon\Database\VilleonSQL\DataTypes\DataTypes;
 use Villeon\Database\VilleonSQL\Model;
 use Villeon\Database\VilleonSQL\VilleonSQL;
+use Villeon\DB\DataBase;
+use Villeon\DB\ModelHandler;
 use Villeon\Http\Request;
 use Villeon\Http\Response;
 use Villeon\Utils\Log;
@@ -42,6 +44,14 @@ class ActionBuilder
         $this->renderer = $renderer;
 
     }
+    public static function required_fns()
+    {
+        function_exists("new_model");
+        function_exists("db_config");
+        function_exists("create_super_admin");
+        function_exists("components");
+        function_exists("disable_secure");
+    }
 
     /**
      * @param $action
@@ -58,7 +68,7 @@ class ActionBuilder
      */
     private function process_action(): Response
     {
-        $required = ["create_super_admin"];
+
         if (!method_exists($this, $this->action))
             return $this->make_res();
         $action = $this->action;
@@ -78,8 +88,9 @@ class ActionBuilder
     {
 
         [$name, $db_name] = array_values(Request::$form->array());
-        Model::define(ucfirst($name))->init_model();
-        return $this->make_res(ok: true);
+//        Model::define(ucfirst($name))->init_model();
+        $res=DataBase::createModel($name,$db_name);
+        return $this->make_res(ok: $res);
 
     }
 
@@ -89,7 +100,8 @@ class ActionBuilder
     public function db_config(): Response
     {
         [$db_server, $db_user, $db_password, $db_name] = array_values(Request::$form->array());
-        VilleonSQL::save_connection_string("$db_server//$db_user//$db_password//$db_name");
+        DataBase::configDbInfo($db_server,$db_user,$db_password,$db_name);
+//        VilleonSQL::save_connection_string("$db_server//$db_user//$db_password//$db_name");
         return $this->make_res(ok: true);
     }
 
@@ -158,7 +170,7 @@ class ActionBuilder
 
     /**
      * @param string $name
-     * @param ...$arg
+     * @param array $arg
      * @return mixed
      */
     private function view(string $name, array $arg = []): mixed

@@ -3,51 +3,36 @@
 namespace Villeon\Core\ORM\Models;
 
 /**
- * @template T of Model
+ *
  */
-trait ModelFactory
+abstract class ModelFactory
 {
-//    public const FETCH_ALL = 0;
-//    /**
-//     * @var T
-//     */
-//    protected $ref;
-//
-//    /**
-//     * @param T $model
-//     */
-//    public function __construct($model)
-//    {
-//        $this->ref = $model;
-//    }
-//
-//    /**
-//     * @return static
-//     */
-//    private static function instance(): static
-//    {
-//        return new static;
-//    }
-//
-//    /**
-//     * @param int $id
-//     * @return T
-//     */
-//    public function get(int $id)
-//    {
-//        $this->ref->build();
-//        return $this->ref;
-//    }
-//
-//    /**
-//     * @return array<T>
-//     */
-//    public function getAll()
-//    {
-////        return []
-//    }
-    public static function get()
+    public const ORDER_ASC = 'ASC';
+    public const ORDER_DESC = 'DESC';
+
+    public static function OR(array $input): array
+    {
+        return [];
+    }
+
+    public static function AND()
     {
 
     }
+
+    public static function NOT()
+    {
+
+    }
+
+    public static function OR_NOT()
+    {
+
+    }
+
+    public static function AND_NOT()
+    {
+
+    }
+
 }

@@ -1,6 +1,9 @@
 <?php
 
 
+use Villeon\Application;
+use Villeon\Core\Content\ContentManager;
+use Villeon\Core\Content\Context;
 use Villeon\Core\Facade\Env;
 use Villeon\Core\Facade\Render;
 use Villeon\Core\Messages;
@@ -9,8 +12,9 @@ use Villeon\Http\Response;
 use Villeon\Library\Collection\ImmutableList;
 use Villeon\Library\Collection\Dict;
 use Villeon\Library\Collection\IMutableDict;
-use Villeon\Library\Collection\MutableList;
+use Villeon\Library\Collection\MList;
 use Villeon\Library\Str;
+use Villeon\Utils\Log;
 
 if (!function_exists('view')) {
     /**
@@ -145,22 +149,22 @@ if (!function_exists("listOf")) {
 if (!function_exists("arrayOf")) {
     /**
      * @param mixed ...$elements
-     * @return MutableList
+     * @return MList
      */
-    function arrayOf(...$elements): MutableList
+    function arrayOf(...$elements): MList
     {
-        return MutableList::from($elements);
+        return MList::from($elements);
     }
 }
 
 if (!function_exists("mutableListOf")) {
     /**
      * @param ...$elements
-     * @return MutableList
+     * @return MList
      */
-    function mutableListOf(...$elements): MutableList
+    function mutableListOf(...$elements): MList
     {
-        return MutableList::from($elements);
+        return MList::from($elements);
     }
 }
 if (!function_exists("str")) {
@@ -196,5 +200,24 @@ if (!function_exists("dictOf")) {
     function dictOf(array $elements): IMutableDict
     {
         return IMutableDict::from($elements);
+    }
+}
+
+
+if (!function_exists("log_error")) {
+    /**
+     * @param Throwable|null $throwable
+     * @return void
+     */
+    function log_error(?Throwable $throwable = null): void
+    {
+        Log::ErrorLog($throwable);
+    }
+}
+
+if (!function_exists("app_context")) {
+    function app_context(): Context
+    {
+        return Application::getContext();
     }
 }

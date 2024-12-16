@@ -35,7 +35,7 @@ abstract class Collection implements CollectionIterable,
      */
     public static function from(Collection|array $collection): static
     {
-        return new static($collection);
+        return new static($collection instanceof Collection ? $collection->toArray() : $collection);
     }
 
     /**
@@ -132,7 +132,7 @@ abstract class Collection implements CollectionIterable,
     public function has(...$elements): bool
     {
         foreach ($elements as $element)
-            if (in_array($element,$this->elements))
+            if (in_array($element, $this->elements))
                 return true;
         return false;
     }

@@ -21,9 +21,10 @@ class MutableCollection extends Collection implements MutableCollectionIterable,
         }
     }
 
-    public function add(mixed $element): void
+    public function add(...$elements): static
     {
-        $this->elements[] = $element;
+        array_push($this->elements, ...$elements);
+        return $this;
     }
 
     public function remove(mixed $element): bool
@@ -75,7 +76,7 @@ class MutableCollection extends Collection implements MutableCollectionIterable,
 
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        static::set($offset, $value);
+        $this->elements[$offset] = $value;
     }
 
     public function offsetUnset(mixed $offset): void

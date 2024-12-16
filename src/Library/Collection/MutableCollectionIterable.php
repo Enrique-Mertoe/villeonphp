@@ -37,9 +37,8 @@ interface MutableCollectionIterable
      * This method modifies the collection by appending an element.
      *
      * @param mixed $element The element to add to the collection.
-     * @return void
      */
-    public function add(mixed $element): void;
+    public function add(mixed $element);
 
     /**
      * Removes an element from the collection.

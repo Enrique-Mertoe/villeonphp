@@ -44,8 +44,8 @@ final class ControlPanel extends ExtensionBuilder
                 return redirect(url_for('admin.auth'));
 
             $options = [
-                "db" => Config::db_info(),
-                "tables" => Model::getAll()
+//                "db" => Config::db_info(),
+//                "tables" => Model::getAll()
             ];
             return $this->render("dashboard.twig", ['panel' => $options]);
         })->name("dashboard");

@@ -19,7 +19,7 @@ use Villeon\Theme\ThemeBuilder;
 class ContentManager implements ContentMiddleWare
 {
     public AppCombat $appCombat;
-    private ThemeBuilder $theme;
+    private static ContentManager $instance;
 
     #[NoReturn]
     public function start(): void
@@ -77,5 +77,10 @@ class ContentManager implements ContentMiddleWare
         $this->loadExtensions();
         $this->srcConfig();
 
+    }
+
+    public static function getContext(): Context
+    {
+        return self::$instance->appCombat;
     }
 }

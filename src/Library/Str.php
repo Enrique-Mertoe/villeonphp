@@ -69,9 +69,10 @@ class Str implements ObjectLibrary, \ArrayAccess
     /**
      * @return $this
      */
-    public function trimEnd(): static
+    public function trimEnd(?string $characters = null): static
     {
-        $this->str = rtrim($this->str);
+
+        $this->str = $characters != null ? rtrim($this->str, $characters) : rtrim($this->str);
         return $this;
     }
 
@@ -105,6 +106,12 @@ class Str implements ObjectLibrary, \ArrayAccess
     public function replace(string|array $string, string|array $replace): Str
     {
         $this->str = str_replace($string, $replace, $this->str);
+        return $this;
+    }
+
+    public function append(string|int $string): Str
+    {
+        $this->str .= $string;
         return $this;
     }
 

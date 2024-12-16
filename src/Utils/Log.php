@@ -72,4 +72,31 @@ class Log
             return sprintf('<a href="%s">%s(%d)</a>', htmlspecialchars($url), htmlspecialchars($file), $line);
         }, $message);
     }
+
+    public static function ErrorLog(?\Throwable $throwable): void
+    {
+        if (!$throwable) return;
+        $errorMessage = sprintf(
+            "[%s] %s in %s:%d",
+            get_class($throwable),
+            $throwable->getMessage(),
+            $throwable->getFile(),
+            $throwable->getLine()
+        );
+        $display = "[ERROR]" . $errorMessage . "\n";
+        $stackTrace = $throwable->getTrace();
+        foreach ($stackTrace as $index => $trace) {
+            if (isset($trace['file'], $trace['line'])) {
+                $file = $trace['file'];
+                $line = $trace['line'];
+                $clickableLink = sprintf("%s:%d", $file, $line);
+                $display .= sprintf("#%d %s\n", $index, $clickableLink);
+            } else {
+                $display .= $trace . "\n";
+            }
+        }
+        $display = str($display);
+        $display->replace(["\n\n", "\n"], "__smv__");
+        Console::Write($display);
+    }
 }

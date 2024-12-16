@@ -1,6 +1,6 @@
 <?php
 
-namespace Villeon\Database\VilleonSQL\DataTypes;
+namespace Villeon\DB\VilleonSQL\DataTypes;
 
 abstract class AbstractDataType
 {

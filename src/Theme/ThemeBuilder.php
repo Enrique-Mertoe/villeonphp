@@ -96,6 +96,9 @@ class ThemeBuilder
         Route::get("/static/{filename:all}", function ($filename) {
             return $this->get($filename);
         })->name("static");
+        Route::get("/", function () {
+            return $this->env->render("home.twig");
+        })->name("default_home");
     }
 
     private function getMimeType($file): string
