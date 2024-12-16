@@ -21,6 +21,11 @@ class ContentManager implements ContentMiddleWare
     public AppCombat $appCombat;
     private static ContentManager $instance;
 
+    public function __construct()
+    {
+        self::$instance = $this;
+    }
+
     #[NoReturn]
     public function start(): void
     {

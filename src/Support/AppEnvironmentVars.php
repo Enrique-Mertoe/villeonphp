@@ -101,7 +101,7 @@ final class AppEnvironmentVars
         foreach ($lines as $index => $line) {
             $line = $this->normalize_var($line);
             if ($line) {
-                $segments = preg_split('/\s*+=\s*/', $line);
+                $segments = preg_split('/\s*+=\s*/', $line, 2);
                 $res = $this->process_segments($segments);
                 if ($res) {
                     $prefix = preg_match('/^[;#]/', $line) ? "__comment__" : "";

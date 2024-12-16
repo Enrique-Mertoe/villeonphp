@@ -33,4 +33,9 @@ abstract class Context implements RequireContext
             "SESSION_COOKIE_SECURE" => False,
         ]);
     }
+
+    public function getSrc(): string
+    {
+        return $this->basePath . "/src";
+    }
 }

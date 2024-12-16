@@ -4,6 +4,7 @@ namespace Villeon\DB;
 
 use Villeon\Core\ORM\Connectors\SQLConnector;
 use Villeon\DB\VilleonSQL\DataTypes\AbstractDataType;
+use Villeon\Manager\Manager;
 
 class ModelHandler
 {
@@ -35,7 +36,8 @@ class ModelHandler
     public function create(): bool|array
     {
         $sql = self::getAttributes($this->attributes ?: []);
-        return SQLConnector::of(SQLConnector::MYSQL)->execute($sql);
+        Manager::createModel($this->name, $this->alias);
+        return true;
     }
 
     public function getAttributes(array $attributes): string

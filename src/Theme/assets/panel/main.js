@@ -36,7 +36,7 @@
                     ev.preventDefault();
                     if (!$$(".__can-connect").size) {
                         main.settings.db_config()
-                    }else{
+                    } else {
                         main.settings.create_admin();
                     }
                 })
@@ -101,8 +101,8 @@
                 let comp = main.ui.get_component(".admin-form");
                 $$("body").append(comp);
                 Modal(comp)
-                    .onOpen(function (ev){
-                        let modal= this;
+                    .onOpen(function (ev) {
+                        let modal = this;
                         this.view.find("form").on("submit", function (ev) {
                             ev.preventDefault();
                             let self = this;
@@ -155,6 +155,35 @@
     $$(document).on("click", "[data-smv-component=db-config", function (ev) {
         ev.preventDefault()
         main.settings.db_config(this);
+
+    }).on("input", ".model-name-input", function (ev) {
+        ev.preventDefault();
+        const form = $$(this).closest("form");
+        const modelAliasInput = form.find(".model-alias-input");
+        const modelWarning = form.find(".model-name-alert");
+        const modelName = $$(this).val();
+        const formatAlias = (value) => {
+            return value
+                .split(" ")
+                .map((word, index) => index === 0
+                    ? word.toLowerCase()
+                    : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join("");
+        };
+
+        // if (modelName.endsWith("s")) {
+        //     modelWarning.hide()
+        // } else {
+        //     modelWarning.show()
+        // }
+        if (/\s/.test(modelName))
+            modelWarning.show().txt("Model names should not contain spaces")
+        else
+            modelWarning.hide();
+        const aliasPlaceholder = modelName.toLowerCase().endsWith("s")
+            ? modelName.toLowerCase()
+            : `${modelName.toLowerCase()}s`;
+        modelAliasInput.attr("placeholder", aliasPlaceholder);
 
     })
     $$(document).on("click", "[data-smv-toggle=model-item", function (ev) {
