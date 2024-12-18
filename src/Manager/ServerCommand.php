@@ -95,12 +95,11 @@ class ServerCommand
     {
         $data = str($data);
         if (str_contains($data, "Development Server")) {
+            Console::Info($this->getLabel());
             Console::Success("SERVER: <b>[http://localhost:3500]</b>");
             Console::Error("<b>DEBUG: OFF</b>");
             Console::Warn("<b><i>Press CTR + C to stop.</i></b>");
-        } else if (str_contains($data, "[GET:") || str_contains($data, "[POST:")) {
-            $this->display($this->formatBuffer($data));
-        } else if (str_contains($data, "[GET:400]") || str_contains($data, "[POST:400]")) {
+        } else if ($data->contains("[GET:", "[POST:")) {
             $this->display($this->formatBuffer($data));
         } else if (str_contains($data, "[ERROR]")) {
             $data = str($data);
@@ -120,15 +119,13 @@ class ServerCommand
     private function formatBuffer(string $buffer): array
     {
         $cleanBuffer = preg_replace('#\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])#', '', $buffer);
-        $pattern = '/\[(.*?)] (\[.*?]) (\S+)/';
+
         $type = null;
+        $pattern = '/~\[(.*?)] \[(.*?):(\d+)] › (.*)/';
+
         if (preg_match($pattern, $cleanBuffer, $matches)) {
-            $time = $matches[1];
-            $method_status = $matches[2];
-            $uri = $matches[3];
-            $type = intval(str_replace("]", '', explode(":", $method_status)[1]));
-            $t = "\t";
-            $buffer = "~$time $method_status › <i>$uri</i>";
+            $type = (int)$matches[3];
+            $buffer = "~$matches[1] [$matches[2]:$matches[3]] › <i>$matches[4]</i>";
         }
         return [$buffer, $type];
     }
@@ -154,6 +151,19 @@ class ServerCommand
             "localhost:3500",
             "\"" . __DIR__ . "/server.php\""
         ];
+    }
+
+    function getLabel(): string
+    {
+        return
+        "
+ _   _ _ _ _                 ______ _   _ ______ 
+| | | (_) | |                | ___ \ | | || ___ \
+| | | |_| | | ___  ___  _ __ | |_/ / |_| || |_/ /
+| | | | | | |/ _ \/ _ \| '_ \|  __/|  _  ||  __/ 
+\ \_/ / | | |  __/ (_) | | | | |   | | | || |    
+ \___/|_|_|_|\___|\___/|_| |_\_|   \_| |_/\_|    
+                                                 ";
     }
 
 }

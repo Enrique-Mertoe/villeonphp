@@ -73,12 +73,11 @@ class AppCombat extends AppContext implements AppEventHandler
     private function rule_logger($path, int $status = 200): void
     {
         $method = Request::$method;
-        $timestamp = date('M j Y H:i:s'); // Get current timestamp
-        $logMessage = sprintf('[%s] [%s:%s] %s', $timestamp, $method, $status, $path);
-
+        $timestamp = date('M j Y H:i:s');
         if ($args = http_build_query(Request::$args))
-            $logMessage .= "?$args";
-        Console::Write($logMessage);
+            $path .= "?$args";
+        $buffer = "~[$timestamp] [$method:$status] › $path";
+        Console::Write($buffer);
     }
 
 
