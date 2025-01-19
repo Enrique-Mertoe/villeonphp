@@ -2,6 +2,8 @@
 
 namespace Villeon\Utils;
 
+use Throwable;
+
 /**
  *
  */
@@ -73,7 +75,7 @@ class Log
         }, $message);
     }
 
-    public static function ErrorLog(?\Throwable $throwable): void
+    public static function ErrorLog(?Throwable $throwable): void
     {
         if (!$throwable) return;
         $errorMessage = sprintf(

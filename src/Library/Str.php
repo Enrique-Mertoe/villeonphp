@@ -2,10 +2,13 @@
 
 namespace Villeon\Library;
 
+use ArrayAccess;
+use LogicException;
+
 /**
  *
  */
-class Str implements ObjectLibrary, \ArrayAccess
+class Str implements ObjectLibrary, ArrayAccess
 {
     /**
      * @var string
@@ -182,7 +185,7 @@ class Str implements ObjectLibrary, \ArrayAccess
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        throw new \LogicException("String is immutable; cannot modify characters directly.");
+        throw new LogicException("String is immutable; cannot modify characters directly.");
     }
 
     /**
@@ -191,6 +194,6 @@ class Str implements ObjectLibrary, \ArrayAccess
      */
     public function offsetUnset(mixed $offset): void
     {
-        throw new \LogicException("String is immutable; cannot unset characters.");
+        throw new LogicException("String is immutable; cannot unset characters.");
     }
 }

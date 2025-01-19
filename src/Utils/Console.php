@@ -15,6 +15,12 @@
 
 namespace Villeon\Utils;
 
+use function defined;
+use function function_exists;
+use const PHP_EOL;
+use const PHP_OS;
+use const STDERR;
+
 class Console
 {
     /**
@@ -58,7 +64,7 @@ class Console
         if ($color) {
             $message = $this->applyColor($message, $color);
         }
-        $message .= \PHP_EOL;
+        $message .= PHP_EOL;
         @fwrite($this->stream, $message);
         fflush($this->stream);
     }
@@ -78,15 +84,15 @@ class Console
         if (!$this->hasStderrSupport()) {
             return fopen('php://output', 'w');
         }
-        return \defined('STDERR') ? \STDERR : (@fopen('php://stderr', 'w') ?: fopen('php://output', 'w'));
+        return defined('STDERR') ? STDERR : (@fopen('php://stderr', 'w') ?: fopen('php://output', 'w'));
     }
 
     private function isRunningOS400(): bool
     {
         $checks = [
-            \function_exists('php_uname') ? php_uname('s') : '',
+            function_exists('php_uname') ? php_uname('s') : '',
             getenv('OSTYPE'),
-            \PHP_OS,
+            PHP_OS,
         ];
 
         return false !== stripos(implode(';', $checks), 'OS400');

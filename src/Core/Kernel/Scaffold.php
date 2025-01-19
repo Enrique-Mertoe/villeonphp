@@ -2,6 +2,10 @@
 
 namespace Villeon\Core\Kernel;
 
+use ReflectionException;
+use ReflectionFunction;
+use RuntimeException;
+use Throwable;
 use Villeon\Core\Content\AppContext;
 use Villeon\Core\Routing\Route;
 use Villeon\Core\Routing\RouteRegistry;
@@ -13,6 +17,7 @@ use Villeon\Library\Collection\Collection;
 use Villeon\Library\Collection\Dict;
 use Villeon\Theme\ThemeBuilder;
 use Villeon\Utils\Console;
+use function listOf;
 
 abstract class Scaffold implements EventDispatcher
 {
@@ -73,9 +78,9 @@ abstract class Scaffold implements EventDispatcher
 
         $controller = $route->controller;
         try {
-            $reflection = new \ReflectionFunction($controller);
-        } catch (\ReflectionException $e) {
-            throw new \RuntimeException($e);
+            $reflection = new ReflectionFunction($controller);
+        } catch (ReflectionException $e) {
+            throw new RuntimeException($e);
         }
         $reflectionParams = $reflection->getParameters();
         $required = count($reflectionParams);
@@ -87,14 +92,14 @@ abstract class Scaffold implements EventDispatcher
         foreach ($reflectionParams as $param) {
             $expectedName = $param->getName();
             if (!array_key_exists($expectedName, $defined)) {
-                throw new \RuntimeException("Missing parameter: $expectedName");
+                throw new RuntimeException("Missing parameter: $expectedName");
             }
         }
         if (is_callable($route->controller)) {
             ob_start();
             try {
                 $res = call_user_func_array($controller, $args);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $res = $e;
             }
             $bufferedOutput = str(ob_get_contents());
@@ -102,7 +107,7 @@ abstract class Scaffold implements EventDispatcher
             $bufferedOutput->replace("\n", "__smv__");
             if (!$bufferedOutput->empty())
                 Console::Write("[USER_OUT]" . $bufferedOutput);
-            if ($res instanceof \Throwable)
+            if ($res instanceof Throwable)
                 throw $res;
 
 
@@ -114,7 +119,7 @@ abstract class Scaffold implements EventDispatcher
             } elseif (is_array($res))
                 $content = json_encode($res);
             else {
-                throw new \RuntimeException("View function did not return valid response: found " .
+                throw new RuntimeException("View function did not return valid response: found " .
                     gettype($res));
             }
             return $this->onSuccess($content);
@@ -127,7 +132,7 @@ abstract class Scaffold implements EventDispatcher
 
         $match = $route->match(Request::$uri);
         if ($match[0]) {
-            return \listOf($route, $match[1]);
+            return listOf($route, $match[1]);
         }
         return null;
     }

@@ -174,7 +174,7 @@ class Scaffold
             } catch (Exception $e) {
                 http_response_code(500);
                 $res = $e;
-                throw new \RuntimeException($e->getMessage());
+                throw new RuntimeException($e->getMessage());
             }
             $bufferedOutput = ob_get_contents();
             ob_end_clean();

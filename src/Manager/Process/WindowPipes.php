@@ -11,6 +11,8 @@
 
 namespace Villeon\Manager\Process;
 
+use const LOCK_UN;
+
 class WindowPipes extends Pipes
 {
     private int $readPosition = 0;
@@ -55,7 +57,7 @@ class WindowPipes extends Pipes
         ftruncate($this->fileHandler, 0);
         rewind($this->fileHandler);
         fclose($this->fileHandler);
-        flock($this->lock, \LOCK_UN);
+        flock($this->lock, LOCK_UN);
         fclose($this->lock);
         unset($this->fileHandler, $this->lock);
     }

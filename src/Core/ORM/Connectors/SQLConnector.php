@@ -2,7 +2,9 @@
 
 namespace Villeon\Core\ORM\Connectors;
 
+use InvalidArgumentException;
 use PDO;
+use PDOException;
 use Villeon\Core\ORM\ConnectionWatcher;
 use Villeon\Core\ORM\DBVars;
 
@@ -22,7 +24,7 @@ class SQLConnector extends Connector
             self::SQLITE => new SQLiteConnector,
             self::POSTGRES => new PostGraceConnector($vars),
             self::MYSQL => new MySQLConnector($vars),
-            default => throw new \InvalidArgumentException("Unsupported connector type: $connector"),
+            default => throw new InvalidArgumentException("Unsupported connector type: $connector"),
         };
     }
 
@@ -76,7 +78,7 @@ class SQLConnector extends Connector
                 self::FETCH_ALL => $statement->fetchAll(PDO::FETCH_ASSOC),
                 default => false
             };
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             $this->pdo->rollBack();
             throw $e;
         }

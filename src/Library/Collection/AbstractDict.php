@@ -2,12 +2,16 @@
 
 namespace Villeon\Library\Collection;
 
+use ArrayAccess;
+use ArrayIterator;
+use Countable;
+use IteratorAggregate;
 use Traversable;
 use Villeon\Library\Pair;
 
 class AbstractDict extends Collection implements
-    DictInterface, \IteratorAggregate, \Countable
-    , \ArrayAccess
+    DictInterface, IteratorAggregate, Countable
+    , ArrayAccess
 {
     /**
      * @var array<string|int,mixed> $elements ;
@@ -29,7 +33,7 @@ class AbstractDict extends Collection implements
 
     public function getIterator(): Traversable
     {
-        return new \ArrayIterator($this->elements);
+        return new ArrayIterator($this->elements);
     }
 
     public function offsetExists(mixed $offset): bool

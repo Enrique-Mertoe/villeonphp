@@ -2,6 +2,7 @@
 
 namespace Villeon\Core\Routing;
 
+use Closure;
 use Villeon\Utils\Collection;
 
 class Router extends RouteRegistry
@@ -52,20 +53,20 @@ class Router extends RouteRegistry
 
     /**
      * @param int $code
-     * @param \Closure $controller
+     * @param Closure $controller
      * @return Route
      */
-    public function error_handler(int $code, \Closure $controller): Route
+    public function error_handler(int $code, Closure $controller): Route
     {
         return $this->addErrorHandler($code, $controller);
     }
 
-    public function post($rule, \Closure $controller): Route
+    public function post($rule, Closure $controller): Route
     {
         return $this->addRoute($rule, ["POST"], $controller);
     }
 
-    public function get(string $rule, \Closure $controller): Route
+    public function get(string $rule, Closure $controller): Route
     {
         return $this->addRoute($rule, ["GET"], $controller);
     }
@@ -73,10 +74,10 @@ class Router extends RouteRegistry
     /**
      * @param string $rule
      * @param array $methods
-     * @param \Closure $controller
+     * @param Closure $controller
      * @return Route
      */
-    private function addRoute(string $rule, array $methods, \Closure $controller): Route
+    private function addRoute(string $rule, array $methods, Closure $controller): Route
     {
         $route = new Route($rule, $methods, $controller, $this);
         $route->prefix = $this->prefix;
@@ -84,7 +85,7 @@ class Router extends RouteRegistry
         return $route;
     }
 
-    private function addErrorHandler(int $code, \Closure $controller): Route
+    private function addErrorHandler(int $code, Closure $controller): Route
     {
         $methods = ["GET"];
         $route = new Route((string)$code, $methods, $controller, $this);

@@ -2,6 +2,7 @@
 
 namespace Villeon\Core\Kernel;
 
+use Throwable;
 use Villeon\Core\Content\AppContext;
 use Villeon\Core\Content\AppEventHandler;
 use Villeon\Core\Content\Context;
@@ -34,7 +35,7 @@ class Kernel extends Scaffold
 
     private function registerErrorHandler(): void
     {
-        set_exception_handler(function (\Throwable $throwable) {
+        set_exception_handler(function (Throwable $throwable) {
             if (env("DEBUG"))
                 $cont = $this->context->buildThrowable($throwable);
             else
@@ -46,7 +47,7 @@ class Kernel extends Scaffold
     private function build_response(
         string      $content,
         int         $code = 200,
-        ?\Throwable $error = null
+        ?Throwable $error = null
     ): Response
     {
         return (new Response($content, $code))->setError($error);

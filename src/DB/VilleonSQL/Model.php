@@ -2,6 +2,7 @@
 
 namespace Villeon\DB\VilleonSQL;
 
+use Exception;
 use PDO;
 use Villeon\Database\VilleonSQL\Connection\Connect;
 use Villeon\Database\VilleonSQL\DataTypes\DataTypes;
@@ -67,7 +68,7 @@ class Model
         try {
             $sql = (new QueryBuilder($this->table))->insert($data);
             $this->pdo->prepare($sql['sql'])->execute($sql['values']);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
 
         }
         return $this;
@@ -115,7 +116,7 @@ class Model
     {
         try {
             return ModelFactory::getInstance()->getAll();
-        } catch (\Exception) {
+        } catch (Exception) {
             return [];
         }
     }
@@ -124,7 +125,7 @@ class Model
     {
         try {
             return ModelFactory::getInstance()->removeModel($name);
-        } catch (\Exception) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -133,7 +134,7 @@ class Model
     {
         try {
             return ModelFactory::getInstance()->infoSchema($name);
-        } catch (\Exception) {
+        } catch (Exception) {
             return [];
         }
     }

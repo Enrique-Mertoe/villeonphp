@@ -2,6 +2,7 @@
 
 namespace Villeon\Support\ControlPanel;
 
+use Exception;
 use Twig\Loader\FilesystemLoader;
 use Villeon\Core\Facade\Config;
 use Villeon\Core\Facade\Extension;
@@ -63,7 +64,7 @@ final class ControlPanel extends ExtensionBuilder
     {
         try {
             return $this->environment->render($name, $args);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new RuntimeError($e->getMessage());
         }
     }

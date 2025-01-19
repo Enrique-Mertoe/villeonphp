@@ -238,6 +238,8 @@ namespace SMVTemplating;
 //}
 
 
+use Exception;
+
 class Interpolator
 {
     private static string $VAR_START_TAG = "{{";
@@ -429,7 +431,7 @@ class Interpolator
     private function handleForLoop($tag): array
     {
         if (!preg_match('/for\s+(\w+)\s+in\s+(.+)/', $tag, $matches)) {
-            throw new \Exception("Invalid for loop syntax: $tag");
+            throw new Exception("Invalid for loop syntax: $tag");
         }
         $loopVar = $matches[1];
         $iterable = $matches[2];

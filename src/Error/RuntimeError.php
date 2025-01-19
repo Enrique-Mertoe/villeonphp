@@ -2,6 +2,8 @@
 
 namespace Villeon\Error;
 
-class RuntimeError extends \Error
+use Error;
+
+class RuntimeError extends Error
 {
 }

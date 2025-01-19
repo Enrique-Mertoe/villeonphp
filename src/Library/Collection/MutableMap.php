@@ -2,9 +2,11 @@
 
 namespace Villeon\Library\Collection;
 
+use ArrayAccess;
+use JsonSerializable;
 use ReturnTypeWillChange;
 
-class MutableMap implements \ArrayAccess, \JsonSerializable
+class MutableMap implements ArrayAccess, JsonSerializable
 {
     protected $container;
 

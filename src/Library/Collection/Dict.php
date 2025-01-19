@@ -2,6 +2,9 @@
 
 namespace Villeon\Library\Collection;
 
+use ReflectionFunction;
+use Throwable;
+
 class Dict extends AbstractDict implements MutableDictInterface
 {
 
@@ -52,7 +55,7 @@ class Dict extends AbstractDict implements MutableDictInterface
     public function each(callable $callback): void
     {
         try {
-            $ref = new \ReflectionFunction($callback);
+            $ref = new ReflectionFunction($callback);
             $params = count($ref->getParameters());
             if ($params == 1) {
                 foreach ($this->elements as $element) {
@@ -63,7 +66,7 @@ class Dict extends AbstractDict implements MutableDictInterface
                     $callback($key, $value);
                 }
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             log_error($e);
         }
     }

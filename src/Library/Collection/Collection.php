@@ -2,6 +2,8 @@
 
 namespace Villeon\Library\Collection;
 
+use ArrayIterator;
+use JsonSerializable;
 use Traversable;
 use Villeon\Library\ObjectLibrary;
 
@@ -17,7 +19,7 @@ use Villeon\Library\ObjectLibrary;
  * @version    1.0.0
  */
 abstract class Collection implements CollectionIterable,
-    \JsonSerializable, ObjectLibrary
+    JsonSerializable, ObjectLibrary
 {
     /**
      * @var array<T>
@@ -223,7 +225,7 @@ abstract class Collection implements CollectionIterable,
 
     public function getIterator(): Traversable
     {
-        return new \ArrayIterator($this->elements);
+        return new ArrayIterator($this->elements);
     }
 
     public function count(): int

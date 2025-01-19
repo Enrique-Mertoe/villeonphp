@@ -2,6 +2,7 @@
 
 namespace Villeon\Core\Routing;
 
+use RuntimeException;
 use Villeon\Error\RuntimeError;
 
 class RouteCollection
@@ -17,7 +18,7 @@ class RouteCollection
             unset($this->routes[$index->name]);
         }
         if (isset($this->routes[$route->name]))
-            throw new \RuntimeException("A root is overriding an existing route name $route->name");
+            throw new RuntimeException("A root is overriding an existing route name $route->name");
         $this->routes[$route->name] = $route;
     }
 

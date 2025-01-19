@@ -2,6 +2,8 @@
 
 namespace Villeon\Core\Routing;
 
+use Closure;
+use Exception;
 use Villeon\Error\RuntimeError;
 use Villeon\Http\Request;
 use Villeon\Utils\Console;
@@ -10,9 +12,9 @@ use Villeon\Utils\Log;
 class Route
 {
     /**
-     * @var \Closure $controller
+     * @var Closure $controller
      */
-    public \Closure $controller;
+    public Closure $controller;
 
     /**
      * @var string[] $allowed_methods
@@ -47,11 +49,11 @@ class Route
     /**
      * @param string $rule
      * @param string[] $methods
-     * @param \Closure $controller
+     * @param Closure $controller
      * @param RouteRegistry $registry
      * @param array ...$options
      */
-    public function __construct(string $rule, array $methods, \Closure $controller, RouteRegistry $registry, ...$options)
+    public function __construct(string $rule, array $methods, Closure $controller, RouteRegistry $registry, ...$options)
     {
         $this->rule = $rule;
         $this->controller = $controller;
@@ -72,7 +74,7 @@ class Route
             $old = $this->name;
             $this->name = $name;
             $this->registry->get_defined_routes()->update($this, $old);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new RuntimeError($e->getMessage());
         }
         return $this;

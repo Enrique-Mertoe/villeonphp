@@ -2,6 +2,7 @@
 
 namespace Villeon\Core\Content;
 
+use Throwable;
 use Villeon\Theme\Environment\Environment;
 
 class AppContext extends Context
@@ -10,7 +11,7 @@ class AppContext extends Context
     {
         return $this->theme->getRenderEnv();
     }
-    public function buildThrowable(\Throwable $error): string
+    public function buildThrowable(Throwable $error): string
     {
         return $this->theme->display_error($error);
     }

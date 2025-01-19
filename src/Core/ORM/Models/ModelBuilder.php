@@ -2,6 +2,7 @@
 
 namespace Villeon\Core\ORM\Models;
 
+use Exception;
 use Villeon\Core\ORM\Connectors\SQLConnector;
 
 /**
@@ -75,7 +76,7 @@ class ModelBuilder
         [$sql, $data] = $this->query->sel("*")->limit(1)->get();
         try {
             $result = $this->connector->connect()->getOne($sql, $data);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $result = null;
             log_error($e);
         }

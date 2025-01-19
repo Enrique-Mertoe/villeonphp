@@ -1,6 +1,9 @@
 <?php
 
 namespace Villeon\Library\Collection;
+use Countable;
+use IteratorAggregate;
+
 /**
  * CollectionOperator Interface
  * @template T
@@ -14,7 +17,7 @@ namespace Villeon\Library\Collection;
  * @author     Your Name <youremail@example.com>
  * @version    1.0.0
  */
-interface CollectionIterable extends \IteratorAggregate,\Countable
+interface CollectionIterable extends IteratorAggregate, Countable
 {
     /**
      * Retrieves the first element in the collection.

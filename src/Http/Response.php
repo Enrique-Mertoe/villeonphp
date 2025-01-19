@@ -2,6 +2,8 @@
 
 namespace Villeon\Http;
 
+use Throwable;
+
 class Response
 {
     private const DEFAULT_STATUS_CODE = 200;
@@ -25,7 +27,7 @@ class Response
      */
     private ?string $location;
 
-    private ?\Throwable $error = null;
+    private ?Throwable $error = null;
 
     /**
      * Response constructor.
@@ -166,7 +168,7 @@ class Response
         return Request::$uri;
     }
 
-    public function setError(?\Throwable $error): static
+    public function setError(?Throwable $error): static
     {
         $this->error = $error;
         return $this;

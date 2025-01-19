@@ -2,8 +2,10 @@
 
 namespace Villeon\Library\Collection;
 
+use ArrayAccess;
+
 class MutableCollection extends Collection implements MutableCollectionIterable,
-    \ArrayAccess
+    ArrayAccess
 {
 
     public function reverse(): mixed

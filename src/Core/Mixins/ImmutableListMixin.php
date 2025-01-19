@@ -2,6 +2,8 @@
 
 namespace Villeon\Core\Mixins;
 
+use TypeError;
+
 trait ImmutableListMixin
 {
 
@@ -17,7 +19,7 @@ trait ImmutableListMixin
 
     private function is_immutable()
     {
-        throw new \TypeError(sprintf("'%s' objects are immutable", get_class($this)));
+        throw new TypeError(sprintf("'%s' objects are immutable", get_class($this)));
 
     }
 }

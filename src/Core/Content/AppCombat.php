@@ -3,6 +3,7 @@
 namespace Villeon\Core\Content;
 
 use JetBrains\PhpStorm\NoReturn;
+use Throwable;
 use Villeon\Application;
 use Villeon\Core\Kernel\Kernel;
 use Villeon\Http\Request;
@@ -86,7 +87,7 @@ class AppCombat extends AppContext implements AppEventHandler
         $this->dispatchEvent($response);
     }
 
-    private function error_logger(?\Throwable $error): void
+    private function error_logger(?Throwable $error): void
     {
         log_error($error);
     }

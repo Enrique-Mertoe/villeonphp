@@ -3,6 +3,7 @@
 namespace Villeon\Support\ControlPanel;
 
 use Closure;
+use Exception;
 use Villeon\Core\Facade\Env;
 use Villeon\Core\Facade\Settings;
 use Villeon\Database\VilleonSQL\DataTypes\DataTypes;
@@ -76,7 +77,7 @@ class ActionBuilder
         try {
 
             return $this->$action();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->make_res(data: $e->getMessage());
         }
 

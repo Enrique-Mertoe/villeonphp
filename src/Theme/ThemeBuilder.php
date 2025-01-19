@@ -9,6 +9,7 @@
 namespace Villeon\Theme;
 
 use JetBrains\PhpStorm\NoReturn;
+use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -122,10 +123,10 @@ class ThemeBuilder
     }
 
     /**
-     * @param \Throwable $exception
+     * @param Throwable $exception
      * @return string
      */
-    public function display_error(\Throwable $exception): string
+    public function display_error(Throwable $exception): string
     {
         $info = [
             "error" => [

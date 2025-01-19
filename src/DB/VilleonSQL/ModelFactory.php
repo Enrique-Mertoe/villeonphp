@@ -2,6 +2,7 @@
 
 namespace Villeon\Database\VilleonSQL;
 
+use Exception;
 use PDO;
 use Villeon\Database\VilleonSQL\Connection\Connect;
 use function Symfony\Component\String\s;
@@ -25,7 +26,7 @@ class ModelFactory
         try {
             $stmt = $this->pdo->query("SHOW TABLES;");
             return $stmt->fetchAll(PDO::FETCH_COLUMN);
-        } catch (\Exception) {
+        } catch (Exception) {
             return [];
         }
     }
@@ -35,7 +36,7 @@ class ModelFactory
         try {
             $this->pdo->exec("DROP TABLE IF EXISTS $name;");
             return true;
-        } catch (\Exception) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -69,7 +70,7 @@ class ModelFactory
                 $res[] = ColumnInfo::instance($col);
             }
             return $res;
-        } catch (\Exception) {
+        } catch (Exception) {
             return [];
         }
     }

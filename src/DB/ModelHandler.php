@@ -2,6 +2,7 @@
 
 namespace Villeon\DB;
 
+use RuntimeException;
 use Villeon\Core\ORM\Connectors\SQLConnector;
 use Villeon\DB\VilleonSQL\DataTypes\AbstractDataType;
 use Villeon\Manager\Manager;
@@ -44,7 +45,7 @@ class ModelHandler
     public function getAttributes(array $attributes): string
     {
 
-        $tableName = $this->alias ?: $this->name ?? throw new \RuntimeException('Table name not defined.');
+        $tableName = $this->alias ?: $this->name ?? throw new RuntimeException('Table name not defined.');
 
         $columns = $attributes;
         $sql = "CREATE " . "TABLE IF NOT EXISTS `$tableName` (\n";
@@ -54,13 +55,13 @@ class ModelHandler
         foreach ($columns as $definition) {
             $name = $definition["name"];
             $columnDef = "`$name` ";
-            $type = $definition['type'] ?? throw new \RuntimeException("Type not defined for column `$name`.");
+            $type = $definition['type'] ?? throw new RuntimeException("Type not defined for column `$name`.");
             if ($type instanceof AbstractDataType) {
                 $columnDef .= $type->toSql();
             } elseif (is_string($type)) {
                 $columnDef .= $type;
             } else {
-                throw new \RuntimeException("Invalid type for column `$name`.");
+                throw new RuntimeException("Invalid type for column `$name`.");
             }
 
 

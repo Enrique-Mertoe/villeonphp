@@ -4,6 +4,7 @@ namespace Villeon\Support\Components;
 
 use Closure;
 use RuntimeException;
+use const DIRECTORY_SEPARATOR;
 
 /**
  *
@@ -111,7 +112,7 @@ class Process
     public function start(): void
     {
 
-        if ('\\' === \DIRECTORY_SEPARATOR)
+        if ('\\' === DIRECTORY_SEPARATOR)
             $this->processCommand();
         try {
 

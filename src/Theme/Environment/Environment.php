@@ -11,6 +11,8 @@
 
 namespace Villeon\Theme\Environment;
 
+use Exception;
+use RuntimeException;
 use Twig\Loader\LoaderInterface;
 use Twig\TwigFunction;
 use Villeon\Core\Facade\Env;
@@ -71,8 +73,8 @@ class Environment extends \Twig\Environment
         try {
 
             return parent::render($name, array_merge($context, $this->prepare_context()));
-        } catch (\Exception $e) {
-            throw new \RuntimeException($e);
+        } catch (Exception $e) {
+            throw new RuntimeException($e);
         }
     }
 }
