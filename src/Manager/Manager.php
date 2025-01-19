@@ -4,7 +4,7 @@ namespace Villeon\Manager;
 
 class Manager
 {
-    public static function createModel($name, $alias): void
+    public static function createModel($name, $alias, $attributes): bool|string
     {
         $class = ucfirst($name);
         $modelDir = app_context()->getSrc() . "/models";
@@ -14,9 +14,17 @@ class Manager
         }
         $filePath = $modelDir . '/' . $class . '.php';
         if (file_exists($filePath)) {
-            echo "Model '$class' already exists.\n";
-            return;
+            return "Model '$class' already exists.\n";
         }
+        $modelContent = [];
+        if ($alias)
+            $modelContent[] = "    private string \$tableName = \"$alias\";\n";
+        foreach ($attributes as $column) {
+            $columnName = $column['name'];
+            $columnType = static::mapColumnType($column);
+            $modelContent[] = "    public $columnType \$$columnName;\n";
+        }
+        $modelContent = implode("", $modelContent);
 
         $classTemplate = <<<EOT
             <?php
@@ -27,17 +35,23 @@ class Manager
             
             class $class extends Model
             {
-                // Define table name if different from the default (optional)
-                // protected \$table = 'your_table_name';
-            
-                // Add fillable properties if needed
-                // protected \$fillable = ['column1', 'column2'];
-            
-                // Add relationships, accessors, or methods here
+            $modelContent
             }            
             EOT;
         file_put_contents($filePath, $classTemplate);
+        return true;
+    }
 
-        echo "Model '$class' has been created successfully in $modelDir.\n";
+    private static function mapColumnType($column): string
+    {
+        if ($column['primary']) {
+            return 'int';
+        } elseif ($column['auto']) {
+            return 'int';
+        } elseif ($column['type'] == 'Date') {
+            return 'string';
+        } else {
+            return 'string';
+        }
     }
 }

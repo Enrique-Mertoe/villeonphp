@@ -3,6 +3,7 @@
 namespace Villeon\Support;
 
 
+use Villeon\Library\Collection\ChainMap;
 use Villeon\Library\Collection\Dict;
 
 /**
@@ -24,6 +25,10 @@ final class AppEnvironmentVars
      * @var Dict
      */
     private Dict $loaded_vars;
+    /**
+     * @var ChainMap $envVars
+     */
+    private ChainMap $envVars;
     /**
      * @var AppEnvironmentVars
      */
@@ -56,7 +61,7 @@ final class AppEnvironmentVars
      */
     function get($key, $default = null): mixed
     {
-        return $this->loaded_vars[$key] ?? $default;
+        return $this->envVars->get($key, $default);
     }
 
     /**
@@ -87,7 +92,7 @@ final class AppEnvironmentVars
                 $this->parse_file($file);
             }
         }
-        $this->loaded_vars->update($_ENV);
+        $this->envVars = new ChainMap($this->loaded_vars->toArray(), $_ENV);
     }
 
     /**

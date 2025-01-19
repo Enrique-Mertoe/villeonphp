@@ -1,6 +1,6 @@
 {
   "name": "src/framework",
-  "description": "A custom PHP framework.",
+  "description": "A PHP Web framework.",
   "autoload": {
     "psr-4": {
       "Villeon\\": "src/"

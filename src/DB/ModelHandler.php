@@ -36,7 +36,8 @@ class ModelHandler
     public function create(): bool|array
     {
         $sql = self::getAttributes($this->attributes ?: []);
-        Manager::createModel($this->name, $this->alias);
+        print_r($sql);
+        Manager::createModel($this->name, $this->alias, $this->attributes);
         return true;
     }
 
@@ -46,15 +47,13 @@ class ModelHandler
         $tableName = $this->alias ?: $this->name ?? throw new \RuntimeException('Table name not defined.');
 
         $columns = $attributes;
-        unset($columns['__table_name__']);
-
         $sql = "CREATE " . "TABLE IF NOT EXISTS `$tableName` (\n";
 
         $columnDefinitions = [];
 
-        foreach ($columns as $name => $definition) {
+        foreach ($columns as $definition) {
+            $name = $definition["name"];
             $columnDef = "`$name` ";
-
             $type = $definition['type'] ?? throw new \RuntimeException("Type not defined for column `$name`.");
             if ($type instanceof AbstractDataType) {
                 $columnDef .= $type->toSql();
@@ -65,20 +64,20 @@ class ModelHandler
             }
 
 
-            $columnDef .= ($definition['allowNull'] ?? true) ? " NULL" : " NOT NULL";
+            $columnDef .= ($definition['nullable'] == "true") ? " NULL" : " NOT NULL";
 
 
-            if (!empty($definition['primaryKey']))
+            if (!empty($definition['primary']) && $definition['primary'] != "false")
                 $columnDef .= " PRIMARY KEY";
 
 
-            if (isset($definition['unique']) && $definition['unique'])
+            if (isset($definition['unique']) && $definition['unique'] == "true")
                 $columnDef .= " UNIQUE";
 
             if (isset($definition['default']))
                 $columnDef .= " DEFAULT " . (is_bool($definition['default']) ? ($definition['default'] ? '1' : '0') : $definition['default']);
 
-            if (!empty($definition['autoIncrement']))
+            if (isset($definition['auto']) && $definition['auto'] == "true")
                 $columnDef .= " AUTO_INCREMENT";
 
 

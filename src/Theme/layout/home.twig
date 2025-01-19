@@ -6,7 +6,7 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="icon" href="{{ url_for('static',{filename:'villeon/villeon.png'}) }}">
-    <title>Villeon php</title>
+    <title>VilleonPHP</title>
     <style>
         *,
         *::before,
@@ -16,7 +16,8 @@
         }
 
         body {
-            background: #eaf7fd;
+            /*background: #eaf7fd;*/
+            background: linear-gradient(45deg, rgba(60, 179, 113, 0.3), white, rgba(128, 0, 128, 0.16));
             box-sizing: border-box;
             margin: 0;
         }
@@ -80,13 +81,15 @@
             justify-content: center;
             gap: 1rem;
         }
-        .links > *{
+
+        .links > * {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: .5rem;
         }
-        .links svg{
+
+        .links svg {
             width: 34px;
             height: 34px;
             fill: dodgerblue;
@@ -98,7 +101,7 @@
 <div class="container">
     <div class="container-content">
         <div class="top-content">
-            <h3>Villeon PHP</h3>
+            <h3>VilleonPHP</h3>
             <a href="">
                 <img src="{{ url_for('static',{filename:'villeon/villeon.png'}) }}" alt="">
             </a>

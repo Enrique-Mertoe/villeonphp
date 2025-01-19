@@ -7,9 +7,9 @@ use Villeon\Core\Internal\Settings;
 
 class DataBase
 {
-    public static function createModel($name, ?string $tableName = null): bool
+    public static function createModel($name, ?string $tableName = null, ?array $attributes = null): bool
     {
-        $model = ModelHandler::define($name, $tableName, null);
+        $model = ModelHandler::define($name, $tableName, $attributes);
         if ($model->create())
             return true;
         return false;

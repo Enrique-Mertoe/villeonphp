@@ -44,6 +44,7 @@ class ActionBuilder
         $this->renderer = $renderer;
 
     }
+
     public static function required_fns()
     {
         function_exists("new_model");
@@ -86,10 +87,8 @@ class ActionBuilder
      */
     public function new_model(): Response
     {
-
-        [$name, $db_name] = array_values(Request::$form->array());
-//        Model::define(ucfirst($name))->init_model();
-        $res=DataBase::createModel($name,$db_name);
+        [$name, $db_name, $cols] = array_values(Request::$form->array());
+        $res = DataBase::createModel($name, $db_name, $cols);
         return $this->make_res(ok: $res);
 
     }
@@ -100,7 +99,7 @@ class ActionBuilder
     public function db_config(): Response
     {
         [$db_server, $db_user, $db_password, $db_name] = array_values(Request::$form->array());
-        DataBase::configDbInfo($db_server,$db_user,$db_password,$db_name);
+        DataBase::configDbInfo($db_server, $db_user, $db_password, $db_name);
 //        VilleonSQL::save_connection_string("$db_server//$db_user//$db_password//$db_name");
         return $this->make_res(ok: true);
     }
@@ -154,7 +153,27 @@ class ActionBuilder
      */
     private function components(): Response
     {
-        $view = $this->view("components.twig");
+        $info = [
+            "defaultModelColumns" => [
+                [
+                    "colName" => "id",
+                    "dataType" => "INT",
+                    "primary" => true,
+                    "unique" => false,
+                    "auto" => true,
+                    "nullable" => false,
+                ],
+                [
+                    "colName" => "created_at",
+                    "dataType" => "INT",
+                    "primary" => false,
+                    "unique" => false,
+                    "auto" => false,
+                    "nullable" => false,
+                ]
+            ]
+        ];
+        $view = $this->view("components.twig", $info);
         return $this->make_res(ok: true, data: $view);
     }
 

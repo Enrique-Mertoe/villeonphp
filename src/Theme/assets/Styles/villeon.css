@@ -721,10 +721,14 @@
 .smv-checkbox {
     position: relative;
     display: flex;
-    width: 20px;
-    height: 20px;
+    width: 10px;
+    height: 10px;
     align-self: stretch;
     align-items: center;
+}
+.smv-checkbox > svg{
+    width: 16px;
+    height: 16px;
 }
 
 .smv-checkbox:hover .check {
@@ -810,6 +814,8 @@
     background: #ffffff;
     display: none;
     min-width: 200px;
+    z-index: 1000;
+    box-shadow: var(--bx-shadow-sm);
 }
 
 .menu-options > * {
