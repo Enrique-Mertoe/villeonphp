@@ -1415,6 +1415,7 @@ a.btn {
     gap: .3rem;
     align-self: stretch;
     text-decoration: none;
+    border-left: 3px solid transparent;
 }
 
 .sidebar-menu .menu-link svg {
@@ -1424,6 +1425,7 @@ a.btn {
 
 .sidebar-menu .menu-link:hover {
     background: rgba(0, 0, 0, 0.04);
+    border-color: dodgerblue;;
 }
 
 .smaller {

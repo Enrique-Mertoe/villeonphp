@@ -17,7 +17,7 @@
 
         body {
             /*background: #eaf7fd;*/
-            background: linear-gradient(45deg, rgba(60, 179, 113, 0.3), white, rgba(128, 0, 128, 0.16));
+            background: linear-gradient(0deg, white 30%, #e5edfd 50%);
             box-sizing: border-box;
             margin: 0;
         }
@@ -28,6 +28,22 @@
             margin-right: auto;
             margin-left: auto;
 
+        }
+
+        .container::before {
+            --cl: rgba(255, 255, 255, 0.59);
+            content: "";
+            position: absolute;
+            height: auto;
+            aspect-ratio: 2/1;
+            width: 80%;
+            background: rgba(255, 255, 255, 0.91);
+
+            border-radius: 50%;
+            left: 50%;
+            top: -30%;
+            filter: blur(5rem);
+            transform: translateX(-50%);
         }
 
         .container-content {
@@ -66,11 +82,11 @@
             display: inline-block;
             padding: .3rem 1.85rem;
             border-radius: .4rem;
-            background: #bfd1e1;
-            border: 1px solid gray;
+            background: #f3f6ff;
+            border: 2px solid #3b6fcf;
             text-decoration: none;
             line-height: 1.5;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 1rem;
             color: #000;
         }
@@ -87,13 +103,29 @@
             flex-direction: column;
             align-items: center;
             gap: .5rem;
+            justify-content: center;
+        }
+
+        .links .btn {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
         }
 
         .links svg {
-            width: 34px;
-            height: 34px;
+            width: 24px;
+            height: 24px;
             fill: dodgerblue;
             color: dodgerblue;
+        }
+
+        .header-txt {
+            background: linear-gradient(45deg, red, green, dodgerblue);
+            background-clip: text;
+            color: transparent;
+            font-size: 2rem;
         }
     </style>
 </head>
@@ -101,64 +133,69 @@
 <div class="container">
     <div class="container-content">
         <div class="top-content">
-            <h3>VilleonPHP</h3>
+            <h3 class="header-txt">
+                Welcome to
+                VilleonPHP</h3>
             <a href="">
                 <img src="{{ url_for('static',{filename:'villeon/villeon.png'}) }}" alt="">
             </a>
 
             <div class="links">
                 <div>
-                    <svg fill="#000000" height="200px" width="200px" version="1.1" id="Layer_1"
-                         xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                         viewBox="0 0 512.001 512.001" xml:space="preserve"><g id="SVGRepo_bgCarrier"
-                                                                               stroke-width="0"></g>
-                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                        <g id="SVGRepo_iconCarrier">
-                            <g>
-                                <g>
-                                    <path d="M336.129,173.05L199.272,36.199c-3.851-3.85-9.071-6.012-14.515-6.012H20.529C9.191,30.187,0,39.378,0,50.715v410.571 c0,11.337,9.191,20.529,20.529,20.529h301.086c11.337,0,20.529-9.191,20.529-20.529v-273.72 C342.143,182.121,339.98,176.9,336.129,173.05z M205.286,100.274l66.767,66.764h-66.767V100.274z M301.086,440.758H41.057V71.244 h123.171v116.323c0,11.337,9.191,20.529,20.529,20.529h116.328V440.758z"></path>
-                                </g>
-                            </g>
-                            <g>
-                                <g>
-                                    <path d="M239.5,344.958H102.643c-11.337,0-20.529,9.191-20.529,20.529s9.191,20.529,20.529,20.529H239.5 c11.337,0,20.529-9.191,20.529-20.529C260.028,354.148,250.837,344.958,239.5,344.958z"></path>
-                                </g>
-                            </g>
-                            <g>
-                                <g>
-                                    <path d="M239.5,262.844H102.643c-11.337,0-20.529,9.191-20.529,20.529c0,11.337,9.191,20.529,20.529,20.529H239.5 c11.337,0,20.529-9.191,20.529-20.529C260.028,272.034,250.837,262.844,239.5,262.844z"></path>
-                                </g>
-                            </g>
-                            <g>
-                                <g>
-                                    <path d="M505.988,36.199c-3.85-3.85-9.071-6.013-14.516-6.013h-87.743c-5.446,0-10.667,2.164-14.516,6.013 s-6.012,9.072-6.012,14.516l0.003,366.702c0,5.446,2.162,10.667,6.014,14.516l43.87,43.87c4.009,4.009,9.263,6.014,14.515,6.014 c5.253,0,10.508-2.004,14.515-6.014l43.87-43.87c3.85-3.85,6.013-9.071,6.013-14.516l0.003-366.702 C512,45.271,509.838,40.048,505.988,36.199z M470.94,408.914l-23.341,23.341l-23.341-23.341l-0.001-337.67h46.686L470.94,408.914z "></path>
-                                </g>
-                            </g>
-                        </g></svg>
                     <a class="btn" href="">
+                        <svg fill="#000000" height="24" width="24" version="1.1" id="Layer_1"
+                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                             viewBox="0 0 512.001 512.001" xml:space="preserve"><g id="SVGRepo_bgCarrier"
+                                                                                   stroke-width="0"></g>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                            <g id="SVGRepo_iconCarrier">
+                                <g>
+                                    <g>
+                                        <path d="M336.129,173.05L199.272,36.199c-3.851-3.85-9.071-6.012-14.515-6.012H20.529C9.191,30.187,0,39.378,0,50.715v410.571 c0,11.337,9.191,20.529,20.529,20.529h301.086c11.337,0,20.529-9.191,20.529-20.529v-273.72 C342.143,182.121,339.98,176.9,336.129,173.05z M205.286,100.274l66.767,66.764h-66.767V100.274z M301.086,440.758H41.057V71.244 h123.171v116.323c0,11.337,9.191,20.529,20.529,20.529h116.328V440.758z"></path>
+                                    </g>
+                                </g>
+                                <g>
+                                    <g>
+                                        <path d="M239.5,344.958H102.643c-11.337,0-20.529,9.191-20.529,20.529s9.191,20.529,20.529,20.529H239.5 c11.337,0,20.529-9.191,20.529-20.529C260.028,354.148,250.837,344.958,239.5,344.958z"></path>
+                                    </g>
+                                </g>
+                                <g>
+                                    <g>
+                                        <path d="M239.5,262.844H102.643c-11.337,0-20.529,9.191-20.529,20.529c0,11.337,9.191,20.529,20.529,20.529H239.5 c11.337,0,20.529-9.191,20.529-20.529C260.028,272.034,250.837,262.844,239.5,262.844z"></path>
+                                    </g>
+                                </g>
+                                <g>
+                                    <g>
+                                        <path d="M505.988,36.199c-3.85-3.85-9.071-6.013-14.516-6.013h-87.743c-5.446,0-10.667,2.164-14.516,6.013 s-6.012,9.072-6.012,14.516l0.003,366.702c0,5.446,2.162,10.667,6.014,14.516l43.87,43.87c4.009,4.009,9.263,6.014,14.515,6.014 c5.253,0,10.508-2.004,14.515-6.014l43.87-43.87c3.85-3.85,6.013-9.071,6.013-14.516l0.003-366.702 C512,45.271,509.838,40.048,505.988,36.199z M470.94,408.914l-23.341,23.341l-23.341-23.341l-0.001-337.67h46.686L470.94,408.914z "></path>
+                                    </g>
+                                </g>
+                            </g></svg>
+
                         Documentation
                     </a>
                 </div>
                 <div>
-                    <svg width="64px" height="64px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg"
-                         xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
-                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                        <g id="SVGRepo_iconCarrier"><title>control [#848]</title>
-                            <desc>Created with Sketch.</desc>
-                            <defs></defs>
-                            <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                <g id="Dribbble-Light-Preview" transform="translate(-140.000000, -4439.000000)"
-                                   fill="currentColor">
-                                    <g id="icons" transform="translate(56.000000, 160.000000)">
-                                        <path d="M101,4285 L98,4285 L98,4282 C98,4281.448 98.448,4281 99,4281 L101,4281 C101.552,4281 102,4281.448 102,4282 L102,4284 C102,4284.552 101.552,4285 101,4285 L101,4285 Z M102,4293 L102,4296 C102,4296.552 101.552,4297 101,4297 L99,4297 C98.448,4297 98,4296.552 98,4296 L98,4293 L102,4293 Z M92,4291 L96,4291 L96,4287 L92,4287 L92,4291 Z M89,4297 L87,4297 C86.448,4297 86,4296.552 86,4296 L86,4294 C86,4293.448 86.448,4293 87,4293 L90,4293 L90,4296 C90,4296.552 89.552,4297 89,4297 L89,4297 Z M86,4284 L86,4282 C86,4281.448 86.448,4281 87,4281 L89,4281 C89.552,4281 90,4281.448 90,4282 L90,4285 L87,4285 C86.448,4285 86,4284.552 86,4284 L86,4284 Z M102,4279 L98,4279 C96.895,4279 96,4279.895 96,4281 L96,4285 L92,4285 L92,4281 C92,4279.895 91.105,4279 90,4279 L86,4279 C84.895,4279 84,4279.895 84,4281 L84,4285 C84,4286.105 84.895,4287 86,4287 L90,4287 L90,4291 L86,4291 C84.895,4291 84,4291.895 84,4293 L84,4297 C84,4298.105 84.895,4299 86,4299 L90,4299 C91.105,4299 92,4298.105 92,4297 L92,4293 L96,4293 L96,4297 C96,4298.105 96.895,4299 98,4299 L102,4299 C103.105,4299 104,4298.105 104,4297 L104,4293 C104,4291.895 103.105,4291 102,4291 L98,4291 L98,4287 L102,4287 C103.105,4287 104,4286.105 104,4285 L104,4281 C104,4279.895 103.105,4279 102,4279 L102,4279 Z"
-                                              id="control-[#848]"></path>
+                    <a class="btn" href="{{ url_for('panel.dashboard') }}">
+                        <svg width="64px" height="64px" viewBox="0 0 20 20" version="1.1"
+                             xmlns="http://www.w3.org/2000/svg"
+                             xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                            <g id="SVGRepo_iconCarrier"><title>control [#848]</title>
+                                <desc>Created with Sketch.</desc>
+                                <defs></defs>
+                                <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                    <g id="Dribbble-Light-Preview" transform="translate(-140.000000, -4439.000000)"
+                                       fill="currentColor">
+                                        <g id="icons" transform="translate(56.000000, 160.000000)">
+                                            <path d="M101,4285 L98,4285 L98,4282 C98,4281.448 98.448,4281 99,4281 L101,4281 C101.552,4281 102,4281.448 102,4282 L102,4284 C102,4284.552 101.552,4285 101,4285 L101,4285 Z M102,4293 L102,4296 C102,4296.552 101.552,4297 101,4297 L99,4297 C98.448,4297 98,4296.552 98,4296 L98,4293 L102,4293 Z M92,4291 L96,4291 L96,4287 L92,4287 L92,4291 Z M89,4297 L87,4297 C86.448,4297 86,4296.552 86,4296 L86,4294 C86,4293.448 86.448,4293 87,4293 L90,4293 L90,4296 C90,4296.552 89.552,4297 89,4297 L89,4297 Z M86,4284 L86,4282 C86,4281.448 86.448,4281 87,4281 L89,4281 C89.552,4281 90,4281.448 90,4282 L90,4285 L87,4285 C86.448,4285 86,4284.552 86,4284 L86,4284 Z M102,4279 L98,4279 C96.895,4279 96,4279.895 96,4281 L96,4285 L92,4285 L92,4281 C92,4279.895 91.105,4279 90,4279 L86,4279 C84.895,4279 84,4279.895 84,4281 L84,4285 C84,4286.105 84.895,4287 86,4287 L90,4287 L90,4291 L86,4291 C84.895,4291 84,4291.895 84,4293 L84,4297 C84,4298.105 84.895,4299 86,4299 L90,4299 C91.105,4299 92,4298.105 92,4297 L92,4293 L96,4293 L96,4297 C96,4298.105 96.895,4299 98,4299 L102,4299 C103.105,4299 104,4298.105 104,4297 L104,4293 C104,4291.895 103.105,4291 102,4291 L98,4291 L98,4287 L102,4287 C103.105,4287 104,4286.105 104,4285 L104,4281 C104,4279.895 103.105,4279 102,4279 L102,4279 Z"
+                                                  id="control-[#848]"></path>
+                                        </g>
                                     </g>
                                 </g>
                             </g>
-                        </g>
-                    </svg>
-                    <a class="btn" href="{{ url_for('panel.dashboard') }}">
+                        </svg>
+
                         Control Panel
                     </a>
                 </div>
