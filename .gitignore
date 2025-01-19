@@ -4,3 +4,9 @@
 /.idea/
 /tests/
 /index.php
+t.php
+pr.php
+s.php
+composer.json
+composer.lock
+composer.phar
