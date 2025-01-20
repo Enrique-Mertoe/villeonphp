@@ -6,7 +6,7 @@ use ArrayAccess;
 use JsonSerializable;
 use ReturnTypeWillChange;
 
-class MutableMap implements ArrayAccess, JsonSerializable
+abstract class MutableMap implements ArrayAccess, JsonSerializable
 {
     protected $container;
 
@@ -15,9 +15,8 @@ class MutableMap implements ArrayAccess, JsonSerializable
         // TODO: Implement offsetExists() method.
     }
 
-    public function offsetGet($offset)
+    #[ReturnTypeWillChange] public function offsetGet($offset)
     {
-        // TODO: Implement offsetGet() method.
     }
 
     #[ReturnTypeWillChange] public function offsetSet($offset, $value)
@@ -43,9 +42,9 @@ class MutableMap implements ArrayAccess, JsonSerializable
         return $this->container;
     }
 
+    #[ReturnTypeWillChange]
     protected function pop($key): mixed
     {
-
     }
 
     public function __debugInfo(): ?array

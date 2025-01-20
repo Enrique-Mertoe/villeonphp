@@ -34,7 +34,7 @@ class CommandLine
             }
         } else {
             Log::e(self::TAG, "No command provided.");
-            Log::i(self::TAG, "Usage: php manage [command]");
+            Log::i(self::TAG, "Usage, php manage [command]");
         }
 
     }

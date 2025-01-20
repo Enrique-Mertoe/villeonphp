@@ -40,9 +40,21 @@ class ServerCommand
                 $this->flash($d);
             }
         });
+        if (!$this->isPortInUse("127.0.0.1", 3500))
+            $process->start();
+        else
+            Log::e("SERVER ERROR", "Port 3500 already in use.");
 
-        $process->start();
+    }
 
+    private function isPortInUse($ip, $port): bool
+    {
+        $connection = @fsockopen($ip, $port, $errno, $err_str, 2); // 2 seconds timeout
+        if ($connection) {
+            fclose($connection);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -96,7 +108,7 @@ class ServerCommand
         $data = str($data);
         if (str_contains($data, "Development Server")) {
             Console::Info($this->getLabel());
-            Console::Success("SERVER: <b>[http://localhost:3500]</b>");
+            Console::Success("SERVER: <b>[http://127.0.0.1:3500]</b>");
             Console::Error("<b>DEBUG: OFF</b>");
             Console::Warn("<b><i>Press CTR + C to stop.</i></b>");
         } else if ($data->contains("[GET:", "[POST:")) {
@@ -148,7 +160,7 @@ class ServerCommand
         return [
             PHP_BINARY,
             "-S",
-            "localhost:3500",
+            "127.0.0.1:3500",
             "\"" . __DIR__ . "/server.php\""
         ];
     }
