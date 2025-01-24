@@ -1349,19 +1349,20 @@ a.btn {
     border: 1px solid rgba(0, 0, 0, 0.1);
     background: #ffffff;
     display: none;
+    z-index: 1;
 }
 
 .field-options .field-option {
     display: flex;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    padding: .2rem .3rem;
+    padding: .5rem .3rem;
     cursor: pointer;
     min-width: 200px;
     color: rgba(0, 0, 0, 0.7);
 }
 
 .field-options .field-option:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: #d6e9fd;
 
 }
 
@@ -1445,4 +1446,38 @@ a.btn {
 
 .fill-yellow {
     fill: #fed90f !important;
+}
+
+.btn-dashed {
+    --bs-border-color:red;
+    background: linear-gradient(90deg, var(--bs-border-color) 50%, transparent 50%),
+    linear-gradient(0deg, var(--bs-border-color) 50%, transparent 50%),
+    linear-gradient(90deg, var(--bs-border-color) 50%, transparent 50%),
+    linear-gradient(0deg, var(--bs-border-color) 50%, transparent 50%) !important;
+
+    background-repeat: repeat-x, repeat-y, repeat-x, repeat-y !important;
+    background-size: 10px 2px, 2px 10px, 10px 2px, 2px 10px !important;
+    background-position: left top, right top, left bottom, left top!important;
+    padding: 0.5rem 1rem!important;
+    animation: border-dance 4s infinite linear!important;
+}
+.btn-dashed:hover {
+    -webkit-animation: border-dance 4s infinite linear!important;
+    animation: border-dance 4s infinite linear!important;
+}
+@-webkit-keyframes border-dance {
+    0% {
+        background-position: left top, right top, right bottom, left bottom!important;
+    }
+    100% {
+        background-position: right top, right bottom, left bottom, left top!important;
+    }
+}
+@keyframes border-dance {
+    0% {
+        background-position: left top, right top, right bottom, left bottom!important;
+    }
+    100% {
+        background-position: right top, right bottom, left bottom, left top!important;
+    }
 }

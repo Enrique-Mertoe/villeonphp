@@ -12,7 +12,7 @@ class ModelHandler
     private string $name;
     private ?string $alias;
     /**
-     * @var ModelColumn[]
+     * @var ColumnField[]
      */
     private ?array $attributes;
 
@@ -26,7 +26,7 @@ class ModelHandler
     /**
      * @param $name
      * @param string|null $alias
-     * @param ModelColumn[] $attributes
+     * @param ColumnField[] $attributes
      * @return ModelHandler
      */
     public static function define($name, ?string $alias, ?array $attributes): ModelHandler
@@ -34,12 +34,11 @@ class ModelHandler
         return new static($name, $alias, $attributes);
     }
 
-    public function create(): bool|array
+    public function create(): string|bool
     {
         $sql = self::getAttributes($this->attributes ?: []);
         print_r($sql);
-        Manager::createModel($this->name, $this->alias, $this->attributes);
-        return true;
+        return Manager::createModel($this->name, $this->alias, $this->attributes);
     }
 
     public function getAttributes(array $attributes): string

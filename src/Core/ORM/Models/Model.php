@@ -2,6 +2,8 @@
 
 namespace Villeon\Core\ORM\Models;
 
+use Villeon\Core\Exceptions\UnImplementedException;
+
 /**
  * @template T
  * @method static static[] all()
@@ -23,5 +25,13 @@ class Model
     public static function __callStatic(string $name, array $arguments)
     {
         return (new ModelBuilder(static::class))->$name(...$arguments);
+    }
+
+    /**
+     * @throws UnImplementedException
+     */
+    protected function getAttributes(): array
+    {
+        throw new UnImplementedException("This method need to be implemented.");
     }
 }

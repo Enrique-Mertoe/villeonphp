@@ -18,7 +18,7 @@
                     if (res.ok) {
                         store.componets = res.data;
                     }
-                })
+                });
         },
         admin_config() {
             $$(".secure-view").modal("show", function (md) {
@@ -171,7 +171,7 @@
                     let col = $$(this);
                     let d = {
                         name: col.find("[data-col-name]").val(),
-                        type: col.find("[data-col-type]").val(),
+                        type: col.find("[data-col-type]").txt().trim().toUpperCase(),
                         defaultVal: col.find("[data-col-default]").val(),
                         primary: col.find("[data-col-primary]").checked(),
                         unique: col.find("[data-col-unique]").checked(),
@@ -195,7 +195,7 @@
                     form = view.find(".form-new-model"),
                     nameInput = view.find(".model-name-input"),
                     fAdd = view.find("[data-smv-trigger=add-model-field]"),
-                    fAlert = view.find(".model-alert");
+                    fAlert = view.find(".general-msg-box");
                 let data = {};
 
                 nameInput.on("input", function (ev) {
@@ -248,13 +248,14 @@
                         return
                     }
                     // let data = new FormData(this);
+                    fAlert.hide();
                     $$.post({url: "/control-panel/actions?type=new_model", data})
                         .then(res => {
                             loader.reset();
                             if (res.ok)
                                 modal.reset();
                             else
-                                alert(res.data)
+                                fAlert.show().html(res.data)
                         });
                 });
             }
@@ -303,8 +304,11 @@
     });
     $$(document).on("click", ".field-option", function (ev) {
         ev.preventDefault();
-        let drop = $$(this).closest(".field-options");
+        let s = $$(this);
+        let drop = s.closest(".field-options");
         drop.rClass("show");
+        s.closest(".field-content").find("[data-col-type]")
+            .txt(s.txt().trim().toUpperCase());
 
     });
 

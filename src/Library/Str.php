@@ -69,6 +69,18 @@ class Str implements ObjectLibrary, ArrayAccess
         return $this;
     }
 
+    public function upper(): static
+    {
+        $this->str = strtoupper($this->str);
+        return $this;
+    }
+
+    public function lower(): static
+    {
+        $this->str = strtolower($this->str);
+        return $this;
+    }
+
     /**
      * @return $this
      */

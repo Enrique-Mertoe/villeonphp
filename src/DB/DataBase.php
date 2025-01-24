@@ -7,12 +7,10 @@ use Villeon\Core\Internal\Settings;
 
 class DataBase
 {
-    public static function createModel($name, ?string $tableName = null, ?array $attributes = null): bool
+    public static function createModel($name, ?string $tableName = null, ?array $attributes = null): string|bool
     {
         $model = ModelHandler::define($name, $tableName, $attributes);
-        if ($model->create())
-            return true;
-        return false;
+        return $model->create();
     }
 
     public static function configDbInfo(

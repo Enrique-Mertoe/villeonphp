@@ -90,7 +90,7 @@ class ActionBuilder
     {
         [$name, $db_name, $cols] = array_values(Request::$form->array());
         $res = DataBase::createModel($name, $db_name, $cols);
-        return $this->make_res(ok: $res);
+        return $this->make_res(ok: $res === true, data: $res);
 
     }
 
