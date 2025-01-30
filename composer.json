@@ -3,7 +3,7 @@
   "description": "A PHP Web framework.",
   "autoload": {
     "psr-4": {
-      "App\\": "src/"
+      "Villeon\\": "src/"
     },
     "files": [
       "src/Core/helpers.php",
