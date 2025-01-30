@@ -6,13 +6,13 @@ class Manager
 {
     public static function modelExists($name): bool
     {
-        $filePath = app_context()->getSrc() . "/models" . '/' . ucfirst($name) . '.php';
+        $filePath = app_context()->getSrc() . "/Models" . '/' . ucfirst($name) . '.php';
         return file_exists($filePath);
     }
 
     public static function deleteModel($name): void
     {
-        $file = app_context()->getSrc() . "/models" . '/' . ucfirst($name) . '.php';
+        $file = app_context()->getSrc() . "/Models" . '/' . ucfirst($name) . '.php';
         if (file_exists($file)) {
             unlink($file);
         }
@@ -21,7 +21,7 @@ class Manager
     public static function createModel($name, $alias, $attributes): bool|string
     {
         $class = ucfirst($name);
-        $modelDir = app_context()->getSrc() . "/models";
+        $modelDir = app_context()->getSrc() . "/Models";
 
         if (!is_dir($modelDir)) {
             mkdir($modelDir, 0755, true);
