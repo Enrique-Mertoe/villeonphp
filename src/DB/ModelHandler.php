@@ -3,6 +3,7 @@
 namespace Villeon\DB;
 
 use RuntimeException;
+use Villeon\Core\ORM\Connectors\ConnectionFactory;
 use Villeon\Core\ORM\Connectors\SQLConnector;
 use Villeon\DB\VilleonSQL\DataTypes\AbstractDataType;
 use Villeon\Manager\Manager;
@@ -36,15 +37,23 @@ class ModelHandler
 
     public function create(): string|bool
     {
-        $sql = self::getAttributes($this->attributes ?: []);
-        print_r($sql);
-        return Manager::createModel($this->name, $this->alias, $this->attributes);
+        $sql = $this->getAttributes($this->attributes ?: []);
+        if (Manager::modelExists($this->name))
+            return "Model " . ucfirst($this->name) . " already exits";
+
+        if (SQLConnector::of()->execute($sql)) {
+            return Manager::createModel($this->name, $this->alias, $this->attributes);
+        }
+        return "Something went wrong!";
     }
 
     public function getAttributes(array $attributes): string
     {
 
         $tableName = $this->alias ?: $this->name ?? throw new RuntimeException('Table name not defined.');
+        if (!str_ends_with($tableName, 's')) {
+            $tableName .= 's';
+        }
 
         $columns = $attributes;
         $sql = "CREATE " . "TABLE IF NOT EXISTS `$tableName` (\n";

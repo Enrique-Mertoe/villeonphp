@@ -4,6 +4,20 @@ namespace Villeon\Manager;
 
 class Manager
 {
+    public static function modelExists($name): bool
+    {
+        $filePath = app_context()->getSrc() . "/models" . '/' . ucfirst($name) . '.php';
+        return file_exists($filePath);
+    }
+
+    public static function deleteModel($name): void
+    {
+        $file = app_context()->getSrc() . "/models" . '/' . ucfirst($name) . '.php';
+        if (file_exists($file)) {
+            unlink($file);
+        }
+    }
+
     public static function createModel($name, $alias, $attributes): bool|string
     {
         $class = ucfirst($name);
@@ -17,7 +31,8 @@ class Manager
             return "Model \"<u>$class</u>\" already exists.\n";
         }
         $modelContent = [];
-        $modelConstruct = [];
+        $modelConstruct = "";
+
         if ($alias)
             $modelContent[] = "    private string \$tableName = \"$alias\";\n";
         foreach ($attributes as $column) {
@@ -30,52 +45,25 @@ class Manager
                     default => $item
                 };
             }, $column);
-            $columnName = $column["name"];
-            $type = $column["type"];
-            $default = $column["defaultVal"];
-            $primary = $column["primary"];
-            $unique = $column["unique"];
-            $nullable = $column["nullable"];
-            $auto = $column["auto"];
-            $type = static::mapColumnType($type);
-            $modelContent[] = "    public $type[0] \$$columnName;\n";
-            $pars = [];
-            if ($default)
-                $pars[] = "default: \"$default\"";
-
-            if ($primary)
-                $pars[] = "isPrimary: true";
-            if ($unique)
-                $pars[] = "isUnique: true";
-            if ($nullable)
-                $pars[] = "allowNull: true";
-            if ($auto)
-                $pars[] = "autoValue: true";
-            $pars = implode(", ", $pars);
-            if ($pars)
-                $pars = ", $pars";
-            $modelConstruct[] = "\"$columnName\" => new ColField($type[1]$pars)";
+            $modelConstruct .= self::buildSchema($column) . "\n        ";
         }
+        $modelConstruct = str($modelConstruct)->trimEnd()->trimEnd("\n");
         $modelContent = implode("", $modelContent);
-        $modelConstruct = "[\n            "
-            . implode(",\n            ", $modelConstruct) . "\n        ]";
 
         $classTemplate = <<<EOT
             <?php
             
             namespace App\Models;
             
-            use Villeon\Core\ORM\DataTypes\DataType;
-            use Villeon\Core\useVilleon\Core\ORM\ColField;
-            
-            use Villeon\Core\ORM\Models\Model;
+            use Villeon\Core\ORM\DBSchema;            
+            use Villeon\Core\ORM\Model;
             
             class $class extends Model
             {
             $modelContent
-                protected function getAttributes(): array
+                public function schema(DBSchema \$table): void
                 {
-                    return $modelConstruct;
+                    $modelConstruct
                 }
             }            
             EOT;
@@ -83,16 +71,59 @@ class Manager
         return true;
     }
 
-    private static function mapColumnType($type): array
+    private static function buildSchema(array $column): string
     {
-        return match (strtoupper($type)) {
-            "INT" => ["int", "DataType::INT"],
-            "BOOLEAN" => ["bool", "DataType::BOOL"],
-            "TEXT" => ["string", "DataType::STRING"],
-            "VARCHAR" => ["string", "DataType::STRING()"],
-            "DATE" => ["", "DataType::DATE"],
-            default => throw new \RuntimeException("invalid datatype")
-        };
+        $columnName = $column["name"];
+        $type = $column["type"];
+        $default = $column["defaultVal"];
+        $primary = $column["primary"];
+        $unique = $column["unique"];
+        $nullable = $column["nullable"];
+        $auto = $column["auto"];
+        $len = null;
+        $st = "";
+        if ($columnName === "id")
+            return "\$table->id();";
+        switch ($type) {
+            case "INT":
+                $st .= "\$table->int(";
+                break;
+            case "TEXT":
+                $st .= "\$table->string(";
+                break;
+            case "BOOLEAN":
+                $st .= "\$table->bool(";
+                break;
+            case "VARCHAR":
+                $len = 255;
+                $st .= "\$table->string(";
+                break;
+            case "DATE";
+                $st .= "\$table->date(";
+                break;
+        }
+        $st .= "\"$columnName\"";
+        if ($len !== null) {
+            $st .= ", $len";
+        }
+        if (!empty($default)) {
+            $st .= ", default: $default";
+        }
+        if ($nullable) {
+            $st .= ", null: true";
+        }
+        if ($primary) {
+            $st .= ", primary: true";
+        }
+        if ($unique) {
+            $st .= ", unique: true";
+        }
+        if ($auto) {
+            $st .= ", auto: true";
+        }
+        $st .= ");";
+
+        return $st;
     }
 
     static function formatCode($code)

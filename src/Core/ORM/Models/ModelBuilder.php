@@ -93,7 +93,7 @@ class ModelBuilder
      */
     public function filterBy(array $filters): self
     {
-        $this->query->filterBy($filters);
+        $this->query->filter($filters);
         return $this;
     }
 

@@ -3,11 +3,13 @@
 namespace Villeon\Core\useVilleon\Core\ORM;
 
 use Villeon\Core\ORM\DataTypes\DataType;
+use Villeon\Core\ORM\RelationShip;
 
 /**
  * Class representing a column field in the ORM (Object-Relational Mapping).
  * This class defines the structure and properties of a field in a database table, such as its data type, default value,
  * and constraints like primary key, unique, nullable, and auto-increment.
+ * @method RelationShip foreign()
  */
 class ColField
 {
@@ -58,6 +60,7 @@ class ColField
      * @param bool $autoValue Whether the column value is auto-generated (e.g., auto-increment). Defaults to false.
      */
     public function __construct(
+        string $name,
         DataType|int $type,
         mixed $default = null,
         bool $isPrimary = false,

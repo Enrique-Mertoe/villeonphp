@@ -14,9 +14,6 @@ class SQLConnector extends Connector
     public const MYSQL = 1;
     public const POSTGRES = 2;
 
-    public const FETCH_ONE = 3;
-    public const FETCH_ALL = 4;
-
     public function __construct(int $connector)
     {
         $vars = $this->getDBVars();
@@ -49,9 +46,9 @@ class SQLConnector extends Connector
      * @return array|null
      */
 
-    public function getOne(string $query, array $data = []): array |bool
+    public function getOne(string $query, array $data = []): array|bool
     {
-        return $this->execute($query, $data, self::FETCH_ONE);
+        return $this->execute($query, $data)->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -61,26 +58,27 @@ class SQLConnector extends Connector
      */
     public function getAll(string $query, array $data = []): ?array
     {
-        return $this->execute($query, $data, self::FETCH_ALL);
+        return $this->execute($query, $data)->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function execute(string $query, array $data = [], int $fetchType = null): array|bool
+    public function execute(string $query, array $data = []): false|\PDOStatement
     {
         try {
             $this->connect();
-            $statement = $this->pdo->prepare($query);
             $this->pdo->beginTransaction();
+            $statement = $this->pdo->prepare($query);
             $statement->execute([...$data]);
-            $this->pdo->commit();
-
-            return match ($fetchType) {
-                self::FETCH_ONE => $statement->fetch(PDO::FETCH_ASSOC),
-                self::FETCH_ALL => $statement->fetchAll(PDO::FETCH_ASSOC),
-                default => false
-            };
+            return $statement;
         } catch (PDOException $e) {
             $this->pdo->rollBack();
             throw $e;
         }
+    }
+
+    public function write($qry, $data = []): bool
+    {
+        $this->execute($qry, $data);
+        $this->pdo->commit();
+        return true;
     }
 }

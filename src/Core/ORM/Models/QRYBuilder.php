@@ -2,6 +2,8 @@
 
 namespace Villeon\Core\ORM\Models;
 
+use InvalidArgumentException;
+use Villeon\Core\ORM\OrderMode;
 use Villeon\Library\Collection\Collection;
 use Villeon\Library\Collection\Dict;
 
@@ -14,10 +16,8 @@ class QRYBuilder
      * @var string
      */
     private string $ref;
-    /**
-     * @var Dict
-     */
-    private Dict $queries;
+
+    private array $queries;
 
     public Collection $values;
 
@@ -27,7 +27,7 @@ class QRYBuilder
     public function __construct(string $ref)
     {
         $this->ref = $ref;
-        $this->queries = \dict();
+        $this->queries = [];
         $this->values = mutableListOf();
     }
 
@@ -43,23 +43,65 @@ class QRYBuilder
 
     /**
      * @param string|array $columns
-     * @param string $direction
      * @return $this
      */
-    public function orderBy(string|array $columns, string $direction = 'ASC'): self
+    public function orderBy(string|array $columns): self
     {
         $this->queries["order"] = $columns;
         return $this;
     }
 
-    /**
-     * @param array $filters
-     * @return $this
-     */
-    public function filterBy(array $filters): self
+    public function prepareValueAndOperator($value, $operator, $useDefault = false): array
     {
-        $this->queries["filter"] = $filters;
+        if ($useDefault) {
+            return [$operator, '='];
+        }
+        return [$value, $operator];
+    }
+
+    public function condition(string $type, $col, $value, $operator, bool $default = false): self
+    {
+        if (!in_array($type, ["AND", "OR"])) {
+            throw new InvalidArgumentException("Invalid condition type: $type");
+        }
+        [$value, $operator] = $this->prepareValueAndOperator($value, $operator, $default);
+
+        if (!in_array($operator, ['=', '!=', '>', '<', '>=', '<=', 'LIKE'])) {
+            throw new InvalidArgumentException("Invalid operator: $operator");
+        }
+
+
+        $this->queries["conditions"][] = [
+            'type' => $type,
+            'col' => $col,
+            'value' => $value,
+            'operator' => $operator,
+        ];
+
         return $this;
+    }
+
+    private function getFilter(): string
+    {
+        if (empty($this->queries["conditions"])) {
+            print_r(9090);
+            return "";
+        }
+
+        $filterStr = " WHERE ";
+        $lastType = "";
+
+        foreach ($this->queries["conditions"] as $condition) {
+            $type = $condition['type'];
+            $lastType = $type;
+            $col = $condition['col'];
+            $operator = $condition['operator'];
+            $value = $condition['value'];
+
+            $filterStr .= "$col $operator ? $type ";
+            $this->values->add($value);
+        }
+        return rtrim($filterStr, " $lastType ");
     }
 
     /**
@@ -106,18 +148,18 @@ class QRYBuilder
     /**
      * @return string
      */
-    private function getFilter(): string
-    {
-        if (!$filters = $this->queries["filter"])
-            return "";
-        $filter_str = str(" WHERE ");
-        foreach ($filters as $key => $value) {
-            $filter_str->append("$key = ? AND ");
-            $this->values->add($value);
-        }
-        $filter_str->trimEnd(" AND ");
-        return $filter_str;
-    }
+//    private function getFilter(): string
+//    {
+//        if (!$filters = $this->queries["filter"])
+//            return "";
+//        $filter_str = str(" WHERE ");
+//        foreach ($filters as $key => $value) {
+//            $filter_str->append("$key = ? AND ");
+//            $this->values->add($value);
+//        }
+//        $filter_str->trimEnd(" AND ");
+//        return $filter_str;
+//    }
 
     /**
      * @param QRYBuilder $builder
@@ -140,7 +182,7 @@ class QRYBuilder
     private function getLimits(): string
     {
 
-        if (!$limits = $this->queries["limit"])
+        if (!$limits = ($this->queries["limit"] ?? []))
             return "";
         $limits = array_slice($limits, 0, 2);
         return " LIMIT " . implode(",", $limits);
@@ -148,17 +190,27 @@ class QRYBuilder
 
     private function getOrder(): string
     {
-        if (!$order = $this->queries["order"])
+        if (!$order = ($this->queries["order"] ?? []))
             return "";
         $orderBy = [];
         foreach ($order as $column => $direction) {
-            $direction = strtoupper($direction);
-            if (!in_array($direction, ['ASC', 'DESC'])) {
-                $direction = 'ASC';
+            if (!in_array($direction, [OrderMode::ASC, OrderMode::DESC], true)) {
+                throw new \InvalidArgumentException("Invalid order direction: $direction");
             }
-            $orderBy[] = "`$column` ?";
-            $this->values->add($direction);
+            $direction = $direction->name;
+            $orderBy[] = "`$column` $direction";
         }
         return " ORDER BY " . implode(", ", $orderBy);
+    }
+
+    public function insert(array $data): array
+    {
+        if (empty($data)) {
+            throw new InvalidArgumentException("Insert data cannot be empty.");
+        }
+        $vals = implode(",", array_fill(0, count($data), "?"));
+        $cols = implode(",", array_map(fn($col) => "`$col`", array_keys($data)));
+        $sql = "INSERT INTO $this->ref ($cols) VALUES($vals)";
+        return [str($sql), array_values($data)];
     }
 }

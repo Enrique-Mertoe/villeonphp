@@ -4,9 +4,9 @@ namespace Villeon\Core\ORM\Connectors;
 
 class ConnectionFactory
 {
-    public const int SQLITE = 0;
-    public const int MYSQL = 1;
-    public const int POSTGRES = 2;
+    public const  SQLITE = 0;
+    public const  MYSQL = 1;
+    public const  POSTGRES = 2;
 
     public function __construct(int $connector)
     {
