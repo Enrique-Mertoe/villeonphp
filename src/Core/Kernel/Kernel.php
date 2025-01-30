@@ -29,6 +29,7 @@ class Kernel extends Scaffold
 
     private function organize(): void
     {
+        session_start();
         $this->launch();
 
     }
