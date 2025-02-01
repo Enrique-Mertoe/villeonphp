@@ -65,6 +65,7 @@ class AppCombat extends AppContext implements AppEventHandler,
                 }
                 if (!empty($response["location"])) {
                     header("Location: " . $response["location"]);
+                    exit;
                 }
                 print_r($response["content"]);
             }
