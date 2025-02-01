@@ -109,7 +109,7 @@ class AppCombat extends AppContext implements AppEventHandler,
         if (($res = call_user_func($this->middleWares["before"])) === null) {
             $f();
         } else {
-            $this->onResponse(new Response(content: $res));
+            $this->onResponse($res instanceof Response ? Response::from($res) : new Response(content: $res));
         }
     }
 
