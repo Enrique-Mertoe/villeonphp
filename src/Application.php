@@ -49,8 +49,8 @@ final class Application extends ContentManager
     protected function initApp(string $root): void
     {
         $this->appCombat = new AppCombat($root);
-        $this->appCombat->initApp($this);  // Initialize AppCombat with the current Application instance.
-        $this->loadComponents();           // Load essential components like facades.
-        $this->build();                    // Build and configure the application.
+        $this->appCombat->initApp($this);
+        $this->loadComponents();
+        $this->build();
     }
 }

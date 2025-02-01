@@ -65,15 +65,11 @@
             <div class="hstack gap-2">
                 <div class="vsatck layout-header-item content-center">
                     <h3>Models</h3>
-                    <h1>6</h1>
+                    <h1>{{ panel.tables | length }}</h1>
                 </div>
                 <div class="vsatck layout-header-item content-center">
                     <h3>Extensions</h3>
-                    <h1>6</h1>
-                </div>
-                <div class="vsatck layout-header-item content-center">
-                    <h3>Models</h3>
-                    <h1>6</h1>
+                    <h1>0</h1>
                 </div>
             </div>
         </div>
@@ -84,27 +80,11 @@
                 </div>
                 <div class="grid">
                     <div class="col">
-                        <ul class="list-view hover-bg-light">
-                            {% for table in panel.tables %}
-                                <li  class="list-item table-item">
-                                    <div class="vstack">
-                                        <div class="hstack model-info">
-                                            <span class="model-name capitalize">{{ table }}</span>
-                                            <div class="model-options gap-1">
-                                                <span data-t-edit class="btn btn-green:soft">Edit</span>
-                                                <span data-t-del class="btn btn-danger-soft">delete</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                            {% else %}
-                                <div>
-                                    <div class="card p-4 vstack">
-                                        {% include "comp/models.html" %}
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </ul>
+                        <div>
+                            <div class="card p-4 vstack">
+                                {% include "comp/models.twig" %}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

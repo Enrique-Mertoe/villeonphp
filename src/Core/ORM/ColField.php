@@ -1,9 +1,8 @@
 <?php
 
-namespace Villeon\Core\useVilleon\Core\ORM;
+namespace Villeon\Core\ORM;
 
-use Villeon\Core\ORM\DataTypes\DataType;
-use Villeon\Core\ORM\RelationShip;
+use Villeon\Core\ORM\DataType\DataType;
 
 /**
  * Class representing a column field in the ORM (Object-Relational Mapping).

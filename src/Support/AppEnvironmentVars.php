@@ -59,7 +59,7 @@ final class AppEnvironmentVars
      * @param $default
      * @return mixed|null
      */
-    function get($key, $default = null): mixed
+    public function get($key, $default = null): mixed
     {
         return $this->envVars->get($key, $default);
     }
@@ -67,7 +67,7 @@ final class AppEnvironmentVars
     /**
      * @return Dict
      */
-    function all(): Dict
+    public function all(): Dict
     {
         return $this->loaded_vars;
     }
@@ -76,7 +76,7 @@ final class AppEnvironmentVars
      * @param ...$keys
      * @return bool
      */
-    function has(...$keys): bool
+    public function has(...$keys): bool
     {
         return $this->loaded_vars->hasKey(...$keys);
     }

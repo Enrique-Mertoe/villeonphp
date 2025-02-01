@@ -1,6 +1,6 @@
 <?php
 
-namespace Villeon\Core\ORM\DataTypes;
+namespace Villeon\Core\ORM\DataType;
 
 class IntDataType extends DataType
 {

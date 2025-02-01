@@ -37,8 +37,13 @@ class ConfigBuilder
         }
     }
 
-    function db_info(): array
+    public function db_info(): array
     {
-        return Env::has("DB_SERVER", "DB_NAME", "DB_PASSWORD", "DB_USER");
+        return [
+            "DB_SERVER" => Env::get("DB_SERVER"),
+            "DB_NAME" => Env::get("DB_NAME"),
+            "DB_PASSWORD" => Env::get("DB_PASSWORD"),
+            "DB_USER" => Env::get("DB_USER"),
+        ];
     }
 }

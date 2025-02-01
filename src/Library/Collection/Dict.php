@@ -29,9 +29,11 @@ class Dict extends AbstractDict implements MutableDictInterface
 
     public function hasKey(...$keys): bool
     {
-        foreach ($keys as $key)
-            if (array_key_exists($key, $this->elements))
+        foreach ($keys as $key) {
+            if (array_key_exists($key, $this->elements)) {
                 return true;
+            }
+        }
         return true;
     }
 

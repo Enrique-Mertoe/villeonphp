@@ -10,7 +10,6 @@ use Villeon\Core\Facade\Settings;
 use Villeon\Core\OS;
 use Villeon\Core\Routing\Blueprint;
 use Villeon\Core\Session;
-use Villeon\Database\VilleonSQL\Model;
 use Villeon\Error\RuntimeError;
 use Villeon\Http\Request;
 use Villeon\Support\Extensions\ExtensionBuilder;
@@ -41,12 +40,14 @@ final class ControlPanel extends ExtensionBuilder
     {
         $bp = Blueprint::define("panel", url_prefix: "/control-panel");
         $bp->get("/", function () {
-            if (Settings::get("PANEL_SECURED") && !Session::has("admin-session"))
+            if (Settings::get("PANEL_SECURED") && !Session::has("admin-session")) {
                 return redirect(url_for('admin.auth'));
+            }
+            Cp::getAllModels();
 
             $options = [
-//                "db" => Config::db_info(),
-//                "tables" => Model::getAll()
+                "db" => Config::db_info(),
+                "tables" => Cp::getAllModels()
             ];
             return $this->render("dashboard.twig", ['panel' => $options]);
         })->name("dashboard");

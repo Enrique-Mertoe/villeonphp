@@ -2,8 +2,36 @@
 
 namespace Villeon\Manager;
 
+use Villeon\Manager\Handlers\ModelProcessor;
+
 class Manager
 {
+    /**
+     * Retrieves all model classes from the Models directory.
+     *
+     * @param string $namespace The namespace prefix for the models.
+     *
+     * @return array An array of fully qualified model class names.
+     */
+    public static function getModels(string $namespace = "App\\Models\\"): array
+    {
+        $modelsPath = app_context()->getSrc() . "/Models";
+        $models = [];
+        if (!is_dir($modelsPath) && !mkdir($modelsPath, 0755, true) && !is_dir($modelsPath)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $modelsPath));
+        }
+
+        foreach (glob($modelsPath . '/*.php') as $file) {
+            require_once $file;
+            $className = pathinfo($file, PATHINFO_FILENAME);
+            $fullClassName = $namespace . $className;
+            if (class_exists($fullClassName)) {
+                $models[] = ModelProcessor::of($fullClassName)->process();
+            }
+        }
+        return $models;
+    }
+
     public static function modelExists($name): bool
     {
         $filePath = app_context()->getSrc() . "/Models" . '/' . ucfirst($name) . '.php';
@@ -23,8 +51,8 @@ class Manager
         $class = ucfirst($name);
         $modelDir = app_context()->getSrc() . "/Models";
 
-        if (!is_dir($modelDir)) {
-            mkdir($modelDir, 0755, true);
+        if (!is_dir($modelDir) && !mkdir($modelDir, 0755, true) && !is_dir($modelDir)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $modelDir));
         }
         $filePath = $modelDir . '/' . $class . '.php';
         if (file_exists($filePath)) {

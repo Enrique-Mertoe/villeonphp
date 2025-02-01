@@ -73,20 +73,20 @@ class ModelHandler
             }
 
 
-            $columnDef .= ($definition['nullable'] == "true") ? " NULL" : " NOT NULL";
+            $columnDef .= ($definition['nullable'] === "true") ? " NULL" : " NOT NULL";
 
 
-            if (!empty($definition['primary']) && $definition['primary'] != "false")
+            if (!empty($definition['primary']) && $definition['primary'] !== "false")
                 $columnDef .= " PRIMARY KEY";
 
 
-            if (isset($definition['unique']) && $definition['unique'] == "true")
+            if (isset($definition['unique']) && $definition['unique'] === "true")
                 $columnDef .= " UNIQUE";
 
             if (isset($definition['default']))
                 $columnDef .= " DEFAULT " . (is_bool($definition['default']) ? ($definition['default'] ? '1' : '0') : $definition['default']);
 
-            if (isset($definition['auto']) && $definition['auto'] == "true")
+            if (isset($definition['auto']) && $definition['auto'] === "true")
                 $columnDef .= " AUTO_INCREMENT";
 
 

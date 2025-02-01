@@ -9,8 +9,7 @@ class DataBase
 {
     public static function createModel($name, ?string $tableName = null, ?array $attributes = null): string|bool
     {
-        $model = ModelHandler::define($name, $tableName, $attributes);
-        return $model->create();
+        return ModelHandler::define($name, $tableName, $attributes)->create();
     }
 
     public static function configDbInfo(
