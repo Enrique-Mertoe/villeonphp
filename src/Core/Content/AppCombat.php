@@ -113,9 +113,9 @@ class AppCombat extends AppContext implements AppEventHandler,
         }
     }
 
-    public function onAfterRequest(Response $response, bool $error = false, \Closure $f = null): void
+    public function onAfterRequest(Response $response, bool $ignore = false, \Closure $f = null): void
     {
-        if ($error || !isset($this->middleWares["after"])) {
+        if ($ignore || !isset($this->middleWares["after"])) {
             $f($response);
             return;
         }
