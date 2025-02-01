@@ -190,14 +190,22 @@ class AppCombat extends AppContext implements AppEventHandler, MiddlewareHandler
     public function onBeforeRequest(Closure $f): void
     {
         if (!isset($this->middleWares["before"])) {
+            $f();
             return;
         }
-
-        if (($res = call_user_func($this->middleWares["before"])) === null) {
-            $f();
-        } else {
-            $this->onResponse($res instanceof Response ? Response::from($res) : new Response(content: $res));
+        foreach ($this->middleWares["before"] as $b4) {
+            ob_start();
+            $res = $b4();
+            $buffer = str(ob_get_clean());
+            if (!$buffer->empty()) {
+                Console::Write("[USER_OUT]" . $buffer);
+            }
+            if ($res !== null) {
+                $this->onResponse($res instanceof Response ? Response::from($res) : new Response(content: $res));
+                return;
+            }
         }
+        $f();
     }
 
     /**
@@ -218,13 +226,22 @@ class AppCombat extends AppContext implements AppEventHandler, MiddlewareHandler
             return;
         }
 
-        if (($res = call_user_func($this->middleWares["after"], $response)) instanceof Response) {
-            $f($res);
-            return;
-        }
+        $res = array_reduce($this->middleWares["after"], static function ($res, $after) {
+            ob_start();
+            $newRes = call_user_func($after, $res);
+            $buffer = str(ob_get_clean());
+            if (!$buffer->empty()) {
+                Console::Write("[USER_OUT]" . $buffer);
+            }
+            if (!($newRes instanceof Response)) {
+                throw new RuntimeException("Valid response required!");
+            }
+            return $newRes;
+        }, $response);
 
-        throw new RuntimeException("Valid response required!");
+        $f($res);
     }
+
 
     /**
      * Handles error response processing.

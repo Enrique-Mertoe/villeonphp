@@ -74,7 +74,7 @@ class ContentManager implements ContentMiddleWare
      */
     public function beforeRequest(callable $f): static
     {
-        $this->middleWares["before"] = $f;
+        $this->middleWares["before"][] = $f;
         return $this;
     }
 
@@ -96,7 +96,7 @@ class ContentManager implements ContentMiddleWare
      */
     public function afterRequest(callable $f): static
     {
-        $this->middleWares["after"] = $f;
+        $this->middleWares["after"][] = $f;
         return $this;
     }
 
