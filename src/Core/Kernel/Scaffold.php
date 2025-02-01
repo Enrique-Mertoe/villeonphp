@@ -2,6 +2,7 @@
 
 namespace Villeon\Core\Kernel;
 
+use Closure;
 use ReflectionException;
 use ReflectionFunction;
 use RuntimeException;
@@ -10,12 +11,10 @@ use Villeon\Core\Content\AppContext;
 use Villeon\Core\Routing\Route;
 use Villeon\Core\Routing\RouteRegistry;
 use Villeon\Core\Scaffolding\ParameterCountException;
-use Villeon\Error\RuntimeError;
 use Villeon\Http\Request;
 use Villeon\Http\Response;
 use Villeon\Library\Collection\Collection;
 use Villeon\Library\Collection\Dict;
-use Villeon\Theme\ThemeBuilder;
 use Villeon\Utils\Console;
 use function listOf;
 
@@ -24,7 +23,7 @@ abstract class Scaffold implements EventDispatcher
     protected AppContext $context;
     private Dict $registries;
 
-    abstract protected function middleWare(string $type, \Closure $f);
+    abstract protected function middleWare(string $type, Closure $f);
 
     protected function launch(): void
     {
@@ -62,7 +61,7 @@ abstract class Scaffold implements EventDispatcher
         return false;
     }
 
-    private function beforeDispatch(?Route $route, \Closure $f): void
+    private function beforeDispatch(?Route $route, Closure $f): void
     {
         if ($route) {
             $registry = $route->registry->getName();
@@ -92,7 +91,7 @@ abstract class Scaffold implements EventDispatcher
         });
     }
 
-    protected function dispatch(Route $route, array $args = []): mixed
+    protected function dispatch(Route $route, array $args = []): ?int
     {
 
         $controller = $route->controller;
@@ -183,7 +182,7 @@ abstract class Scaffold implements EventDispatcher
             $priority += 1000;
         }
         if (preg_match('/\{(\w+):all}/', $lastSegment)) {
-            $priority += 1;
+            ++$priority;
         }
 
         foreach ($segments as $index => $segment) {
@@ -200,8 +199,9 @@ abstract class Scaffold implements EventDispatcher
         $v = implode("/", $v);
         foreach ($this->registries as $group) {
             foreach ($this->sortRoutes($group->get_defined_routes()->getAll()) as $route) {
-                if ($route->rule === "/" . $v)
+                if ($route->rule === "/" . $v) {
                     return $route;
+                }
             }
         }
         return null;

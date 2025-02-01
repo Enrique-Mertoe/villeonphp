@@ -4,17 +4,14 @@ namespace Villeon\Core\Content;
 
 use JetBrains\PhpStorm\NoReturn;
 use Villeon\Config\ConfigBuilder;
-use Villeon\Core\Facade\Extension;
 use Villeon\Core\Facade\Facade;
 use Villeon\Core\Internal\Settings;
-use Villeon\Core\Kernel\Kernel;
 use Villeon\Core\Rendering\RenderBuilder;
 use Villeon\Core\Routing\Router;
 use Villeon\Support\Admin\AdminPanel;
 use Villeon\Support\AppEnvironmentVars;
 use Villeon\Support\ControlPanel\ControlPanel;
 use Villeon\Support\Extensions\ExtensionManager;
-use Villeon\Theme\ThemeBuilder;
 
 /**
  * Class ContentManager
