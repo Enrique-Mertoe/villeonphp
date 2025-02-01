@@ -40,11 +40,21 @@ class ServerCommand
                 $this->flash($d);
             }
         });
-        if (!$this->isPortInUse("127.0.0.1", 3500))
-            $process->start();
-        else
-            Log::e("SERVER ERROR", "Port 3500 already in use.");
+        $this->tryRun($process, 3500);
 
+    }
+
+    private function tryRun(Process $process, int $port): void
+    {
+        if (!$this->isPortInUse("127.0.0.1", $port)) {
+            $process->start();
+        } else if ($port > 3510) {
+            Log::e("SERVER ERROR", "All allowed ports are in use.");
+        } else {
+            $port++;
+            Log::e("SERVER ERROR", "Port $port already in use. Tying port $port");
+            $this->tryRun($process, $port);
+        }
     }
 
     private function isPortInUse($ip, $port): bool
