@@ -51,9 +51,9 @@ class ServerCommand
         } else if ($port > 3510) {
             Log::e("SERVER ERROR", "All allowed ports are in use.");
         } else {
-            ++$port;
-            Log::e("SERVER ERROR", "Port $port already in use. Tying port $port");
-            $this->tryRun($process, $port);
+            $newPort = $port + 1;
+            Log::e("SERVER ERROR", "Port $port already in use. Tying port $newPort");
+            $this->tryRun($process, $newPort);
         }
     }
 
