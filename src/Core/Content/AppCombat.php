@@ -86,7 +86,7 @@ class AppCombat extends AppContext implements AppEventHandler,
     }
 
 
-    function onResponse(Response $response): void
+    public function onResponse(Response $response): void
     {
         $this->dispatchEvent($response);
     }
@@ -98,13 +98,17 @@ class AppCombat extends AppContext implements AppEventHandler,
 
     public function onBeforeRequest(\Closure $f): void
     {
-        if (isset($this->middleWares["before"]) && $this->middleWares["before"]() === null) {
+        if (isset($this->middleWares["before"]) && ($res = $this->middleWares["before"]()) === null) {
             $f();
+        } else {
+            echo "res";
         }
     }
 
-    public function onAfterRequest(\Closure $f)
+    public function onAfterRequest(\Closure $f): void
     {
-        // TODO: Implement onAfterRequest() method.
+        if (isset($this->middleWares["before"]) && $this->middleWares["before"]() === null) {
+            $f();
+        }
     }
 }

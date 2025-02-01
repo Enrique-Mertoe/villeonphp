@@ -11,16 +11,16 @@ interface EventDispatcher
 {
     /**
      * @param string $content
-     * @return mixed
+     * @return void
      */
-    public function onSuccess(string $content);
+    public function onSuccess(string $content): void;
 
     /**
      * @param int $code
      * @param string $content
-     * @return mixed
+     * @return void
      */
-    public function onFail(int $code, string $content);
+    public function onFail(int $code, string $content): void;
 
     /**
      * @param Response $response

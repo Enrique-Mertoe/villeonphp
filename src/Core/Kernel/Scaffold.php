@@ -32,12 +32,14 @@ abstract class Scaffold implements EventDispatcher
         $default = listOf(...$this->sortRoutes($registries->pop("default")
             ->get_defined_routes()
             ->getAll()));
-        if ($this->handleRouteGroup($default))
+        if ($this->handleRouteGroup($default)) {
             return;
+        }
         foreach ($registries as $group) {
             $group = listOf(...$this->sortRoutes($group->get_defined_routes()->getAll()));
-            if ($this->handleRouteGroup($group))
+            if ($this->handleRouteGroup($group)) {
                 return;
+            }
         }
         $this->manageUnknown();
     }
@@ -85,7 +87,7 @@ abstract class Scaffold implements EventDispatcher
         $reflectionParams = $reflection->getParameters();
         $required = count($reflectionParams);
         $found = count($args);
-        if ($required != $found) {
+        if ($required !== $found) {
             throw new ParameterCountException($required, $found);
         }
         $defined = $route->required_params;
@@ -102,22 +104,25 @@ abstract class Scaffold implements EventDispatcher
             } catch (Throwable $e) {
                 $res = $e;
             }
-            $bufferedOutput = str(ob_get_contents());
-            ob_end_clean();
+            $bufferedOutput = str(ob_get_clean());
             $bufferedOutput->replace("\n", "__smv__");
-            if (!$bufferedOutput->empty())
+            if (!$bufferedOutput->empty()) {
                 Console::Write("[USER_OUT]" . $bufferedOutput);
-            if ($res instanceof Throwable)
+            }
+            if ($res instanceof Throwable) {
                 throw $res;
+            }
 
 
-            if ($res instanceof Response)
+            if ($res instanceof Response) {
                 return $this->onResponse(Response::from($res));
+            }
 
             if (is_string($res)) {
                 $content = $res;
-            } elseif (is_array($res))
-                $content = json_encode($res);
+            } elseif (is_array($res)) {
+                $content = json_encode($res, JSON_THROW_ON_ERROR);
+            }
             else {
                 throw new RuntimeException("View function did not return valid response: found " .
                     gettype($res));
