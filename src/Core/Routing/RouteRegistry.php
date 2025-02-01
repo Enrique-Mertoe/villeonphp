@@ -20,6 +20,12 @@ abstract class RouteRegistry
     protected RouteCollection $routes;
     protected RouteCollection $error_handlers;
     protected string $name;
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
     protected ?string $prefix = null;
 
     public function __construct($name)

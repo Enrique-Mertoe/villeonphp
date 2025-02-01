@@ -24,6 +24,8 @@ abstract class Scaffold implements EventDispatcher
     protected AppContext $context;
     private Dict $registries;
 
+    abstract protected function middleWare(string $type, \Closure $f);
+
     protected function launch(): void
     {
         $this->registries = Dict::from(RouteRegistry::build());
@@ -60,19 +62,34 @@ abstract class Scaffold implements EventDispatcher
         return false;
     }
 
+    private function beforeDispatch(?Route $route, \Closure $f): void
+    {
+        if ($route) {
+            $registry = $route->registry->getName();
+            if ($registry === RouteRegistry::DEFAULT_BLUEPRINT) {
+                Request::$endpoint = $route->name;
+            } else {
+                Request::$endpoint = $registry . '.' . $route->name;
+            }
+        }
+        $this->middleWare("before", $f);
+    }
+
     private function handleRoute(Collection $match): void
     {
         [$route, $info] = $match->toArray();
-        if (!$route->method_allowed()) {
-            $this->onFail(405, "");
-            return;
-        }
+        $this->beforeDispatch($route, function () use ($route, $info) {
+            if (!$route->method_allowed()) {
+                $this->onFail(405, "");
+                return;
+            }
 
-        if ($route->required_params && ($defined = $this->isDefined(array_slice($info, count($route->required_params) - 1)))) {
-            $this->dispatch($defined);
-            return;
-        }
-        $this->dispatch($route, $info);
+            if ($route->required_params && ($defined = $this->isDefined(array_slice($info, count($route->required_params) - 1)))) {
+                $this->dispatch($defined);
+                return;
+            }
+            $this->dispatch($route, $info);
+        });
     }
 
     protected function dispatch(Route $route, array $args = []): mixed
@@ -122,8 +139,7 @@ abstract class Scaffold implements EventDispatcher
                 $content = $res;
             } elseif (is_array($res)) {
                 $content = json_encode($res, JSON_THROW_ON_ERROR);
-            }
-            else {
+            } else {
                 throw new RuntimeException("View function did not return valid response: found " .
                     gettype($res));
             }
@@ -193,11 +209,17 @@ abstract class Scaffold implements EventDispatcher
 
     private function manageUnknown(): void
     {
-        if ($route = $this->is404Defined()) {
-            $this->dispatch($route);
-        } else {
-            $this->onFail(404, $this->context->getErrorContent(404));
-        }
+        $route = $this->is404Defined();
+        $this->beforeDispatch(
+            $route,
+            function () use ($route) {
+                if ($route) {
+                    $this->dispatch($route);
+                } else {
+                    $this->onFail(404, $this->context->getErrorContent(404)); // Default 404 handling
+                }
+            }
+        );
     }
 
     private function is404Defined(): ?Route

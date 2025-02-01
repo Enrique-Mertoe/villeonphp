@@ -37,8 +37,15 @@ class Kernel extends Scaffold
     private function organize(): void
     {
         session_start();
-        $this->wareResolver->onBeforeRequest(fn() => $this->launch());
+        $this->launch();
 
+    }
+
+    protected function middleWare(string $type, \Closure $f): void
+    {
+        if ($type === "before") {
+            $this->wareResolver->onBeforeRequest($f);
+        }
     }
 
     private function registerErrorHandler(): void

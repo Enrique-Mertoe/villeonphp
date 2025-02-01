@@ -46,6 +46,8 @@ class Request
      */
     public static Collection $form;
 
+    public static ?string $endpoint;
+
 
     /**
      * The json data from requests.
@@ -105,6 +107,7 @@ class Request
         self::$method = $_SERVER["REQUEST_METHOD"];
         $uri = parse_url(urldecode($_SERVER['REQUEST_URI']));
         self::$uri = trim(preg_replace('#/+#', '/', $uri["path"]));
+        self::$endpoint = null;
         self::$headers = getallheaders();
 
         $input = file_get_contents('php://input');
