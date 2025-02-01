@@ -26,14 +26,15 @@ use Villeon\Utils\Log;
 class ServerCommand
 {
     private const TAG = "SERVER";
+    private int $port;
 
     /**
      *
      */
     public function __construct()
     {
-
-        $this->tryRun(3500);
+        $this->port = 3500;
+        $this->tryRun($this->port);
 
     }
 
@@ -48,6 +49,7 @@ class ServerCommand
             }
         });
         if (!$this->isPortInUse("127.0.0.1", $port)) {
+            $this->port = $port;
             $process->start();
         } else if ($port > 3510) {
             Log::e("SERVER ERROR", "All allowed ports are in use.");
@@ -119,7 +121,7 @@ class ServerCommand
         $data = str($data);
         if (str_contains($data, "Development Server")) {
             Console::Info($this->getLabel());
-            Console::Success("SERVER: <b>[http://127.0.0.1:3500]</b>");
+            Console::Success("SERVER: <b>[http://127.0.0.1:$this->port]</b>");
             Console::Error("<b>DEBUG: OFF</b>");
             Console::Warn("<b><i>Press CTR + C to stop.</i></b>");
         } else if ($data->contains("[GET:", "[POST:")) {
