@@ -48,7 +48,7 @@ class Kernel extends Scaffold
                 $cont = $this->context->buildThrowable($throwable);
             else
                 $cont = $this->context->getErrorContent(500);
-            $this->eventHandler->onResponse($this->build_response($cont, 500, $throwable));
+            $this->eventHandler->onError($this->build_response($cont, 500, $throwable));
         });
     }
 

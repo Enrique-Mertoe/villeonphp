@@ -52,19 +52,24 @@ class AppCombat extends AppContext implements AppEventHandler,
         exit;
     }
 
-    private function dispatchEvent(Response $response): void
+    private function dispatchEvent(Response $response, bool $err = false): void
     {
-        $uri = $response->uri();
-        if ($response = $response->resolved()) {
-            $this->rule_logger($uri, $response["code"]);
-            $this->error_logger($response["error"]);
-            http_response_code($response["code"]);
-            if (!empty($response["headers"]))
-                $this->set_headers($response["headers"]);
-            if (!empty($response["location"]))
-                header("Location: " . $response["location"]);
-            print_r($response["content"]);
-        }
+        $this->onAfterRequest($response, $err, function (Response $response) {
+            $uri = $response->uri();
+            if ($response = $response->resolved()) {
+                $this->rule_logger($uri, $response["code"]);
+                $this->error_logger($response["error"]);
+                http_response_code($response["code"]);
+                if (!empty($response["headers"])) {
+                    $this->set_headers($response["headers"]);
+                }
+                if (!empty($response["location"])) {
+                    header("Location: " . $response["location"]);
+                }
+                print_r($response["content"]);
+            }
+        });
+
 
     }
 
@@ -98,17 +103,32 @@ class AppCombat extends AppContext implements AppEventHandler,
 
     public function onBeforeRequest(\Closure $f): void
     {
-        if (isset($this->middleWares["before"]) && ($res = $this->middleWares["before"]()) === null) {
+        if (!isset($this->middleWares["before"])) {
+            return;
+        }
+        if (($res = call_user_func($this->middleWares["before"])) === null) {
             $f();
         } else {
-            echo "res";
+            $this->onResponse(new Response(content: $res));
         }
     }
 
-    public function onAfterRequest(\Closure $f): void
+    public function onAfterRequest(Response $response, bool $error = false, \Closure $f = null): void
     {
-        if (isset($this->middleWares["before"]) && $this->middleWares["before"]() === null) {
-            $f();
+        if ($error || !isset($this->middleWares["after"])) {
+            $f($response);
+            return;
         }
+        if (($res = call_user_func($this->middleWares["after"], $response)) instanceof Response) {
+            $f($res);
+            return;
+        }
+        throw new \RuntimeException("Valid response required!");
+
+    }
+
+    public function onError(Response $response): void
+    {
+        $this->dispatchEvent($response, true);
     }
 }
