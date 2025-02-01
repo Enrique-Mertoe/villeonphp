@@ -20,6 +20,7 @@ class ContentManager implements ContentMiddleWare
 {
     public AppCombat $appCombat;
     private static ContentManager $instance;
+    private array $middleWares = [];
 
     public function __construct()
     {
@@ -29,16 +30,18 @@ class ContentManager implements ContentMiddleWare
     #[NoReturn]
     public function start(): void
     {
-        $this->appCombat->resolveRoutes();
+        $this->appCombat->resolveRoutes($this->middleWares);
     }
 
     public function beforeRequest(callable $f): static
     {
+        $this->middleWares["before"] = $f;
         return $this;
     }
 
     public function afterRequest(callable $f): static
     {
+        $this->middleWares["after"] = $f;
         return $this;
     }
 

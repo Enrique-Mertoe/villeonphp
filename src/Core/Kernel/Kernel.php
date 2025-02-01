@@ -6,31 +6,38 @@ use Throwable;
 use Villeon\Core\Content\AppContext;
 use Villeon\Core\Content\AppEventHandler;
 use Villeon\Core\Content\Context;
+use Villeon\Core\Content\MiddleWareResolver;
 use Villeon\Http\Response;
 
 class Kernel extends Scaffold
 {
 
     private AppEventHandler $eventHandler;
+    private MiddleWareResolver $wareResolver;
 
-    public function __construct(AppContext $context, AppEventHandler $eventHandler)
+    public function __construct(AppContext         $context,
+                                AppEventHandler    $eventHandler,
+                                MiddleWareResolver $wareResolver)
     {
         $this->context = $context;
         $this->eventHandler = $eventHandler;
+        $this->wareResolver = $wareResolver;
         $this->registerErrorHandler();
 
     }
 
-    public static function resolve(AppContext $context, AppEventHandler $errorHandler): void
+    public static function resolve(
+        AppContext         $context,
+        AppEventHandler    $errorHandler,
+        MiddleWareResolver $wareResolver): void
     {
-        $kernel = new Kernel($context, $errorHandler);
-        $kernel->organize();
+        (new Kernel($context, $errorHandler, $wareResolver))->organize();
     }
 
     private function organize(): void
     {
         session_start();
-        $this->launch();
+        $this->wareResolver->onBeforeRequest(fn() => $this->launch());
 
     }
 
@@ -46,8 +53,8 @@ class Kernel extends Scaffold
     }
 
     private function build_response(
-        string      $content,
-        int         $code = 200,
+        string     $content,
+        int        $code = 200,
         ?Throwable $error = null
     ): Response
     {

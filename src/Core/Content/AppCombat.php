@@ -12,8 +12,11 @@ use Villeon\Library\Collection\ImmutableList;
 use Villeon\Theme\ThemeBuilder;
 use Villeon\Utils\Console;
 
-class AppCombat extends AppContext implements AppEventHandler
+class AppCombat extends AppContext implements AppEventHandler,
+    MiddleWareResolver
 {
+    private array $middleWares = [];
+
     public function initApp(Application $app): void
     {
         $this->application = $app;
@@ -41,9 +44,10 @@ class AppCombat extends AppContext implements AppEventHandler
         return listOf("views", "models");
     }
 
-    #[NoReturn] public function resolveRoutes(): void
+    #[NoReturn] public function resolveRoutes(array $middleWares): void
     {
-        Kernel::resolve($this, $this);
+        $this->middleWares = $middleWares;
+        Kernel::resolve($this, $this, $this);
         $this->dispatchEvent($this->response);
         exit;
     }
@@ -90,5 +94,17 @@ class AppCombat extends AppContext implements AppEventHandler
     private function error_logger(?Throwable $error): void
     {
         log_error($error);
+    }
+
+    public function onBeforeRequest(\Closure $f): void
+    {
+        if (isset($this->middleWares["before"]) && $this->middleWares["before"]() === null) {
+            $f();
+        }
+    }
+
+    public function onAfterRequest(\Closure $f)
+    {
+        // TODO: Implement onAfterRequest() method.
     }
 }

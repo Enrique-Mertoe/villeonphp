@@ -6,5 +6,5 @@ use Villeon\Http\Response;
 
 interface AppEventHandler
 {
-    function onResponse(Response $response);
+    public function onResponse(Response $response);
 }
