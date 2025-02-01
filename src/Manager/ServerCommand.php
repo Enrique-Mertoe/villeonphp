@@ -54,7 +54,7 @@ class ServerCommand
         } else {
             $newPort = $port + 1;
             Log::e("SERVER ERROR", "Port $port already in use. Tying port $newPort");
-            $this->tryRun($process, $newPort);
+            $this->tryRun($newPort);
         }
     }
 
