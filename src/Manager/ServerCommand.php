@@ -32,7 +32,14 @@ class ServerCommand
      */
     public function __construct()
     {
-        $command = $this->command();
+
+        $this->tryRun(3500);
+
+    }
+
+    private function tryRun(int $port): void
+    {
+        $command = $this->command($port);
         $command = implode(" ", $command);
         $process = new Process($command);
         $process->on("update", function ($type, $data) {
@@ -40,12 +47,6 @@ class ServerCommand
                 $this->flash($d);
             }
         });
-        $this->tryRun($process, 3500);
-
-    }
-
-    private function tryRun(Process $process, int $port): void
-    {
         if (!$this->isPortInUse("127.0.0.1", $port)) {
             $process->start();
         } else if ($port > 3510) {
@@ -165,12 +166,12 @@ class ServerCommand
     /**
      * @return array
      */
-    private function command(): array
+    private function command(int $port): array
     {
         return [
             PHP_BINARY,
             "-S",
-            "127.0.0.1:3500",
+            "127.0.0.1:$port",
             "\"" . __DIR__ . "/server.php\""
         ];
     }
