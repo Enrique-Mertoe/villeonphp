@@ -122,7 +122,7 @@ class ServerCommand
         if (str_contains($data, "Development Server")) {
             Console::Info($this->getLabel());
             Console::Success("SERVER: <b>[http://127.0.0.1:$this->port]</b>");
-            Console::Error("<b>DEBUG: OFF</b>");
+            Console::Error("<b>DEBUG: ON</b>");
             Console::Warn("<b><i>Press CTR + C to stop.</i></b>");
         } else if ($data->contains("[GET:", "[POST:")) {
             $this->display($this->formatBuffer($data));
