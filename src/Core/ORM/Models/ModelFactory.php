@@ -2,7 +2,9 @@
 
 namespace Villeon\Core\ORM\Models;
 
+use InvalidArgumentException;
 use Villeon\Core\ORM\Connectors\SQLConnector;
+use Villeon\Core\ORM\FieldSchema;
 use Villeon\Core\ORM\OrderMode;
 
 /**
@@ -34,6 +36,26 @@ class ModelFactory
 
             return $this->fillValues($data, new $this->model);
         }
+    }
+
+    public function update(array|object $info): ?object
+    {
+        if (empty($info)) {
+            throw new InvalidArgumentException("Update data cannot be empty.");
+        }
+        [$sql,$values,$key] = $this->query->update($info,$this->getTableColumns());
+
+
+        $this->connector->write($sql, $values);
+        // Execute the query
+        return $this->find($key);
+    }
+
+    private function getTableColumns(): array
+    {
+        $fs = new FieldSchema();
+        (new $this->model)->schema($fs);
+        return array_keys($fs->fields);
     }
 
     public function all(): array
@@ -106,7 +128,6 @@ class ModelFactory
     private function fillValues(array $data, object $model): object
     {
         foreach ($data as $key => $value) {
-//            if (property_exists($model, $key))
             $model->$key = $value;
         }
         return $model;

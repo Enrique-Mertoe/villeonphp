@@ -87,7 +87,6 @@ class QRYBuilder
     private function getFilter(): string
     {
         if (empty($this->queries["conditions"])) {
-            print_r(9090);
             return "";
         }
 
@@ -286,4 +285,43 @@ class QRYBuilder
             })) : "";
         return $type;
     }
+
+    public function update(object|array $info, $cols): array
+    {
+        // Convert object to array if needed
+        $data = is_object($info) ? get_object_vars($info) : $info;
+
+        if (!isset($data['id'])) {
+            throw new InvalidArgumentException("Update operation requires an 'id' field.");
+        }
+
+        // Extract the ID and remove it from the update data
+        $id = $data['id'];
+        unset($data['id']);
+
+        if (empty($data)) {
+            throw new InvalidArgumentException("No valid fields to update.");
+        }
+
+        // Get valid database columns for this model
+        $validColumns = $cols;
+
+        // Filter only valid columns
+        $filteredData = array_intersect_key($data, array_flip($validColumns));
+
+        if (empty($filteredData)) {
+            throw new InvalidArgumentException("No valid database columns found for update.");
+        }
+
+        // Generate the SET clause dynamically
+        $setClause = implode(", ", array_map(static fn($col) => "`$col` = ?", array_keys($filteredData)));
+        // SQL statement
+        $sql = "UPDATE `$this->ref` SET $setClause WHERE `id` = ?";
+
+        // Prepare values for binding
+        $values = array_values($filteredData);
+        $values[] = $id; // Append ID for the WHERE clause
+        return [$sql, $values, $id];
+    }
+
 }
