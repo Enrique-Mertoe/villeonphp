@@ -3,6 +3,7 @@
 namespace Villeon\Core\ORM\Models;
 
 use InvalidArgumentException;
+use Throwable;
 use Villeon\Core\ORM\Connectors\SQLConnector;
 use Villeon\Core\ORM\FieldSchema;
 use Villeon\Core\ORM\OrderMode;
@@ -43,13 +44,30 @@ class ModelFactory
         if (empty($info)) {
             throw new InvalidArgumentException("Update data cannot be empty.");
         }
-        [$sql,$values,$key] = $this->query->update($info,$this->getTableColumns());
+        [$sql, $values, $key] = $this->query->update($info, $this->getTableColumns());
 
 
         $this->connector->write($sql, $values);
         // Execute the query
         return $this->find($key);
     }
+
+    public function delete(array|object|null $filters): bool
+    {
+        if (empty($filters)) {
+            return false;
+        }
+
+        [$sql, $values] = $this->query->delete($filters, $this->getTableColumns());
+
+        try {
+            $this->connector->write($sql, $values);
+            return true;
+        } catch (Throwable $throwable) {
+            return false;
+        }
+    }
+
 
     private function getTableColumns(): array
     {

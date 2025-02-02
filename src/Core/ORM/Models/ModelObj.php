@@ -15,6 +15,7 @@ use Villeon\Core\ORM\OrderMode;
  * @method ModelObj limit(int $offset, int $stop = null)
  * @method first()
  * @method update(array|object $info)
+ * @method delete(array|object|null $info)
  * @method find(mixed $key)
  * @method array all()
  *

@@ -324,4 +324,24 @@ class QRYBuilder
         return [$sql, $values, $id];
     }
 
+    public function delete(object|array $filters, array $validColumns): array
+    {
+        // Convert object to array if needed
+        $data = is_object($filters) ? get_object_vars($filters) : $filters;
+
+        // Get valid database columns to filter out unwanted fields
+        $filteredData = array_intersect_key($data, array_flip($validColumns));
+
+        if (empty($filteredData)) {
+            throw new InvalidArgumentException("No valid filters provided for deletion.");
+        }
+
+        // Build the WHERE clause dynamically
+        $conditions = implode(" AND ", array_map(static fn($col) => "`$col` = ?", array_keys($filteredData)));
+
+        // SQL delete query
+        $sql = "DELETE FROM `$this->ref` WHERE $conditions";
+        return [$sql, array_values($filteredData)];
+    }
+
 }
