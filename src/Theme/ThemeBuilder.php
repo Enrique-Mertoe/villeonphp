@@ -44,7 +44,7 @@ class ThemeBuilder
     private function initialize(): void
     {
         if (is_dir($this->context->basePath)) {
-            $this->static_dir = $this->context->basePath . "/public";
+            $this->static_dir = $this->context->basePath . "/static";
             $this->template_dir = $this->context->basePath . "/templates";
         }
         $this->context->setStaticDir($this->static_dir);

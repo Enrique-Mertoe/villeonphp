@@ -13,7 +13,7 @@ $cwd = getcwd();
 $current_uri = urldecode(
     parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? ''
 );
-if ($current_uri !== '/' && file_exists($cwd ."/public/" . $current_uri)) {
-    return readfile($cwd ."/public/" . $current_uri);
+if ($current_uri !== '/' && file_exists($cwd . "/static/" . $current_uri)) {
+    return readfile($cwd . "/static/" . $current_uri);
 }
-require_once $cwd . '/www/index.php';
+require_once $cwd . DIRECTORY_SEPARATOR . 'www/index.php';
