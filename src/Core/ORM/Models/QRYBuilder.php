@@ -3,6 +3,9 @@
 namespace Villeon\Core\ORM\Models;
 
 use InvalidArgumentException;
+use Villeon\Core\ORM\ColField;
+use Villeon\Core\ORM\DataType\DataType;
+use Villeon\Core\ORM\FieldSchema;
 use Villeon\Core\ORM\OrderMode;
 use Villeon\Library\Collection\Collection;
 use Villeon\Library\Collection\Dict;
@@ -212,5 +215,75 @@ class QRYBuilder
         $cols = implode(",", array_map(fn($col) => "`$col`", array_keys($data)));
         $sql = "INSERT INTO $this->ref ($cols) VALUES($vals)";
         return [str($sql), array_values($data)];
+    }
+
+    public static function from(FieldSchema $schema, bool $alter = false, $existing = null): string
+    {
+        $tableName = $schema->table;
+        $columns = [];
+
+        foreach ($schema->fields as $name => $field) {
+            $column = "`$name` " . self::getSQLType($field);
+
+            if ($field->isPrimary) {
+                $column .= " PRIMARY KEY";
+            }
+            if ($field->autoValue) {
+                $column .= " AUTO_INCREMENT";
+            }
+            if ($field->isUnique) {
+                $column .= " UNIQUE";
+            }
+            if (!$field->allowNull) {
+                $column .= " NOT NULL";
+            }
+
+            $columns[$name] = $column;
+        }
+
+        if (!$alter) {
+            // Create Table
+            return "CREATE TABLE IF NOT EXISTS `$tableName` (" . implode(", ", $columns) . ");";
+        } else {
+            $existingColumns = $existing;
+            $alterStatements = [];
+            foreach ($existingColumns as $existingName => $existingType) {
+                if (!isset($columns[$existingName])) {
+                    $alterStatements[] = "DROP COLUMN `$existingName`";
+                }
+            }
+            foreach ($columns as $name => $columnDefinition) {
+                if (!isset($existingColumns[$name])) {
+                    // New field → Add column
+                    $alterStatements[] = "ADD COLUMN $columnDefinition";
+                } elseif ($existingColumns[$name] !== $columnDefinition) {
+                    // Modified field → Change column
+                    $alterStatements[] = "MODIFY COLUMN $columnDefinition";
+                }
+            }
+            if (empty($alterStatements)) {
+                return "";
+            }
+            return "ALTER TABLE `$tableName` " . implode(", ", $alterStatements) . ";";
+        }
+    }
+
+    private static function getSQLType(ColField $field): string
+    {
+        if ($field->type instanceof DataType) {
+            return $field->type->toSql($field->default);
+        }
+        $type = (match ($field->type) {
+            DataType::STRING => "VARCHAR(" . ($field->length ?? 255) . ")",
+            DataType::INT => "INT",
+            DataType::BOOL => "TINYINT(1)",
+            DataType::DATE => "DATE",
+            default => "TEXT"
+        });
+        $type .= ($field->default !== null) ? (" DEFAULT " . (match ($field->type) {
+                DataType::STRING => "'$field->default'",
+                default => $field->default,
+            })) : "";
+        return $type;
     }
 }

@@ -12,8 +12,8 @@ class IntDataType extends DataType
         $this->length = $length;
     }
 
-    public function toSql(): string
+    public function toSql(mixed $default = null): string
     {
-        return "BIGINT( $this->length)";
+        return "BIGINT( $this->length)" . ($default !== null) ? " DEFAULT $default" : "";
     }
 }

@@ -6,7 +6,7 @@ use Villeon\Core\ORM\DataType\DataType;
 use Villeon\Core\ORM\ColField;
 
 /**
- * DBSchema Class
+ * FieldSchema Class
  *
  * This class provides a schema builder for defining database tables, columns,
  * and their attributes. It allows the creation of various column types (e.g.,
@@ -14,13 +14,13 @@ use Villeon\Core\ORM\ColField;
  * they are primary keys, unique, or nullable.
  *
  * @package    Villeon\Core\ORM
- * @author     Your Name <your-email@example.com>
+ * @author     Your Name <abutimartin778@gmail.com>
  * @copyright  2024 Villeon
  * @license    MIT License
  * @version    1.0.0
  * @link       https://github.com/YourUsername/villeonphp
  */
-class DBSchema
+class FieldSchema
 {
     /**
      * The name of the table.
@@ -32,7 +32,7 @@ class DBSchema
     /**
      * Array holding the fields (columns) defined for the table.
      *
-     * @var array
+     * @var ColField[]
      */
     public array $fields = [];
 
@@ -56,7 +56,7 @@ class DBSchema
         bool   $unique = false,
         bool   $null = false): ColField
     {
-        $col = new ColField($name, $length ? DataType::STRING : DataType::STRING($length),
+        $col = new ColField($name, $length ? DataType::STRING($length) : DataType::STRING,
             default: $default, isPrimary: $primary,
             isUnique: $unique, allowNull: $null);
         $this->fields[$name] = $col;
@@ -146,12 +146,30 @@ class DBSchema
      *
      * @return ColField The column field definition.
      */
-    public function date(string $name): ColField
+    public function date(string $name, $default = null, bool $null = false): ColField
     {
         $col = new ColField($name,
-            DataType::DATE);
+            DataType::DATE, default: $default, allowNull: $null);
         $this->fields[$name] = $col;
         return $col;
+    }
+
+    public function enum(string $name, array $values, string $default = null, bool $null = false): ColField
+    {
+        $col = new ColField($name, DataType::ENUM($values), $default, allowNull: $null);
+        return $this->fields[$name] = $col;
+    }
+
+    public function time(string $name, bool $defaultCurrent = false, bool $onUpdateCurrent = false): ColField
+    {
+        $col = new ColField($name, DataType::TIME($defaultCurrent, $onUpdateCurrent));
+        return $this->fields[$name] = $col;
+    }
+
+    public function datetime(string $name, bool $null = false, $default = 'CURRENT_TIMESTAMP'): ColField
+    {
+        $col = new ColField($name, DataType::DATETIME($default), allowNull: $null);
+        return $this->fields[$name] = $col;
     }
 
     /**

@@ -65,6 +65,11 @@ class ActionBuilder
         return (new ActionBuilder($action, $renderer))->process_action();
     }
 
+    public static function req($renderer): array
+    {
+        return (new RequestHandler($renderer))->get();
+    }
+
     /**
      * @return Response
      */
@@ -88,7 +93,9 @@ class ActionBuilder
      */
     public function new_model(): Response
     {
-        [$name, $db_name, $cols] = array_values(Request::$form->array());
+        $name = Request::form("name");
+        $db_name = Request::form("alias");
+        $cols = Request::form("cols");
         $res = DataBase::createModel($name, $db_name, $cols);
         return $this->make_res(ok: $res === true, data: $res);
 

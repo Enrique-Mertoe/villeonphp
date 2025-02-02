@@ -2,7 +2,9 @@
 
 namespace Villeon\Manager\Handlers;
 
-use Villeon\Core\ORM\DBSchema;
+use Villeon\Core\ORM\Connectors\SQLConnector;
+use Villeon\Core\ORM\FieldSchema;
+use Villeon\Core\ORM\Schema;
 
 class ModelProcessor
 {
@@ -18,13 +20,13 @@ class ModelProcessor
         return new static($model);
     }
 
-    public function process(): ModelDef
+    public function info(): ModelDef
     {
         $name = class_basename($this->model);
-        $schema = new DBSchema();
+        $schema = new FieldSchema();
         $schema->table(strtolower($name) . "s");
         $inst = new $this->model;
         $inst->schema($schema);
-        return new ModelDef($name, $schema);
+        return new ModelDef($name, $schema,Schema::exits($schema->table()));
     }
 }

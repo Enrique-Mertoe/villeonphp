@@ -17,7 +17,7 @@ abstract class DataType
     /**
      * @var string Represents a generic boolean data type.
      */
-    public const BOOL = 10;
+    public const BOOL = 103;
     public const DATE = 104;
 
     /**
@@ -40,7 +40,7 @@ abstract class DataType
         $this->dialectTypes = $dialectTypes;
     }
 
-    abstract public function toSql(): string;
+    abstract public function toSql(mixed $default = null): string;
 
     /**
      * @param array $options
@@ -74,6 +74,22 @@ abstract class DataType
         return new StrDataType($length, $binary, $options);
     }
 
+    public static function ENUM($values): EnumDataType
+    {
+        return new EnumDataType($values);
+    }
+
+    public static function TIME(bool $defaultCurrent = false, bool $onUpdateCurrent = false): TimestampDataType
+    {
+        return new TimestampDataType($onUpdateCurrent);
+    }
+
+    public static function DATETIME($default = null): DateTimeDataType
+    {
+        return new DateTimeDataType($default);
+    }
+
+
     /**
      * Generate an IntegerDataType object for defining integer columns in the database.
      *
@@ -90,6 +106,12 @@ abstract class DataType
     {
         return new IntDataType($length, false);
     }
+
+    public function getKey(): string
+    {
+        return $this->key;
+    }
+
 
 
 }

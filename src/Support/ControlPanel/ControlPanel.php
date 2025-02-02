@@ -55,6 +55,10 @@ final class ControlPanel extends ExtensionBuilder
             $r = [$this, "render"];
             return ActionBuilder::get(Request::args("type"), $r);
         });
+        $bp->post("/request", function () {
+            $r = [$this, "render"];
+            return jsonify(ActionBuilder::req($r));
+        });
         $bp->get("/settings", function () {
             return $this->render("settings.twig");
         })->name("settings");

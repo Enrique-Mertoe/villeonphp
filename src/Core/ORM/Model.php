@@ -7,7 +7,7 @@ use Villeon\Core\ORM\Models\ModelObj;
 
 abstract class Model
 {
-    abstract public function schema(DBSchema $table): void;
+    abstract public function schema(FieldSchema $table): void;
 
     public static function obj(): ModelObj
     {

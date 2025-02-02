@@ -17,10 +17,14 @@ class StrDataType extends DataType
     }
 
     /**
+     * @param mixed|null $default
      * @return string
      */
-    public function toSql(): string
+    public function toSql(mixed $default = null): string
     {
-        return "VARCHAR(" . $this->length . ")";
+        $default = str($default ?? "")->trim();
+        print_r($default->empty());
+        return "VARCHAR(" . $this->length . ")"
+            . (!$default->empty() ? " DEFAULT '$default'" : "");
     }
 }

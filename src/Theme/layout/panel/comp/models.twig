@@ -1,8 +1,22 @@
 <div class="model-tables vstack">
-    <table class="smv-table table-bordered">
-        <caption>
-            Defined models
-        </caption>
+
+    <div class="hstack">
+        <div class="ms-auto">
+            <a data-model-sync href="" class="btn icon-loader btn-primary">
+                sync models with database
+                <svg class="l-icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <style></style>
+                    <rect class="spinner_jCIR" x="1" y="6" width="2.8" height="12"/>
+                    <rect class="spinner_jCIR spinner_upm8" x="5.8" y="6" width="2.8" height="12"/>
+                    <rect class="spinner_jCIR spinner_2eL5" x="10.6" y="6" width="2.8" height="12"/>
+                    <rect class="spinner_jCIR spinner_Rp9l" x="15.4" y="6" width="2.8" height="12"/>
+                    <rect class="spinner_jCIR spinner_dy3W" x="20.2" y="6" width="2.8" height="12"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+    <table class="smv-table model-table table-bordered">
+
         <thead>
         <tr>
             <th>
@@ -15,23 +29,24 @@
                 Fields
             </th>
             <th>
-                Matched
+                Action
             </th>
         </tr>
         </thead>
         <tbody>
         {% for table in panel.tables %}
-            <tr>
-                <td>
+            <tr class="model-item">
+                <td data-model="name">
                     {{ table.name }}
                 </td>
-                <td>
+                <td data-model="table">
                     {{ table.schema.table }}
                 </td>
                 <td>{{ table.schema.fields|keys|join(', ') }}</td>
                 <td style="width: 1rem">
-                    <div class="hstack">
-                        <span class="check">
+                    <div class="hstack gap-2">
+                        {% if table.exits %}
+                            <span class="status color-green">
                             <svg width="64px" height="64px" viewBox="0 0 24 24" fill="none"
                                  xmlns="http://www.w3.org/2000/svg">
                                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -44,7 +59,31 @@
                                 </g>
                             </svg>
                         </span>
-                        <span class="btn">modify</span>
+                        {% else %}
+                            <span class="status color-danger">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-x" viewBox="0 0 16 16">
+                                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                                </svg>
+                            </span>
+                        {% endif %}
+                        <div class="dropdown">
+                            <a data-smv-toggle="dropdown" href="" class="btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-three-dots" viewBox="0 0 16 16">
+                                    <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"/>
+                                </svg>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a data-model="edit" class="dropdown-item" href="">
+                                    Edit
+                                </a>
+                                <a data-model="delete" class="dropdown-item color-danger" href="">
+                                    Delete
+                                </a>
+                            </div>
+
+                        </div>
                     </div>
                 </td>
             </tr>
@@ -52,3 +91,5 @@
         </tbody>
     </table>
 </div>
+
+

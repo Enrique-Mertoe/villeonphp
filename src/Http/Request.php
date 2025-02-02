@@ -63,17 +63,19 @@ class Request
     {
     }
 
-    public static function form($param = null): array|null
+    public static function form($param = null): mixed
     {
-        if ($param)
+        if ($param !== null) {
             return $_POST[$param] ?? null;
+        }
         return $_POST;
     }
 
     public static function args($param = null): array|string|null
     {
-        if ($param)
+        if ($param !== null) {
             return $_GET[$param] ?? null;
+        }
         return $_GET;
     }
 

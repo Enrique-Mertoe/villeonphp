@@ -5,7 +5,10 @@ namespace Villeon\DB;
 use RuntimeException;
 use Villeon\Core\ORM\Connectors\ConnectionFactory;
 use Villeon\Core\ORM\Connectors\SQLConnector;
+use Villeon\Core\ORM\FieldSchema;
+use Villeon\Core\ORM\Models\QRYBuilder;
 use Villeon\DB\VilleonSQL\DataTypes\AbstractDataType;
+use Villeon\Http\Request;
 use Villeon\Manager\Manager;
 
 class ModelHandler
@@ -37,15 +40,54 @@ class ModelHandler
 
     public function create(): string|bool
     {
-        $sql = $this->getAttributes($this->attributes ?: []);
-        if (Manager::modelExists($this->name))
+        $mode = Request::args("mode") ?? "new";
+        if ($mode !== "edit" && Manager::modelExists($this->name)) {
             return "Model " . ucfirst($this->name) . " already exits";
-
-        if (SQLConnector::of()->execute($sql)) {
-            return Manager::createModel($this->name, $this->alias, $this->attributes);
         }
-        return "Something went wrong!";
+
+        [$suc, $data] = Manager::createModel($this->name, $this->alias, $this->attributes, $mode === "edit");
+        try {
+            if (($suc === true) && file_exists($data)) {
+                require_once $data;
+                $namespace = "App\\Models\\" . ucfirst($this->name);
+                if (class_exists($namespace)) {
+                    return $this->addonDB($namespace, $mode);
+                }
+            }
+
+            return "Something went wrong!";
+        } catch (\Throwable $e) {
+            return $e->getMessage();
+        }
     }
+
+    public function addonDB($class, $mode): string
+    {
+        $schema = new FieldSchema();
+        $schema->table(strtolower($this->name) . "s");
+        (new $class())->schema($schema);
+//        $sql = QRYBuilder::from($schema, $mode === "edit", $existing);
+        $sql = QRYBuilder::from($schema);
+        try {
+            SQLConnector::of()->execute($sql);
+        } catch (\Throwable $e) {
+            return $e->getMessage();
+        }
+        return "Model " . ucfirst($this->name) . " is created in Models directory.";
+    }
+
+    private static function getExistingColumns(string $tableName): array
+    {
+        $result = SQLConnector::of()->getAll("SHOW COLUMNS FROM `$tableName`");
+        print_r($result);
+        $columns = [];
+        foreach ($result as $row) {
+            $columns[$row['Field']] = strtoupper($row['Type']);
+        }
+
+        return $columns;
+    }
+
 
     public function getAttributes(array $attributes): string
     {

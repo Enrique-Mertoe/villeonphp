@@ -62,6 +62,19 @@
                         return this;
                     }
                 }
+            },
+            iconLoader(btn) {
+                btn = $$(btn);
+                return {
+                    load() {
+                        btn.aClass('show');
+                        return this;
+                    },
+                    reset() {
+                        btn.rClass('show');
+                        return this;
+                    }
+                }
             }
         },
         settings: {
@@ -165,7 +178,14 @@
                 let fd = {
                     name: form.find(".model-name-input").val(),
                     alias: form.find(".model-alias-input").val(),
+                    mode: form.data("mode")
                 };
+                if (form.data("mode") === "edit") {
+                    fd.initials = {
+                        name: form.data("ini-name"),
+                        alias: form.data("ini-alias"),
+                    }
+                }
                 let cols = [];
                 form.find(".model-field.model-col-item").each(function () {
                     let col = $$(this);
@@ -249,7 +269,7 @@
                     }
                     // let data = new FormData(this);
                     fAlert.hide();
-                    $$.post({url: "/control-panel/actions?type=new_model", data})
+                    $$.post({url: "/control-panel/actions?type=new_model&mode=" + form.data("mode"), data})
                         .then(res => {
                             loader.reset();
                             if (res.ok)
@@ -258,6 +278,7 @@
                                 fAlert.show().html(res.data)
                         });
                 });
+
             }
 
             $$(document).on("click", ".model-btn", function (ev) {
@@ -273,10 +294,151 @@
                     })
                     .show();
             });
+
+            $$(".model-item").each(function () {
+                let self = $$(this);
+                let name = self.find("[data-model=name]"),
+                    table = self.find("[data-model=table]"),
+                    edit = self.find("[data-model=edit]"),
+                    del = self.find("[data-model=delete]");
+                del.on("click", function (e) {
+                    e.preventDefault();
+                    confirm("Confirm deletion of model: " + name.txt(), _ => {
+                        Request({
+                            target: "models",
+                            action: "del",
+                            args: {
+                                name: name.txt().trim(),
+                                table: table.txt().trim()
+                            }
+                        }, res => {
+                            alert(res.data + "");
+                            if (res.ok)
+                                self.remove()
+                        });
+                    });
+                });
+                edit.on("click", function (e) {
+                    e.preventDefault();
+                    DialogLoader();
+                    Request({
+                        target: "models",
+                        action: "info",
+                        args: {
+                            name: name.txt().trim(),
+                            table: table.txt().trim()
+                        }
+                    }, res => {
+                        DialogLoader();
+                        let comp = main.ui.get_component(".modal-new-model");
+                        comp.find(".modal-content").html($(res.data).find(".modal-content").html())
+                        $$("body").append(comp);
+                        Modal(comp)
+                            .onDismiss(ev => {
+                                ev.clear();
+                            })
+                            .onOpen(function () {
+                                handle_new_model(this.view, this);
+                            })
+                            .show();
+                    })
+                });
+            });
+            $$("[data-model-sync]").on("click", function (ev) {
+                ev.preventDefault();
+                let btn = main.ui.iconLoader(this);
+                confirm("Ensure data backup before proceeding", _ => {
+                    btn.load();
+                    Request({
+                        target: "models",
+                        action: "sync"
+                    }, res => {
+                        btn.reset();
+                        alert(res.data)
+                    });
+                });
+            });
         },
 
     }
 
+    const confirm = (message, handler) => {
+        let comp = main.ui.get_component(".d-confirm");
+        $$("body").append(comp);
+        comp.css({
+            display: "block"
+        }).find("[data-confirm-message]").html(message);
+        const dismiss = _ => {
+            comp.rClass("show").css({opacity: 0, transition: '.3s'});
+            setTimeout(_ => comp.remove(), 400);
+        }
+        comp.find("[data-confirm-ok]").on("click", function (ev) {
+            ev.preventDefault();
+            dismiss();
+            typeof handler === "function" ? handler() : null;
+        });
+        comp.find("[data-confirm-dismiss]").on("click", function (ev) {
+            ev.preventDefault();
+            dismiss();
+        });
+        setTimeout(_ => comp.aClass("show"));
+    };
+
+
+    const alert = (message) => {
+        let comp = main.ui.get_component(".d-alert");
+        $$("body").append(comp);
+        comp.css({
+            display: "block"
+        }).find("[data-alert-message]").html(message);
+        const dismiss = _ => {
+            comp.rClass("show").css({opacity: 0, transition: '.3s'});
+            setTimeout(_ => comp.remove(), 400);
+        }
+        comp.find("[data-alert-dismiss]").on("click", function (ev) {
+            ev.preventDefault();
+            dismiss();
+        });
+        setTimeout(_ => comp.aClass("show"));
+    };
+
+    const DialogLoader = (message) => {
+        if (DialogLoader.loading) {
+            let comp = $$(".d-loader");
+            comp.rClass("show").css({opacity: 0, transition: '.3s'});
+            setTimeout(_ => comp.remove(), 400);
+            return;
+        }
+        let comp = main.ui.get_component(".d-loader");
+        const dismiss = _ => {
+            DialogLoader.loading = false;
+            comp.rClass("show").css({opacity: 0, transition: '.3s'});
+            setTimeout(_ => comp.remove(), 400);
+        }
+
+
+        $$("body").append(comp);
+        comp.css({
+            display: "block"
+        }).find("[data-prog-message]").html(message || "");
+
+        DialogLoader.loading = true;
+        comp.find("[data-prog-dismiss]").on("click", function (ev) {
+            ev.preventDefault();
+            dismiss();
+        });
+        setTimeout(_ => comp.aClass("show"));
+    };
+    DialogLoader.loading = false;
+
+    const Request = (config, handler) => {
+        $.post({url: "/control-panel/request", data: config})
+            .then(res => {
+                typeof handler === "function" ? handler(res) : null;
+            }).catch(err => {
+            typeof handler === "function" ? handler({ok: 0, data: "Something went wrong"}) : null;
+        });
+    };
     main.init();
 
 
@@ -288,20 +450,7 @@
     $$(document).on("click", "[data-smv-toggle=model-item", function (ev) {
         ev.preventDefault()
     });
-    $$(document).on("click", "[data-smv-toggle=dropdown]", function (ev) {
-        ev.preventDefault();
-        let drop = $$(this).next();
-        drop.tClass("show")
-        let
-            params = drop.params(), offset = drop.offset();
-        console.log($$(this).offset().right)
-        if (offset.right < 0) {
-            drop.css({
-                right: `.5rem`
-            })
-        }
 
-    });
     $$(document).on("click", ".field-option", function (ev) {
         ev.preventDefault();
         let s = $$(this);
@@ -385,6 +534,26 @@
     $$('.table-item').each(function () {
         Table(this);
     });
+    let lib = {
+        init() {
+            lib.dropDown()
+        },
+        dropDown() {
+            $$(document).on("click", "[data-smv-toggle=dropdown]", function (ev) {
+                ev.preventDefault();
 
+                let drop = $$(this).next(), self = $$(this);
+
+                let
+                    params = self.params(), offset = self.offset();
+                let top = params.height
+                setTimeout(_ => drop.tClass("show"));
+
+            }).on("click", function (ev) {
+                $$(".dropdown-menu.show").rClass("show")
+            });
+        }
+    }
+    lib.init();
 
 });

@@ -2,35 +2,11 @@
 
 namespace Villeon\Manager;
 
+use Villeon\Http\Request;
 use Villeon\Manager\Handlers\ModelProcessor;
 
 class Manager
 {
-    /**
-     * Retrieves all model classes from the Models directory.
-     *
-     * @param string $namespace The namespace prefix for the models.
-     *
-     * @return array An array of fully qualified model class names.
-     */
-    public static function getModels(string $namespace = "App\\Models\\"): array
-    {
-        $modelsPath = app_context()->getSrc() . "/Models";
-        $models = [];
-        if (!is_dir($modelsPath) && !mkdir($modelsPath, 0755, true) && !is_dir($modelsPath)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $modelsPath));
-        }
-
-        foreach (glob($modelsPath . '/*.php') as $file) {
-            require_once $file;
-            $className = pathinfo($file, PATHINFO_FILENAME);
-            $fullClassName = $namespace . $className;
-            if (class_exists($fullClassName)) {
-                $models[] = ModelProcessor::of($fullClassName)->process();
-            }
-        }
-        return $models;
-    }
 
     public static function modelExists($name): bool
     {
@@ -38,33 +14,55 @@ class Manager
         return file_exists($filePath);
     }
 
-    public static function deleteModel($name): void
+    public static function deleteModel($name): bool
     {
-        $file = app_context()->getSrc() . "/Models" . '/' . ucfirst($name) . '.php';
-        if (file_exists($file)) {
-            unlink($file);
-        }
+        $file = app_context()->getSrc() . DIRECTORY_SEPARATOR . "Models" . DIRECTORY_SEPARATOR . ucfirst($name) . '.php';
+        return file_exists($file) && unlink($file);
     }
 
-    public static function createModel($name, $alias, $attributes): bool|string
+    private static function renameModel($old, $new): bool
     {
-        $class = ucfirst($name);
-        $modelDir = app_context()->getSrc() . "/Models";
+        $modelDir = app_context()->getSrc() . DIRECTORY_SEPARATOR . "Models";
+        $old = $modelDir . DIRECTORY_SEPARATOR . ucfirst($old) . ".php";
+        $new = $modelDir . DIRECTORY_SEPARATOR . ucfirst($new) . ".php";
+        print_r("renamin $old $new");
+        return rename($old, $new);
+    }
 
-        if (!is_dir($modelDir) && !mkdir($modelDir, 0755, true) && !is_dir($modelDir)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $modelDir));
+    public static function createModel($name, $alias, $attributes, $alter = false): array
+    {
+        if ($alter) {
+            $ini = Request::form("initials");
+            $old = trim($ini["name"] ?? "");
+            if (!empty($old) && $name !== $old && !self::renameModel($old, $name)) {
+                return [false, "Could not modify Model from $old to $name"];
+            }
         }
-        $filePath = $modelDir . '/' . $class . '.php';
-        if (file_exists($filePath)) {
-            return "Model \"<u>$class</u>\" already exists.\n";
+
+        $class = ucfirst($name);
+        $modelDir = app_context()->getSrc() . DIRECTORY_SEPARATOR . "Models";
+
+        if (!$alter && !mkdir($modelDir, 0755, true) && !is_dir($modelDir)) {
+            return [false, "Failed to create directory: $modelDir"];
+        }
+        $filePath = $modelDir . DIRECTORY_SEPARATOR . $class . '.php';
+
+        if (!$alter && file_exists($filePath)) {
+            return [false, "Model \"<u>$class</u>\" already exists.\n"];
         }
         $modelContent = [];
         $modelConstruct = "";
+        $modelVars = "";
 
-        if ($alias)
-            $modelContent[] = "    private string \$tableName = \"$alias\";\n";
+        if ($alias && !$alter) {
+            if (!str_ends_with($alias, 's')) {
+                $alias .= 's';
+            }
+            $modelConstruct .= "\$table->table(\$this->tableName);" . "\n        ";
+            $modelVars .= "public string \$tableName = \"$alias\";\n";
+        }
         foreach ($attributes as $column) {
-            $column = array_map(function ($item) {
+            $column = array_map(static function ($item) {
 
                 return match (trim($item)) {
                     "true" => true,
@@ -83,20 +81,20 @@ class Manager
             
             namespace App\Models;
             
-            use Villeon\Core\ORM\DBSchema;            
+            use Villeon\Core\ORM\FieldSchema;            
             use Villeon\Core\ORM\Model;
             
             class $class extends Model
             {
-            $modelContent
-                public function schema(DBSchema \$table): void
+                $modelVars
+                public function schema(FieldSchema \$table): void
                 {
                     $modelConstruct
                 }
             }            
             EOT;
         file_put_contents($filePath, $classTemplate);
-        return true;
+        return [true, $filePath];
     }
 
     private static function buildSchema(array $column): string
@@ -135,7 +133,13 @@ class Manager
             $st .= ", $len";
         }
         if (!empty($default)) {
-            $st .= ", default: $default";
+            $st .= ", default: " . match ($type) {
+                    "TEXT", "VARCHAR" => "\"$default\"",
+                    "DATE" => $default === "now" ? "\"CURRENT_TIMESTAMP\"" : "\"$default\"",
+                    "BOOLEAN" => (bool)$default,
+                    "INT" => (int)$default,
+                    default => $default
+                };
         }
         if ($nullable) {
             $st .= ", null: true";
@@ -153,122 +157,5 @@ class Manager
 
         return $st;
     }
-
-    static function formatCode($code)
-    {
-        $f = new PHPCodeFormatter();
-        return $f->formatFile($code);
-    }
 }
 
-class PHPCodeFormatter
-{
-    /**
-     * Format a PHP file and return the formatted content.
-     *
-     * @param string $filePath Path to the PHP file.
-     * @return string|bool Formatted PHP code, or false if the file does not exist.
-     */
-    public function formatFile(string $filePath)
-    {
-//        if (!file_exists($filePath)) {
-//            return false;
-//        }
-//
-//        $code = file_get_contents($filePath);
-        return $this->formatCode($filePath);
-    }
-
-    /**
-     * Format PHP code and return the formatted content.
-     *
-     * @param string $code PHP code as a string.
-     * @return string Formatted PHP code.
-     */
-    public function formatCode(string $code): string
-    {
-        $tokens = token_get_all($code);
-        $formattedCode = "";
-        $indentLevel = 0;
-        $newLine = true;
-        $lastTokenWasNamespace = false;
-        $lastTokenWasUse = false;
-
-        foreach ($tokens as $token) {
-            if (is_array($token)) {
-                list($id, $text) = $token;
-
-                switch ($id) {
-                    case T_NAMESPACE:
-                        if ($formattedCode !== "") {
-                            $formattedCode .= "\n";
-                        }
-                        $formattedCode .= $text . " ";
-                        $lastTokenWasNamespace = true;
-                        $newLine = false;
-                        break;
-
-                    case T_USE:
-                        if ($lastTokenWasNamespace) {
-                            $formattedCode .= "\n";
-                        }
-                        $formattedCode .= $text . " ";
-                        $lastTokenWasUse = true;
-                        $lastTokenWasNamespace = false;
-                        $newLine = false;
-                        break;
-
-                    case T_CLASS:
-                        if ($lastTokenWasUse) {
-                            $formattedCode .= "\n"; // Add two new lines after use blocks
-                        }
-                        $formattedCode .= $text . " ";
-                        $newLine = false;
-                        break;
-
-                    case T_FUNCTION:
-                        $formattedCode .= "\n\n" . str_repeat("    ", $indentLevel) . $text . " ";
-                        $newLine = false;
-                        break;
-
-                    case T_WHITESPACE:
-                        if (!$newLine) {
-                            $formattedCode .= " ";
-                        }
-                        break;
-
-                    default:
-                        if ($newLine) {
-                            $formattedCode .= str_repeat("    ", $indentLevel);
-                        }
-                        $formattedCode .= $text;
-                        $newLine = false;
-                        break;
-                }
-            } else {
-                // Handle single-character tokens (e.g., brackets, semicolons)
-                if ($token === '{') {
-                    $formattedCode .= "\n" . str_repeat("    ", $indentLevel) . "{\n";
-                    $indentLevel++;
-                    $newLine = true;
-                } elseif ($token === '}') {
-                    $indentLevel--;
-                    $formattedCode .= "\n" . str_repeat("    ", $indentLevel) . "}\n";
-                    $newLine = true;
-                } elseif ($token === ';') {
-                    $formattedCode .= ";\n";
-                    $newLine = true;
-                } else {
-                    if ($newLine) {
-                        $formattedCode .= str_repeat("    ", $indentLevel);
-                    }
-                    $formattedCode .= $token;
-                    $newLine = false;
-                }
-            }
-        }
-
-
-        return preg_replace("/\n{3,}/", "\n\n", $formattedCode); // Limit consecutive newlines to two
-    }
-}

@@ -8,71 +8,231 @@ use Villeon\Core\ORM\DataType\DataType;
  * Class representing a column field in the ORM (Object-Relational Mapping).
  * This class defines the structure and properties of a field in a database table, such as its data type, default value,
  * and constraints like primary key, unique, nullable, and auto-increment.
- * @method RelationShip foreign()
+ *
+ * Supports:
+ *  - Primary Keys, Unique Constraints
+ *  - Foreign Keys & Indexing
+ *  - Column Length, Precision, Scale
+ *  - Charset & Collation
+ *  - Extra SQL Options
  */
 class ColField
 {
     /**
-     * @var int|DataType The data type of the column field, which can either be an integer or an instance of DataType.
-     *                   This determines the type of values the column will hold.
+     * @var string The name of the column.
      */
-    public int|DataType $type;
+    public string $name;
 
     /**
-     * @var bool Whether the column field is a primary key. Defaults to false.
-     *           If true, this field uniquely identifies a record in the table.
+     * @var DataType|int The data type of the column.
      */
-    public bool $isPrimary;
+    public DataType|int $type;
 
     /**
-     * @var bool Whether the column field is unique. Defaults to false.
-     *           If true, the values in this column must be unique across all rows.
+     * @var int|null The length of the column (for VARCHAR, CHAR, etc.).
      */
-    public bool $isUnique;
+    public ?int $length = null;
 
     /**
-     * @var bool Whether the column field allows NULL values. Defaults to false.
-     *           If true, the column can have NULL values.
+     * @var int|null Precision for DECIMAL, FLOAT types.
      */
-    public bool $allowNull;
+    public ?int $precision = null;
 
     /**
-     * @var bool Whether the column field has an auto-generated value (e.g., auto-increment for integers). Defaults to false.
-     *           If true, the field's value will be automatically generated (commonly used for primary keys).
+     * @var int|null Scale for DECIMAL type (number of digits after decimal).
      */
-    public bool $autoValue;
+    public ?int $scale = null;
 
     /**
-     * @var mixed The default value for the column field. Defaults to null.
-     *            This is the value that will be used if no value is provided for this field when a record is created.
+     * @var bool Whether this column is a primary key.
      */
-    public mixed $default;
+    public bool $isPrimary = false;
+
+    /**
+     * @var bool Whether this column must be unique.
+     */
+    public bool $isUnique = false;
+
+    /**
+     * @var bool Whether this column allows NULL values.
+     */
+    public bool $allowNull = false;
+
+    /**
+     * @var bool Whether this column is auto-incremented.
+     */
+    public bool $autoValue = false;
+
+    /**
+     * @var mixed Default value for the column.
+     */
+    public mixed $default = null;
+
+    /**
+     * @var string[]|null Defines the foreign key relation (`['table' => 'users', 'column' => 'id', 'onDelete' => 'CASCADE']`).
+     */
+    public ?array $foreignKey = null;
+
+    /**
+     * @var string|null Defines the index type (e.g., "INDEX", "FULLTEXT", "UNIQUE").
+     */
+    public ?string $indexType = null;
+
+    /**
+     * @var string|null Check constraint (e.g., `age > 18`).
+     */
+    public ?string $checkConstraint = null;
+
+    /**
+     * @var string|null Character set for text-based columns.
+     */
+    public ?string $charset = null;
+
+    /**
+     * @var string|null Collation for text-based columns.
+     */
+    public ?string $collation = null;
+
+    /**
+     * @var string|null Extra SQL options (e.g., `ON UPDATE CURRENT_TIMESTAMP`).
+     */
+    public ?string $extraOptions = null;
 
     /**
      * ColField constructor.
      *
-     * @param DataType|int $type The data type of the column field. This can be either an integer or an instance of DataType.
-     * @param mixed $default The default value for the column. Defaults to null if not provided.
-     * @param bool $isPrimary Whether the column is a primary key. Defaults to false.
-     * @param bool $isUnique Whether the column is unique. Defaults to false.
-     * @param bool $allowNull Whether the column allows NULL values. Defaults to false.
-     * @param bool $autoValue Whether the column value is auto-generated (e.g., auto-increment). Defaults to false.
+     * @param string $name The name of the column.
+     * @param DataType|int $type The data type of the column.
+     * @param int|null $length Length for string columns.
+     * @param int|null $precision Precision for decimal/numeric types.
+     * @param int|null $scale Scale for decimal/numeric types.
+     * @param mixed $default Default value.
+     * @param bool $isPrimary Primary key flag.
+     * @param bool $isUnique Unique constraint flag.
+     * @param bool $allowNull NULL constraint flag.
+     * @param bool $autoValue Auto-increment flag.
+     * @param array|null $foreignKey Foreign key definition.
+     * @param string|null $indexType Index type (INDEX, FULLTEXT, etc.).
+     * @param string|null $checkConstraint SQL CHECK constraint.
+     * @param string|null $charset Character set for text-based columns.
+     * @param string|null $collation Collation for text-based columns.
+     * @param string|null $extraOptions Additional SQL options.
      */
     public function __construct(
-        string $name,
+        string       $name,
         DataType|int $type,
-        mixed $default = null,
-        bool $isPrimary = false,
-        bool $isUnique = false,
-        bool $allowNull = false,
-        bool $autoValue = false
+        ?int         $length = null,
+        ?int         $precision = null,
+        ?int         $scale = null,
+        mixed        $default = null,
+        bool         $isPrimary = false,
+        bool         $isUnique = false,
+        bool         $allowNull = false,
+        bool         $autoValue = false,
+        ?array       $foreignKey = null,
+        ?string      $indexType = null,
+        ?string      $checkConstraint = null,
+        ?string      $charset = null,
+        ?string      $collation = null,
+        ?string      $extraOptions = null
     )
     {
+        $this->name = $name;
         $this->type = $type;
+        $this->length = $length;
+        $this->precision = $precision;
+        $this->scale = $scale;
+        $this->default = $default;
         $this->isPrimary = $isPrimary;
         $this->isUnique = $isUnique;
         $this->allowNull = $allowNull;
-        $this->default = $default;
+        $this->autoValue = $autoValue;
+        $this->foreignKey = $foreignKey;
+        $this->indexType = $indexType;
+        $this->checkConstraint = $checkConstraint;
+        $this->charset = $charset;
+        $this->collation = $collation;
+        $this->extraOptions = $extraOptions;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function setType(int|DataType $type): void
+    {
+        $this->type = $type;
+    }
+
+    public function setLength(?int $length): void
+    {
+        $this->length = $length;
+    }
+
+    public function setPrecision(?int $precision): void
+    {
+        $this->precision = $precision;
+    }
+
+    public function setScale(?int $scale): void
+    {
+        $this->scale = $scale;
+    }
+
+    public function setIsPrimary(bool $isPrimary): void
+    {
+        $this->isPrimary = $isPrimary;
+    }
+
+    public function setIsUnique(bool $isUnique): void
+    {
+        $this->isUnique = $isUnique;
+    }
+
+    public function setAllowNull(bool $allowNull): void
+    {
+        $this->allowNull = $allowNull;
+    }
+
+    public function setAutoValue(bool $autoValue): void
+    {
         $this->autoValue = $autoValue;
     }
+
+    public function setDefault(mixed $default): void
+    {
+        $this->default = $default;
+    }
+
+    public function setForeignKey(?array $foreignKey): void
+    {
+        $this->foreignKey = $foreignKey;
+    }
+
+    public function setIndexType(?string $indexType): void
+    {
+        $this->indexType = $indexType;
+    }
+
+    public function setCheckConstraint(?string $checkConstraint): void
+    {
+        $this->checkConstraint = $checkConstraint;
+    }
+
+    public function setCharset(?string $charset): void
+    {
+        $this->charset = $charset;
+    }
+
+    public function setCollation(?string $collation): void
+    {
+        $this->collation = $collation;
+    }
+
+    public function setExtraOptions(?string $extraOptions): void
+    {
+        $this->extraOptions = $extraOptions;
+    }
+
 }

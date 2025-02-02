@@ -715,7 +715,10 @@
 }
 
 .color-danger {
-    color: #d6293e;
+    color: #d6293e!important;
+}
+.color-primary {
+    color: var(--color-main)!important;
 }
 
 .smv-checkbox {

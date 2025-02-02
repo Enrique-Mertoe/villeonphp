@@ -1,0 +1,67 @@
+{# Model creation wizard #}
+<div class="modal center-grow modal-new-model" tabindex="-1">
+    <div style="min-width: 700px" class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="overflow: visible">
+            <div class="modal-header">
+                <h5 class="modal-tixtle gap-1 hstack" id="modalVerticallyCenteredLabel">
+                    <i>
+                        <svg width="24" height="24" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"
+                             fill="none" stroke="#000">
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                            <g id="SVGRepo_iconCarrier">
+                                <rect x="8" y="40" width="16" height="16"></rect>
+                                <rect x="40" y="40" width="16" height="16"></rect>
+                                <rect x="24" y="8" width="16" height="16"></rect>
+                                <polyline points="48 40 48 32 16 32 16 40"></polyline>
+                                <line x1="32" y1="32" x2="32" y2="24"></line>
+                            </g>
+                        </svg>
+                    </i>
+                    <span>
+                        Model Wizard (Edit)
+                    </span>
+                </h5>
+                <button data-smv-dismiss="modal" type="button" class="btn-close" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form data-mode="edit" data-ini-name="{{ model.name }}" data-ini-alias="{{ model.schema.table }}"
+                      class="vstack form-new-model gap-3">
+                    <div>
+                        <div>
+                            <label>Model Name</label>
+                            <input value="{{ model.name }}" type="text" name="name"
+                                   class="form-input capitalize model-name-input"
+                                   placeholder="Model Name">
+                        </div>
+                        <span class="smaller mt1 form-message model-name-alert"></span>
+                    </div>
+                    <div>
+                        <label>Table Name (Optional)</label>
+                        <input value="{{ model.schema.table }}" type="text" name="table"
+                               class="form-input model-alias-input"
+                               placeholder="Table Name">
+                    </div>
+                    <div class="col-12 model-view-container">
+                        {% set defaultModelColumns = model.mini() %}
+                        {% include "comp/model_view.twig" %}
+                    </div>
+                    <input type="submit" id="md-submit" hidden="">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <span class="smaller mt1 form-message general-msg-box form-alert"></span>
+                <div class="hstack gap-2 w-100">
+                    <button data-smv-dismiss="modal" type="button"
+                            class="btn ml-auto btn-danger-soft:hover py-1 btn-secondary">Cancel
+                    </button>
+                    <label for="md-submit" data-smv-submit
+                           class="btn btn-loader btn-primary-soft py-1 btn-primary">
+                        Save Changes
+                    </label>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
