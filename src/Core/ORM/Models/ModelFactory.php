@@ -52,6 +52,11 @@ class ModelFactory
         return $this->find($key);
     }
 
+    public function save(array|object $info): ?object
+    {
+        return $this->update($info);
+    }
+
     public function delete(array|object|null $filters): bool
     {
         if (empty($filters)) {

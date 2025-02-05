@@ -13,4 +13,9 @@ abstract class Model
     {
         return new ModelObj(new ModelFactory(static::class));
     }
+
+    public function __call(string $name, array $arguments)
+    {
+        self::obj()->$name($this, ...$arguments);
+    }
 }
