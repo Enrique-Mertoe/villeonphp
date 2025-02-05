@@ -322,6 +322,9 @@ class QRYBuilder
         if (empty($filteredData)) {
             throw new InvalidArgumentException("No valid filters provided for deletion.");
         }
+        if (isset($filteredData["id"])) {
+            $filteredData = ["id" => $filteredData["id"]];
+        }
 
         // Build the WHERE clause dynamically
         $conditions = implode(" AND ", array_map(static fn($col) => "`$col` = ?", array_keys($filteredData)));
