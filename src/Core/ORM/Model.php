@@ -16,6 +16,6 @@ abstract class Model
 
     public function __call(string $name, array $arguments)
     {
-        self::obj()->$name($this, ...$arguments);
+        return self::obj()->$name($this, ...$arguments);
     }
 }
