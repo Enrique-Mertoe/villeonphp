@@ -52,6 +52,13 @@ class ModelFactory
         return $this->find($key);
     }
 
+    public function count(): int
+    {
+        [$sql, $vals] = $this->query->count()->get();
+        $result = $this->connector->connect()->getOne($sql, $vals);
+        return (int)$result["COUNT(*)"];
+    }
+
     public function save(array|object $info): ?object
     {
         return $this->update($info);

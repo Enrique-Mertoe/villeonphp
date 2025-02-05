@@ -18,6 +18,7 @@ use Villeon\Core\ORM\OrderMode;
  * @method delete(array|object|null $info)
  * @method find(mixed $key)
  * @method array all()
+ * @method int count()
  *
  */
 class ModelObj

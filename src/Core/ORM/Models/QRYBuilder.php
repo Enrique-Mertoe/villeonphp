@@ -136,32 +136,19 @@ class QRYBuilder
         $sql = "";
         if ($select = $this->queries["selector"]) {
             $sql .= "SELECT";
-            if (is_array($select))
+            if (is_string($select)) {
+                $sql .= " " . trim($select) . " ";
+            } elseif (is_array($select)) {
                 $sql .= " " . implode(",", $select) . " ";
-            else
+            } else {
                 $sql .= " * ";
+            }
             $sql .= " FROM $this->ref";
         }
 
         return $sql;
 
     }
-
-    /**
-     * @return string
-     */
-//    private function getFilter(): string
-//    {
-//        if (!$filters = $this->queries["filter"])
-//            return "";
-//        $filter_str = str(" WHERE ");
-//        foreach ($filters as $key => $value) {
-//            $filter_str->append("$key = ? AND ");
-//            $this->values->add($value);
-//        }
-//        $filter_str->trimEnd(" AND ");
-//        return $filter_str;
-//    }
 
     /**
      * @param QRYBuilder $builder
@@ -342,6 +329,12 @@ class QRYBuilder
         // SQL delete query
         $sql = "DELETE FROM `$this->ref` WHERE $conditions";
         return [$sql, array_values($filteredData)];
+    }
+
+    public function count(): static
+    {
+        $this->queries["selector"] = "COUNT(*)";
+        return $this;
     }
 
 }
