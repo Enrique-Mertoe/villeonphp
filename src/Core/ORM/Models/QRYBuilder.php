@@ -90,20 +90,24 @@ class QRYBuilder
             return "";
         }
 
-        $filterStr = " WHERE ";
-        $lastType = "";
+        $where = " WHERE ";
+        $filterStr = "";
+        $lastType = null;
 
         foreach ($this->queries["conditions"] as $condition) {
             $type = $condition['type'];
-            $lastType = $type;
+            if (!$lastType) {
+                $lastType = $type;
+                $type = "";
+            }
             $col = $condition['col'];
             $operator = $condition['operator'];
             $value = $condition['value'];
 
-            $filterStr .= "$col $operator ? $type ";
+            $filterStr .= "$type $col $operator ? ";
             $this->values->add($value);
         }
-        return rtrim($filterStr, " $lastType ");
+        return $where . $filterStr;
     }
 
     /**
