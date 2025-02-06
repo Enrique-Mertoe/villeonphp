@@ -45,8 +45,6 @@ class ModelFactory
             throw new InvalidArgumentException("Update data cannot be empty.");
         }
         [$sql, $values, $key] = $this->query->update($info, $this->getTableColumns());
-
-
         $this->connector->write($sql, $values);
         // Execute the query
         return $this->find($key);

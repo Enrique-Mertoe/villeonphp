@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use Villeon\Core\ORM\ColField;
 use Villeon\Core\ORM\DataType\DataType;
 use Villeon\Core\ORM\FieldSchema;
+use Villeon\Core\ORM\Model;
 use Villeon\Core\ORM\OrderMode;
 use Villeon\Library\Collection\Collection;
 use Villeon\Library\Collection\Dict;
@@ -286,33 +287,36 @@ class QRYBuilder
             throw new InvalidArgumentException("Update operation requires an 'id' field.");
         }
 
-        // Extract the ID and remove it from the update data
-        $id = $data['id'];
-        unset($data['id']);
+        if (is_object($info) && $info instanceof Model) {
+            $id = $data['id'];
+            unset($data['id']);
 
-        if (empty($data)) {
-            throw new InvalidArgumentException("No valid fields to update.");
+            if (empty($data)) {
+                throw new InvalidArgumentException("No valid fields to update.");
+            }
+
+            // Get valid database columns for this model
+            $validColumns = $cols;
+
+            // Filter only valid columns
+            $filteredData = array_intersect_key($data, array_flip($validColumns));
+
+            if (empty($filteredData)) {
+                throw new InvalidArgumentException("No valid database columns found for update.");
+            }
+            $setClause = implode(", ", array_map(static fn($col) => "`$col` = ?", array_keys($filteredData)));
+            // SQL statement
+            $sql = "UPDATE `$this->ref` SET $setClause WHERE `id` = ?";
+            // Prepare values for binding
+            $values = array_values($filteredData);
+            $values[] = $id;
+            return [$sql, $values, $id];
         }
-
-        // Get valid database columns for this model
-        $validColumns = $cols;
-
-        // Filter only valid columns
-        $filteredData = array_intersect_key($data, array_flip($validColumns));
-
-        if (empty($filteredData)) {
-            throw new InvalidArgumentException("No valid database columns found for update.");
-        }
-
-        // Generate the SET clause dynamically
-        $setClause = implode(", ", array_map(static fn($col) => "`$col` = ?", array_keys($filteredData)));
-        // SQL statement
-        $sql = "UPDATE `$this->ref` SET $setClause WHERE `id` = ?";
-
-        // Prepare values for binding
-        $values = array_values($filteredData);
-        $values[] = $id; // Append ID for the WHERE clause
-        return [$sql, $values, $id];
+        $setClause = implode(", ", array_map(static fn($col) => "`$col` = ?", array_keys($data)));
+        $this->values->add(...array_values($data));
+        $sql = "UPDATE `$this->ref` SET $setClause ";
+        $sql .= $this->getFilter();
+        return [$sql, $this->values->toArray(), null];
     }
 
     public function delete(object|array $filters, array $validColumns): array
