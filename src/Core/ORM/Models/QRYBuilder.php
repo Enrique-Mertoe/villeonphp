@@ -282,7 +282,7 @@ class QRYBuilder
         // Convert object to array if needed
         $data = is_object($info) ? get_object_vars($info) : $info;
 
-        if (!isset($data['id'])) {
+        if (is_object($info) && !isset($data['id'])) {
             throw new InvalidArgumentException("Update operation requires an 'id' field.");
         }
 
