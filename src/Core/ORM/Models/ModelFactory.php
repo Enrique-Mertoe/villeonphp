@@ -2,7 +2,6 @@
 
 namespace Villeon\Core\ORM\Models;
 
-use http\Exception\RuntimeException;
 use InvalidArgumentException;
 use Throwable;
 use Villeon\Core\ORM\Connectors\SQLConnector;
@@ -36,7 +35,7 @@ class ModelFactory
             $this->connector->write($sql, $vals);
             return $this->fillValues($data, new $this->model);
         } catch (\Throwable $e) {
-            throw new RuntimeException($e->getMessage());
+            throw new \RuntimeException($e->getMessage());
         }
     }
 
