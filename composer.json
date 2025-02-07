@@ -13,8 +13,7 @@
   "require": {
     "php": "^8.0",
     "twig/twig": "^3.0",
-    "ext-pdo": "*",
-    "ext-pcntl": "*"
+    "ext-pdo": "*"
   },
   "scripts": {
     "test": "phpunit"
