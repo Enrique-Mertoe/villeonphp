@@ -79,7 +79,7 @@ abstract class Scaffold implements EventDispatcher
         [$route, $info] = $match->toArray();
         $this->beforeDispatch($route, function () use ($route, $info) {
             if (!$route->method_allowed()) {
-                $this->onFail(405, "");
+                $this->onFail(405, $this->context->getErrorContent(405));
                 return;
             }
 

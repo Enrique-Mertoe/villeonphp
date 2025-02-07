@@ -27,6 +27,7 @@ class ServerCommand
 {
     private const TAG = "SERVER";
     private int $port;
+    private int $attempts = 0;
 
     /**
      *
@@ -51,6 +52,9 @@ class ServerCommand
         if (!$this->isPortInUse("127.0.0.1", $port)) {
             $this->port = $port;
             $process->start();
+        } else if ($this->attempts <= 5) {
+            $this->attempts += 1;
+            $this->tryRun($port);
         } else if ($port > 3510) {
             Log::e("SERVER ERROR", "All allowed ports are in use.");
         } else {

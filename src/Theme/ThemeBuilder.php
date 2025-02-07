@@ -19,6 +19,7 @@ use Villeon\Core\Content\Context;
 use Villeon\Core\Content\AppCombat;
 use Villeon\Core\Facade\Route;
 use Villeon\Core\OS;
+use Villeon\Http\Response;
 use Villeon\Theme\Environment\Environment;
 use Villeon\Theme\Environment\ThemeEnvironment;
 use Villeon\Utils\Console;
@@ -63,9 +64,9 @@ class ThemeBuilder
 
     /**
      * @param $file
-     * @return false|string
+     * @return string|Response
      */
-    private function get($file)
+    private function get($file): string|Response
     {
         $file = str($file)->trim();
         if ($file->startsWith("villeon/"))
@@ -73,8 +74,7 @@ class ThemeBuilder
         else
             $file = $this->static_dir . "/$file";
         if (!file_exists($file)) {
-            header("HTTP/1.1 404 Not Found");
-            $this->display_error_page(404);
+            return \response($this->display_error_page(404), 404);
         }
         $mime_type = $this->getMimeType($file);
 
@@ -82,9 +82,7 @@ class ThemeBuilder
         header("Content-Length: " . filesize($file));
         ob_start();
         readfile($file);
-        $content = ob_get_contents();
-        ob_end_clean();
-        return $content;
+        return ob_get_clean();
     }
 
     public function prepare($file): string

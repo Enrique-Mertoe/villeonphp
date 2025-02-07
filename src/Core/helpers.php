@@ -43,11 +43,12 @@ if (!function_exists('jsonify')) {
 if (!function_exists('response')) {
     /**
      * @param mixed $content
+     * @param null $status
      * @return Response
      */
-    function response(mixed $content): Response
+    function response(mixed $content, $status = null): Response
     {
-        return (new Response)->setContent($content);
+        return (new Response)->setContent($content)->setStatusCode($status);
     }
 }
 
