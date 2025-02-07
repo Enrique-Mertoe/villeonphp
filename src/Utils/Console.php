@@ -60,6 +60,9 @@ class Console
 
     function doWrite($message, $color = null): void
     {
+        if (is_array($message)) {
+            $message = json_encode($message);
+        }
         $message = $this->formatMessage($message);
         if ($color) {
             $message = $this->applyColor($message, $color);
