@@ -2,9 +2,11 @@
 
 namespace Villeon\Core\ORM;
 
+use AllowDynamicProperties;
 use Villeon\Core\ORM\Models\ModelFactory;
 use Villeon\Core\ORM\Models\ModelObj;
 
+#[AllowDynamicProperties]
 abstract class Model
 {
     abstract public function schema(FieldSchema $table): void;
