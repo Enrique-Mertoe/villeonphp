@@ -14,6 +14,7 @@ namespace Villeon\Theme\Environment;
 use Exception;
 use RuntimeException;
 use Twig\Loader\LoaderInterface;
+use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Villeon\Core\Facade\Env;
 use Villeon\Core\Facade\Settings;
@@ -47,6 +48,12 @@ class Environment extends \Twig\Environment
                      return get_flashed_messages($with_categories, $category_filter);
                 })
         );
+        $this->addFilter(new TwigFilter('entity_decode', function ($string) {
+            return html_entity_decode($string, ENT_QUOTES, 'UTF-8');
+        }));
+        $this->addFilter(new TwigFilter('specialchars_decode', function ($string) {
+            return htmlspecialchars_decode($string, ENT_QUOTES);
+        }));
     }
 
     /**
