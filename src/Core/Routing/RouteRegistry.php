@@ -93,32 +93,45 @@ abstract class RouteRegistry
      * @param array $args
      * @return string
      */
-    public static final function build_url_endpoint(string $endpoint, ?bool $external, array $args): string
+    final public static function build_url_endpoint(string $endpoint, ?bool $external, array $args): string
     {
-        if (empty($endpoint))
+        if (empty($endpoint)) {
             throw new RuntimeError("Cannot build URL of null endpoint");
+        }
 
         [$endpoint, $blueprint] = self::get_endpoint_details($endpoint);
-        if (isset(self::$resolvedInstances[$blueprint])) {
 
+        if (isset(self::$resolvedInstances[$blueprint])) {
             $bp = self::$resolvedInstances[$blueprint];
+
             if ($route = $bp->get_defined_routes()->get($endpoint)) {
                 $params = $route->get_rule_params();
-                $url_args = array_map(function ($param) use (&$args) {
+                $url_args = array_map(static function ($param) use (&$args) {
                     if (!isset($args[$param])) {
                         throw new RuntimeError("Parameter $param is not set");
                     }
-
                     $value = $args[$param];
                     unset($args[$param]);
                     return $value;
                 }, $params);
-                return $route->build_endpoint($url_args, $args);
+
+                $relativeUrl = $route->build_endpoint($url_args, $args);
+
+                // Determine the base URL dynamically
+                if ($external) {
+                    $scheme = $_SERVER['REQUEST_SCHEME'] ?? 'https';
+                    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+                    $baseUrl = rtrim("$scheme://$host", '/');
+
+                    return $baseUrl . '/' . ltrim($relativeUrl, '/');
+                }
+
+                return $relativeUrl;
             }
         }
-        $target = str_replace("default", "", $blueprint) . $endpoint;
-        throw new RuntimeException("Cannot build url endpoint for $target. Ensure your Route has a name by assigning ->name(route-name)");
 
+        $target = str_replace("default", "", $blueprint) . $endpoint;
+        throw new RuntimeException("Cannot build URL endpoint for $target. Ensure your Route has a name by assigning ->name(route-name)");
     }
 
 }
