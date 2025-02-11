@@ -126,6 +126,7 @@ class ServerCommand
         if (str_contains($data, "Development Server")) {
             Console::Info($this->getLabel());
             Console::Success("SERVER: <b>[http://127.0.0.1:$this->port]</b>");
+//            $debug = env("DEBUG") ? "ON" : "OFF";
             Console::Error("<b>DEBUG: ON</b>");
             Console::Warn("<b><i>Press CTR + C to stop.</i></b>");
         } else if ($data->contains("[GET:", "[POST:")) {
@@ -137,6 +138,15 @@ class ServerCommand
         } elseif ($data->contains("[USER_OUT]")) {
             $data->replace(["__smv__", "[USER_OUT]"], ["\n", ""])->trim();
             Log::d("SYSTEM OUT", $data);
+        }
+//        elseif (preg_match('/^\S+\s+:\s+.+$/', explode("\n", $data)[0])) {
+//            print_r($data);
+//        }
+        else {
+            $e = explode(":", $data);
+            if (count($e) === 2) {
+                print_r($data . "\n");
+            }
         }
     }
 

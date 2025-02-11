@@ -5,7 +5,6 @@ namespace Villeon\Core\Routing;
 
 use RuntimeException;
 use Villeon\Error\RuntimeError;
-use Villeon\Utils\Console;
 
 abstract class RouteRegistry
 {
@@ -49,7 +48,7 @@ abstract class RouteRegistry
     /**
      * @return RouteRegistry[]
      */
-    public static final function build(): array
+    final public static function build(): array
     {
         return self::$resolvedInstances;
     }
@@ -58,22 +57,21 @@ abstract class RouteRegistry
      * @param string $blue_print
      * @return RouteRegistry|null
      */
-    public static final function get_blueprint(string $blue_print = self::DEFAULT_BLUEPRINT): ?RouteRegistry
+    final public static function get_blueprint(string $blue_print = self::DEFAULT_BLUEPRINT): ?RouteRegistry
     {
-        if (isset(self::$resolvedInstances[$blue_print]))
-            return self::$resolvedInstances[$blue_print];
-        return null;
+        return self::$resolvedInstances[$blue_print] ?? null;
     }
 
     /**
      * @param $prefix
      * @return RouteRegistry|null
      */
-    public static final function get_by_prefix($prefix): ?RouteRegistry
+    final public static function get_by_prefix($prefix): ?RouteRegistry
     {
         foreach (self::$resolvedInstances as $instance) {
-            if ($instance->prefix == $prefix)
+            if ($instance->prefix == $prefix) {
                 return $instance;
+            }
         }
         return null;
     }
