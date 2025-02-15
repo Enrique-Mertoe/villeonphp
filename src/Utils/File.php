@@ -13,7 +13,7 @@ class File
     public function __construct(array $file)
     {
         $this->name = $file['name'];
-        $this->tmpPath = new Path($file['tmp_name']);
+        $this->tmpPath = Path::of($file['tmp_name']);
         $this->type = mime_content_type($this->tmpPath->__toString());
     }
 
@@ -25,7 +25,7 @@ class File
     public function save(string $destination, ?string $newName = null): bool
     {
         $filename = $this->ensureExtension($newName ?? $this->name);
-        $targetPath = (new Path($destination))->joinPath($filename);
+        $targetPath = Path::of($destination)->join($filename);
         return move_uploaded_file($this->tmpPath->__toString(), $targetPath->__toString());
     }
 
