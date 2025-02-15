@@ -20,9 +20,11 @@ class File
         return $this->name;
     }
 
-    public function save(string $destination): bool
+    public function save(string $destination, ?string $newName = null): bool
     {
-        return move_uploaded_file($this->tmpPath, $destination . DIRECTORY_SEPARATOR . $this->name);
+        $filename = $this->ensureExtension($newName ?? $this->name);
+        $targetPath = rtrim($destination, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $filename;
+        return move_uploaded_file($this->tmpPath, $targetPath);
     }
 
     public function isImage(): bool
@@ -44,16 +46,16 @@ class File
         ]);
     }
 
-    public function scale(float $factor, float $quality = 1.0): bool
+    public function scale(float $factor, float $quality = 1.0, ?string $newName = null): bool
     {
         if (!$this->isImage()) {
-            return false; // Only images can be resized
+            return false;
         }
 
-        [$width, $height, $type] = getimagesize($this->tmpPath);
+        list($width, $height, $type) = getimagesize($this->tmpPath);
 
-        $newWidth = (int)($width * $factor);
-        $newHeight = (int)($height * $factor);
+        $newWidth = (int) ($width * $factor);
+        $newHeight = (int) ($height * $factor);
 
         $image = match ($type) {
             IMAGETYPE_JPEG => imagecreatefromjpeg($this->tmpPath),
@@ -69,22 +71,18 @@ class File
         $newImage = imagecreatetruecolor($newWidth, $newHeight);
         imagecopyresampled($newImage, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
 
-        // Convert quality from float (1.0 = max, <1 reduces)
-        $qualityValue = (int)($quality * 100);
-        if ($qualityValue < 1) {
-            $qualityValue = 1; // Prevent 0 or negative quality
-        } elseif ($qualityValue > 100) {
-            $qualityValue = 100; // Ensure it doesn't exceed 100
-        }
+        $qualityValue = (int) ($quality * 100);
+        $qualityValue = max(1, min($qualityValue, 100));
 
-        $outputPath = $this->tmpPath; // Overwrite the existing image
+        $outputName = $this->ensureExtension($newName ?? $this->name);
+        $outputPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $outputName;
 
         switch ($type) {
             case IMAGETYPE_JPEG:
                 imagejpeg($newImage, $outputPath, $qualityValue);
                 break;
             case IMAGETYPE_PNG:
-                $pngQuality = (int)((1 - $quality) * 9); // PNG uses 0-9 where 9 is worst quality
+                $pngQuality = (int) ((1 - $quality) * 9);
                 imagepng($newImage, $outputPath, $pngQuality);
                 break;
             case IMAGETYPE_GIF:
@@ -95,7 +93,34 @@ class File
         imagedestroy($image);
         imagedestroy($newImage);
 
+        $this->tmpPath = $outputPath;
+        $this->name = $outputName;
+
         return true;
+    }
+
+    private function ensureExtension(string $filename): string
+    {
+        $extension = pathinfo($filename, PATHINFO_EXTENSION);
+        if (empty($extension)) {
+            $extension = $this->getFileExtension();
+            $filename .= '.' . $extension;
+        }
+        return $filename;
+    }
+
+    private function getFileExtension(): string
+    {
+        return match ($this->type) {
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/gif' => 'gif',
+            'application/pdf' => 'pdf',
+            'application/msword' => 'doc',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+            'text/plain' => 'txt',
+            default => 'bin' // fallback extension
+        };
     }
 
     public static function init(): array
@@ -107,4 +132,5 @@ class File
         return $files;
     }
 }
+
 
