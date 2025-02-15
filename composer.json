@@ -14,7 +14,8 @@
     "php": "^8.0",
     "twig/twig": "^3.0",
     "ext-pdo": "*",
-    "ext-gd": "*"
+    "ext-gd": "*",
+    "ext-fileinfo": "*"
   },
   "scripts": {
     "test": "phpunit"
