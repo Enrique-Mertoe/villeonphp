@@ -25,7 +25,7 @@ class File
     public function save(string $destination, ?string $newName = null): bool
     {
         $filename = $this->ensureExtension($newName ?? $this->name);
-        $targetPath = Path::of($destination)->joinPath($filename);
+        $targetPath = Path::of($destination)->join($filename);
         return move_uploaded_file($this->tmpPath->__toString(), $targetPath->__toString());
     }
 

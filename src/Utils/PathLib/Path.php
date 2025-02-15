@@ -79,14 +79,14 @@ class Path
         return new Path(realpath($this->path) ?: $this->path);
     }
 
-    public function joinPath(string $subPath): Path
+    public function join(string $subPath): Path
     {
         return new Path($this->path . DIRECTORY_SEPARATOR . $subPath);
     }
 
     public function rename(string $newName): bool
     {
-        $newPath = $this->parent()->joinPath($newName);
+        $newPath = $this->parent()->join($newName);
         if (rename($this->realPath ?? $this->path, (string)$newPath)) {
             $this->path = (string)$newPath;
             $this->realPath = realpath($this->path) ?: null;
