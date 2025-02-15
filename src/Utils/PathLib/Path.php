@@ -7,9 +7,10 @@ class Path
     private string $path;
     private string $realPath;
 
-    public function __construct(string $path)
+    public function __construct(string $path = "")
     {
-        $this->path = realpath($path);
+        $this->path = $path;
+        $this->realPath = realpath($path) ?: $this->path;
 
     }
 
@@ -81,8 +82,9 @@ class Path
     public function rename(string $newName): bool
     {
         $newPath = $this->parent()->joinPath($newName);
-        if (rename($this->path, $newPath)) {
+        if (rename($this->realPath ?? $this->path, (string)$newPath)) {
             $this->path = (string)$newPath;
+            $this->realPath = realpath($this->path) ?: null;
             return true;
         }
         return false;
@@ -143,7 +145,22 @@ class Path
 
     public function setPermissions(int $mode, bool $recursive = false): bool
     {
-        return $recursive ? chmod($this->path, $mode) : chmod($this->path, $mode);
+        if (!chmod($this->realPath, $mode)) {
+            return false;
+        }
+
+        if ($recursive && $this->isDir()) {
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($this->realPath, \FilesystemIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::SELF_FIRST
+            );
+
+            foreach ($iterator as $item) {
+                chmod($item->getPathname(), $mode);
+            }
+        }
+
+        return true;
     }
 
     // Create a symbolic link

@@ -2,17 +2,19 @@
 
 namespace Villeon\Utils;
 
+use Villeon\Utils\PathLib\Path;
+
 class File
 {
     private string $name;
-    private string $tmpPath;
+    private Path $tmpPath;
     private string $type;
 
     public function __construct(array $file)
     {
         $this->name = $file['name'];
-        $this->tmpPath = $file['tmp_name'];
-        $this->type = mime_content_type($this->tmpPath);
+        $this->tmpPath = new Path($file['tmp_name']);
+        $this->type = mime_content_type($this->tmpPath->__toString());
     }
 
     public function getName(): string
@@ -23,8 +25,8 @@ class File
     public function save(string $destination, ?string $newName = null): bool
     {
         $filename = $this->ensureExtension($newName ?? $this->name);
-        $targetPath = rtrim($destination, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $filename;
-        return move_uploaded_file($this->tmpPath, $targetPath);
+        $targetPath = (new Path($destination))->joinPath($filename);
+        return move_uploaded_file($this->tmpPath->__toString(), $targetPath->__toString());
     }
 
     public function isImage(): bool
@@ -48,19 +50,18 @@ class File
 
     public function scale(float $factor, float $quality = 1.0, ?string $newName = null): bool
     {
-        if (!$this->isImage()) {
+        if (!$this->tmpPath->exists() || !$this->isImage()) {
             return false;
         }
 
-        list($width, $height, $type) = getimagesize($this->tmpPath);
-
-        $newWidth = (int) ($width * $factor);
-        $newHeight = (int) ($height * $factor);
+        [$width, $height, $type] = getimagesize($this->tmpPath->__toString());
+        $newWidth = (int)($width * $factor);
+        $newHeight = (int)($height * $factor);
 
         $image = match ($type) {
-            IMAGETYPE_JPEG => imagecreatefromjpeg($this->tmpPath),
-            IMAGETYPE_PNG => imagecreatefrompng($this->tmpPath),
-            IMAGETYPE_GIF => imagecreatefromgif($this->tmpPath),
+            IMAGETYPE_JPEG => imagecreatefromjpeg($this->tmpPath->__toString()),
+            IMAGETYPE_PNG => imagecreatefrompng($this->tmpPath->__toString()),
+            IMAGETYPE_GIF => imagecreatefromgif($this->tmpPath->__toString()),
             default => null
         };
 
@@ -71,22 +72,22 @@ class File
         $newImage = imagecreatetruecolor($newWidth, $newHeight);
         imagecopyresampled($newImage, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
 
-        $qualityValue = (int) ($quality * 100);
+        $qualityValue = (int)($quality * 100);
         $qualityValue = max(1, min($qualityValue, 100));
 
         $outputName = $this->ensureExtension($newName ?? $this->name);
-        $outputPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $outputName;
+        $outputPath = Path::createTempFile('scaled_', '.' . $this->getFileExtension());
 
         switch ($type) {
             case IMAGETYPE_JPEG:
-                imagejpeg($newImage, $outputPath, $qualityValue);
+                imagejpeg($newImage, $outputPath->__toString(), $qualityValue);
                 break;
             case IMAGETYPE_PNG:
-                $pngQuality = (int) ((1 - $quality) * 9);
-                imagepng($newImage, $outputPath, $pngQuality);
+                $pngQuality = (int)((1 - $quality) * 9);
+                imagepng($newImage, $outputPath->__toString(), $pngQuality);
                 break;
             case IMAGETYPE_GIF:
-                imagegif($newImage, $outputPath);
+                imagegif($newImage, $outputPath->__toString());
                 break;
         }
 
@@ -119,7 +120,7 @@ class File
             'application/msword' => 'doc',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
             'text/plain' => 'txt',
-            default => 'bin' // fallback extension
+            default => 'bin'
         };
     }
 
@@ -132,5 +133,3 @@ class File
         return $files;
     }
 }
-
-
