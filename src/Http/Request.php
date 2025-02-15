@@ -4,6 +4,7 @@ namespace Villeon\Http;
 
 
 use Villeon\Utils\Collection;
+use Villeon\Utils\File;
 
 class Request
 {
@@ -18,6 +19,7 @@ class Request
      * @var string $uri
      */
     public static string $uri;
+    public static string $url;
 
 
     /**
@@ -102,6 +104,15 @@ class Request
     {
     }
 
+    private function getCurrentFullUrl()
+    {
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+        $host = $_SERVER['HTTP_HOST'];
+        $uri = $_SERVER['REQUEST_URI'];
+
+        return $protocol . $host . $uri;
+    }
+
     function build(): Request
     {
         self::$form = Collection::from_array($_POST);
@@ -109,6 +120,8 @@ class Request
         self::$method = $_SERVER["REQUEST_METHOD"];
         $uri = parse_url(urldecode($_SERVER['REQUEST_URI']));
         self::$uri = trim(preg_replace('#/+#', '/', $uri["path"]));
+
+        self::$url = $this->getCurrentFullUrl();
         self::$endpoint = null;
         self::$headers = getallheaders();
 
@@ -149,5 +162,21 @@ class Request
     public static function isGet(): bool
     {
         return self::$method === 'GET';
+    }
+
+    /**
+     * @var File[]
+     */
+    private static array $files;
+
+    /**
+     * @return File[]
+     */
+    public static function files(): array
+    {
+        if (!isset(self::$files)) {
+            self::$files = File::init();
+        }
+        return self::$files;
     }
 }

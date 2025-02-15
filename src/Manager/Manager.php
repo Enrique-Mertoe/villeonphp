@@ -3,7 +3,6 @@
 namespace Villeon\Manager;
 
 use Villeon\Http\Request;
-use Villeon\Manager\Handlers\ModelProcessor;
 
 class Manager
 {
@@ -25,7 +24,6 @@ class Manager
         $modelDir = app_context()->getSrc() . DIRECTORY_SEPARATOR . "Models";
         $old = $modelDir . DIRECTORY_SEPARATOR . ucfirst($old) . ".php";
         $new = $modelDir . DIRECTORY_SEPARATOR . ucfirst($new) . ".php";
-        print_r("renamin $old $new");
         return rename($old, $new);
     }
 
