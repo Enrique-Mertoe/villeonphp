@@ -19,6 +19,11 @@ class Path
         return $this->path;
     }
 
+    public function resolve(): self
+    {
+        return new self($this->realPath);
+    }
+
     public function exists(): bool
     {
         return file_exists($this->path);
