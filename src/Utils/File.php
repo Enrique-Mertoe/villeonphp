@@ -7,13 +7,15 @@ use Villeon\Utils\PathLib\Path;
 class File
 {
     private string $name;
+    private string $size;
     private Path $tmpPath;
     private string $type;
-    public ?string $savedPath=null;
+    public ?string $savedPath = null;
 
     public function __construct(array $file)
     {
         $this->name = $file['name'];
+        $this->size = $file['size'];
         $this->tmpPath = Path::of($file['tmp_name']);
         $this->type = mime_content_type($this->tmpPath->__toString());
     }
@@ -23,7 +25,12 @@ class File
         return $this->name;
     }
 
-    public function getSavedPath(): ?Path
+    public function getSize(): string
+    {
+        return $this->size;
+    }
+
+    public function getSavedPath(): ?string
     {
         return $this->savedPath;
     }
