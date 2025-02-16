@@ -16,6 +16,7 @@ use Villeon\Library\Collection\MList;
 use Villeon\Library\Str;
 use Villeon\Utils\DateUtils\Date;
 use Villeon\Utils\Log;
+use Villeon\Utils\PathLib\Path;
 
 if (!function_exists('view')) {
     /**
@@ -244,4 +245,36 @@ if (!function_exists("now")) {
     {
         return Date::now();
     }
+}
+
+if (!function_exists("send_from_dir")) {
+    function send_from_dir(string $directory, string $filename, array $allowed_extensions = []): Response
+    {
+        $filePath = Path::of($directory)->join($filename);
+
+        // Ensure the file exists
+        if (!$filePath->exists()) {
+            return \response("not found", 404);
+        }
+
+//        // Prevent directory traversal attacks
+        if (!str_starts_with($filePath, realpath($directory))) {
+            return \response("Forbidden.", 403);
+        }
+
+        // Check allowed extensions if provided
+        if (!empty($allowed_extensions)) {
+            $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+            if (!in_array($ext, $allowed_extensions, true)) {
+                return \response("File type not allowed.", 403);
+            }
+        }
+        ob_start();
+        readfile($filePath);
+        return \response(ob_get_clean())
+            ->setHeader("Content-Type", mime_content_type($filePath->__toString()))
+            ->setHeader("Content-Length", filesize($filePath))
+            ->setHeader("Content-Disposition", 'inline; filename="' . $filePath->name() . '"');
+    }
+
 }
