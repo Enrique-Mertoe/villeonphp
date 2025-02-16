@@ -14,6 +14,7 @@ use Villeon\Library\Collection\Dict;
 use Villeon\Library\Collection\IMutableDict;
 use Villeon\Library\Collection\MList;
 use Villeon\Library\Str;
+use Villeon\Utils\DateUtils\Date;
 use Villeon\Utils\Log;
 
 if (!function_exists('view')) {
@@ -235,5 +236,12 @@ if (!function_exists('class_basename')) {
         $class = is_object($class) ? get_class($class) : $class;
 
         return basename(str_replace('\\', '/', $class));
+    }
+}
+
+if (!function_exists("now")) {
+    function now(): Date
+    {
+        return Date::now();
     }
 }
