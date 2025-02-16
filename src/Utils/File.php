@@ -9,7 +9,7 @@ class File
     private string $name;
     private Path $tmpPath;
     private string $type;
-    public ?Path $savedPath=null;
+    public ?string $savedPath=null;
 
     public function __construct(array $file)
     {
@@ -32,7 +32,7 @@ class File
     {
         $filename = $this->ensureExtension($newName ?? $this->name);
         $targetPath = Path::of($destination)->join($filename);
-        $this->savedPath = $targetPath;
+        $this->savedPath = $filename;
         return move_uploaded_file($this->tmpPath->__toString(), $targetPath->__toString());
     }
 

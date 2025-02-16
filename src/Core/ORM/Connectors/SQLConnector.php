@@ -2,11 +2,14 @@
 
 namespace Villeon\Core\ORM\Connectors;
 
+use http\Exception\RuntimeException;
 use InvalidArgumentException;
 use PDO;
 use PDOException;
+use Throwable;
 use Villeon\Core\ORM\ConnectionWatcher;
 use Villeon\Core\ORM\DBVars;
+use Villeon\Core\ORM\ORM;
 
 class SQLConnector extends Connector
 {
@@ -65,20 +68,31 @@ class SQLConnector extends Connector
     {
         try {
             $this->connect();
-            $this->pdo->beginTransaction();
             $statement = $this->pdo->prepare($query);
             $statement->execute([...$data]);
             return $statement;
         } catch (PDOException $e) {
-            $this->pdo->rollBack();
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
             throw $e;
         }
     }
 
     public function write($qry, $data = []): bool
     {
-        $this->execute($qry, $data);
-        $this->pdo->commit();
-        return true;
+        try {
+            $this->pdo->beginTransaction();
+            $this->execute($qry, $data);
+            if (!ORM::isLive()) {
+                $this->pdo->commit();
+            }
+            return true;
+        } catch (Throwable $e) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            throw new RuntimeException($e->getMessage());
+        }
     }
 }

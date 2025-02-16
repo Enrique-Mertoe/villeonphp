@@ -8,6 +8,7 @@ use RuntimeException;
 use SensitiveParameter;
 use Villeon\Core\ORM\ConnectionWatcher;
 use Villeon\Core\ORM\DBVars;
+use Villeon\Core\ORM\ORM;
 
 abstract class Connector
 {
@@ -15,28 +16,35 @@ abstract class Connector
 
     protected PDO $pdo;
 
+    public function getPdo(): PDO
+    {
+        return $this->pdo;
+    }
+
     protected MySQLConnector|PostGraceConnector|SQLiteConnector $connector;
 
 
     public function connect(): static
     {
-        [$username, $password] = $this->connector->getCredentials();
-
-        try {
-            $this->pdo = $this->createPdoConnection(
-                $this->connector->getDsn(), $username, $password, []
-            );
-            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (Exception $e) {
-            throw new RuntimeException($e->getMessage());
+        if ($pdo = ORM::getPDO()) {
+            $this->pdo = $pdo;
+        } else {
+            $this->pdo = $this->initPDO();
         }
         return $this;
     }
 
-    protected function createPdoConnection($dsn, $username, #[SensitiveParameter] $password, $options): PDO
+    public function initPDO(): PDO
     {
-        return version_compare(phpversion(), '8.4.0', '<')
-            ? new PDO($dsn, $username, $password, $options)
-            : PDO::connect($dsn, $username, $password, $options);
+        try {
+            [$username, $password] = $this->connector->getCredentials();
+            return new PDO($this->connector->getDsn(), $username, $password, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ]);
+        } catch (Exception $e) {
+            throw new RuntimeException("Database connection failed: " . $e->getMessage());
+        }
     }
 }
