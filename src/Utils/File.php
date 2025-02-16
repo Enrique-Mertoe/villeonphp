@@ -9,6 +9,7 @@ class File
     private string $name;
     private Path $tmpPath;
     private string $type;
+    public ?Path $savedPath=null;
 
     public function __construct(array $file)
     {
@@ -22,10 +23,16 @@ class File
         return $this->name;
     }
 
+    public function getSavedPath(): ?Path
+    {
+        return $this->savedPath;
+    }
+
     public function save(string $destination, ?string $newName = null): bool
     {
         $filename = $this->ensureExtension($newName ?? $this->name);
         $targetPath = Path::of($destination)->join($filename);
+        $this->savedPath = $targetPath;
         return move_uploaded_file($this->tmpPath->__toString(), $targetPath->__toString());
     }
 
@@ -112,16 +119,7 @@ class File
 
     private function getFileExtension(): string
     {
-        return match ($this->type) {
-            'image/jpeg' => 'jpg',
-            'image/png' => 'png',
-            'image/gif' => 'gif',
-            'application/pdf' => 'pdf',
-            'application/msword' => 'doc',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
-            'text/plain' => 'txt',
-            default => 'bin'
-        };
+        return Path::of($this->name)->suffix() ?? "bin";
     }
 
     public static function init(): array
