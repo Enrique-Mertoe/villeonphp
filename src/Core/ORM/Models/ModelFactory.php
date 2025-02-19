@@ -152,6 +152,11 @@ class ModelFactory
         $this->query->limit(...$limits);
         return $this;
     }
+    public function offset($offset): static
+    {
+        $this->query->offset($offset);
+        return $this;
+    }
 
     private function fillValues(array $data, object $model): object
     {

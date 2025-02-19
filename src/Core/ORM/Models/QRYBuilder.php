@@ -121,6 +121,12 @@ class QRYBuilder
         return $this;
     }
 
+    public function offset($offset): static
+    {
+        $this->queries["offset"] = $offset;
+        return $this;
+    }
+
     /**
      * @return string
      */
@@ -130,6 +136,7 @@ class QRYBuilder
         $sql .= $this->getFilter();
         $sql .= $this->getOrder();
         $sql .= $this->getLimits();
+        $sql .= $this->getLOffset();
         return preg_replace('/\s+/', " ", $sql);
     }
 
@@ -173,11 +180,21 @@ class QRYBuilder
 
     }
 
+    private function getLOffset(): string
+    {
+
+        if (!$offset = ($this->queries["offset"] ?? [])) {
+            return "";
+        }
+        return " OFFSET $offset ";
+    }
+
     private function getLimits(): string
     {
 
-        if (!$limits = ($this->queries["limit"] ?? []))
+        if (!$limits = ($this->queries["limit"] ?? [])) {
             return "";
+        }
         $limits = array_slice($limits, 0, 2);
         return " LIMIT " . implode(",", $limits);
     }

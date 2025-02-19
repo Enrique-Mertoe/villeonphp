@@ -13,6 +13,7 @@ use Villeon\Core\ORM\OrderMode;
  * @method ModelObj and ($col, $operator = null, $value = null)
  * @method ModelObj orderBy(array|string $columns, OrderMode $direction = null)
  * @method ModelObj limit(int $offset, int $stop = null)
+ * @method ModelObj offset(int $offset)
  * @method first()
  * @method update(array|object $info)
  * @method delete(array|object|null $info)
